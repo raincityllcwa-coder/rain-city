@@ -110,6 +110,9 @@ const {
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(data),
             });
+            if (typeof gtag === 'function') {
+              gtag('event', 'form_submission', { event_category: 'lead', event_label: id });
+            }
             window.location.href = '/thanks';
           } catch (err) {
             console.error('Form error:', err);
