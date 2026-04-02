@@ -1,5 +1,14 @@
 ---
-const faqs = [
+interface FAQ {
+  question: string;
+  answer: string;
+}
+
+interface Props {
+  faqs?: FAQ[];
+}
+
+const fallbackFaqs: FAQ[] = [
   { question: "How long does a kitchen remodel take?", answer: "A typical kitchen remodel takes 6-12 weeks, depending on the scope of work. Minor updates like cabinet refacing or countertop replacement can be completed in 2-4 weeks, while full-scale renovations with layout changes may take 3-4 months." },
   { question: "Do I need permits for a kitchen remodel?", answer: "Yes, most kitchen remodels require permits, especially if you're making structural changes, moving plumbing or electrical, or changing the layout. We handle all permit applications and ensure your project meets local building codes." },
   { question: "What is the most expensive part of a kitchen remodel?", answer: "Cabinetry typically accounts for 30-40% of your kitchen remodel budget. High-quality custom or semi-custom cabinets can significantly impact the overall cost. Other major expenses include countertops, appliances, and labor." },
@@ -8,6 +17,9 @@ const faqs = [
   { question: "Should I reface or replace my kitchen cabinets?", answer: "Cabinet refacing is cost-effective if your existing boxes are structurally sound and you like your current layout (30-50% less than replacement). If you want to change the layout or your cabinets are damaged, full replacement is the better investment." },
   { question: "Do you offer financing options for kitchen remodeling?", answer: "Yes, we partner with trusted financing providers to offer flexible payment plans. We can help you find options that fit your budget, including low-interest loans and special promotional financing." },
 ];
+
+const { faqs: faqsProp } = Astro.props as Props;
+const faqs = faqsProp && faqsProp.length > 0 ? faqsProp : fallbackFaqs;
 ---
 
 <section class="w-full bg-[#f0f0f0] py-12 md:py-16 lg:py-20">

@@ -9,7 +9,7 @@ const { backgroundImage, title, subtitle } = Astro.props;
 
 <section class="relative w-full min-h-[500px] md:min-h-[630px] flex items-center">
   <div class="absolute inset-0">
-    <img src={backgroundImage} alt="" class="w-full h-full object-cover" loading="eager" />
+    <img src={backgroundImage} alt={`${title} - Rain City Kitchen & Bath`} class="w-full h-full object-cover" loading="eager" />
     <div class="absolute inset-0 bg-black/60"></div>
   </div>
   <div class="relative max-w-[1150px] mx-auto px-4 md:px-8 py-8 md:py-[37px] w-full">

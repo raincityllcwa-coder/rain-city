@@ -11,16 +11,75 @@ import ServiceAreaSection from '../components/ServiceAreaSection.astro';
 import WideLeadFormSection from '../components/WideLeadFormSection.astro';
 import ScrollToTop from '../components/ScrollToTop.astro';
 import imgServiceImage from "../assets/527501f2faa6167ff6095e533f6d5997c54352d6.webp";
+
+// ── Sanity ──
+import { getReviews, getProjects, getFAQs } from '../lib/queries';
+import { transformReviews, transformProjects } from '../lib/transforms';
+
+let reviewsData: any[] = [];
+let projectsData: any[] = [];
+let faqsData: any[] = [];
+
+try {
+  const [r, p, f] = await Promise.all([
+    getReviews('kitchen-cabinets'),
+    getProjects('kitchen-cabinets'),
+    getFAQs('kitchen-cabinets'),
+  ]);
+  if (r?.length) reviewsData = transformReviews(r);
+  if (p?.length) projectsData = transformProjects(p);
+  if (f?.length) faqsData = f;
+} catch (e) {
+  console.warn('[Sanity] kitchen-cabinets fetch failed:', e);
+}
+
+// Fallback FAQs for JSON-LD
+const faqItems = faqsData.length > 0 ? faqsData : [
+  { question: "How long does a kitchen remodel take?", answer: "A typical kitchen remodel takes 6-12 weeks, depending on the scope of work. Minor updates like cabinet refacing or countertop replacement can be completed in 2-4 weeks, while full-scale renovations with layout changes may take 3-4 months." },
+  { question: "What is the most expensive part of a kitchen remodel?", answer: "Cabinetry typically accounts for 30-40% of your kitchen remodel budget. High-quality custom or semi-custom cabinets can significantly impact the overall cost. Other major expenses include countertops, appliances, and labor." },
+  { question: "Should I reface or replace my kitchen cabinets?", answer: "Cabinet refacing is cost-effective if your existing boxes are structurally sound and you like your current layout (30-50% less than replacement). If you want to change the layout or your cabinets are damaged, full replacement is the better investment." },
+  { question: "Do you offer financing options for kitchen remodeling?", answer: "Yes, we partner with trusted financing providers to offer flexible payment plans. We can help you find options that fit your budget, including low-interest loans and special promotional financing." },
+];
+
+const jsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": "Kitchen Cabinets Installation",
+    "description": "Custom and standard kitchen cabinet design and installation in Bellevue, Seattle and surrounding areas. Shaker and Flat door styles available.",
+    "provider": {
+      "@type": "LocalBusiness",
+      "name": "Rain City Kitchen & Bath",
+      "telephone": "(253) 466-8709",
+      "address": { "@type": "PostalAddress", "addressLocality": "Bellevue", "addressRegion": "WA" }
+    },
+    "areaServed": "Seattle metropolitan area",
+    "serviceType": "Kitchen Cabinet Installation"
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqItems.map(faq => ({
+      "@type": "Question",
+      "name": faq.question,
+      "acceptedAnswer": { "@type": "Answer", "text": faq.answer }
+    }))
+  }
+];
 ---
 
-<Layout title="Kitchen Cabinets - Custom & Standard Designs | Rain City Kitchen & Bath" description="Professional custom and standard kitchen cabinet installation in Seattle.">
+<Layout
+  title="Kitchen Cabinets - Custom & Standard Designs | Rain City Kitchen & Bath"
+  description="Custom and standard kitchen cabinet installation in Bellevue & Seattle. Shaker, Flat door styles. Free estimate. 5-star rated by 114+ homeowners."
+  jsonLd={jsonLd}
+>
   <ServiceLandingHero backgroundImage={imgServiceImage.src} title="Premium Kitchen Cabinets" subtitle="Transform your kitchen with custom and standard cabinet solutions designed to match your unique style and needs." />
   <ServiceContentSection client:visible title="Premium Cabinet Solutions" paragraphs={["At Rain City Kitchen & Bath, we specialize in both standard and custom cabinets to meet your unique needs. Our clients can choose from a variety of styles and color schemes, with Shaker and Flat door styles being the most popular.","Whether you're looking for a complete kitchen transformation or updating your existing cabinets, our team works closely with you to design and install cabinets that maximize functionality while enhancing the beauty of your space."]} />
-  <ReviewsGridSection client:visible />
-  <ProjectsSection client:visible />
+  <ReviewsGridSection client:visible reviews={reviewsData.length > 0 ? reviewsData : undefined} />
+  <ProjectsSection client:visible projects={projectsData.length > 0 ? projectsData : undefined} />
   <WhyChooseUsSection />
   <OurProcessSection />
-  <FAQSection />
+  <FAQSection faqs={faqsData.length > 0 ? faqsData : undefined} />
   <ServiceAreaSection />
   <WideLeadFormSection />
   <ScrollToTop />

@@ -29,7 +29,7 @@ const additionalServices = [
       {steps.map((step) => (
         <div class="flex flex-col gap-[27px]">
           <div class="flex flex-col lg:flex-row lg:items-start gap-4 lg:gap-[16px]">
-            <img src={step.icon.src} alt="" class="size-[60px] object-cover shrink-0" width="60" height="60" loading="lazy" />
+            <img src={step.icon.src} alt={step.title} class="size-[60px] object-cover shrink-0" width="60" height="60" loading="lazy" />
             <h3 class="font-['Lora'] font-bold text-[20px] lg:text-[22px] text-[#3b350e] flex-1">{step.title}</h3>
           </div>
           <p class="font-['Montserrat'] font-normal text-[16px] text-black">{step.description}</p>

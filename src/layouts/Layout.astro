@@ -7,13 +7,21 @@ interface Props {
   title?: string;
   description?: string;
   preloadImage?: string;
+  ogImage?: string;
+  canonical?: string;
+  jsonLd?: Record<string, any> | Record<string, any>[];
 }
 
 const { 
   title = "Rain City Kitchen & Bath – Bellevue's Top Kitchen & Bath Contractor",
-  description = "Professional kitchen and bathroom remodeling services in the Seattle area.",
-  preloadImage
+  description = "Professional kitchen and bathroom remodeling services in the Seattle area. Custom cabinets, countertops, and expert bathroom design.",
+  preloadImage,
+  ogImage = "https://raincitykb.com/og-default.jpg",
+  canonical,
+  jsonLd,
 } = Astro.props;
+
+const canonicalUrl = canonical || new URL(Astro.url.pathname, Astro.site || 'https://raincitykb.com').toString();
 ---
 
 <!DOCTYPE html>
@@ -23,6 +31,33 @@ const {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
     <title>{title}</title>
+    <link rel="canonical" href={canonicalUrl} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:site_name" content="Rain City Kitchen & Bath" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <!-- Geo -->
+    <meta name="geo.region" content="US-WA" />
+    <meta name="geo.placename" content="Bellevue" />
+
+    {jsonLd && !Array.isArray(jsonLd) && (
+      <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+    )}
+    {jsonLd && Array.isArray(jsonLd) && jsonLd.map(item => (
+      <script type="application/ld+json" set:html={JSON.stringify(item)} />
+    ))}
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&family=Montserrat:wght@400;500;600;700&display=swap" />

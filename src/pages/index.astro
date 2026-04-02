@@ -10,15 +10,59 @@ import LeadFormSection from '../components/LeadFormSection.astro';
 import ScrollToTop from '../components/ScrollToTop.astro';
 import heroImage from '../assets/f54c0cc7231f70cee3cc02ad5edc8c18c5bbbaf6.webp';
 import heroMobile from '../assets/hero-mobile.webp';
+
+const localBusinessJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  "name": "Rain City Kitchen & Bath",
+  "image": "https://raincityllc.com/og-default.jpg",
+  "telephone": "(253) 466-8709",
+  "url": "https://raincityllc.com",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Bellevue",
+    "addressRegion": "WA",
+    "addressCountry": "US"
+  },
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": 47.6101,
+    "longitude": -122.2015
+  },
+  "areaServed": [
+    "Bellevue", "Seattle", "Kirkland", "Redmond", "Sammamish",
+    "Medina", "Newcastle", "Woodinville", "Yarrow Point", "Bothell", "Mercer Island"
+  ],
+  "priceRange": "$$",
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "5.0",
+    "reviewCount": "114"
+  },
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "Kitchen & Bath Services",
+    "itemListElement": [
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Kitchen Cabinets Installation" }},
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Kitchen Countertops Installation" }},
+      { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Bathroom Remodeling" }}
+    ]
+  }
+};
 ---
 
-<Layout preloadImage={heroImage.src}>
+<Layout
+  preloadImage={heroImage.src}
+  title="Rain City Kitchen & Bath – Bellevue's Top Kitchen & Bath Contractor"
+  description="Professional kitchen and bathroom remodeling in Bellevue, Seattle & surrounding areas. Custom cabinets, countertops, expert bathroom design. 5-star rated, 114+ reviews."
+  jsonLd={localBusinessJsonLd}
+>
   <!-- Hero Section - static HTML -->
   <section id="home" class="relative w-full">
     <div class="absolute inset-0 min-h-full">
       <picture>
         <source media="(max-width: 768px)" srcset={heroMobile.src} />
-        <img src={heroImage.src} alt="" class="w-full h-full min-h-full object-cover" fetchpriority="high" decoding="async" />
+        <img src={heroImage.src} alt="Modern kitchen remodel by Rain City Kitchen & Bath" class="w-full h-full min-h-full object-cover" fetchpriority="high" decoding="async" />
       </picture>
       <div class="absolute inset-0 bg-black/60"></div>
     </div>
@@ -28,8 +72,8 @@ import heroMobile from '../assets/hero-mobile.webp';
           <h1 class="font-['Lora'] font-bold text-[28px] md:text-[36px] lg:text-[42px] text-white leading-tight">Transform Your Space with Premium Kitchen & Bath Remodeling</h1>
           <p class="font-['Montserrat'] font-normal text-[16px] md:text-[18px] text-white">Expert craftsmanship and personalized service for your dream renovation</p>
           <div class="flex gap-[7px] items-center justify-center lg:justify-start">
-            <img src="https://cdn.shopify.com/s/files/1/0653/0800/0327/files/Google__G__logo.svg_1.png?v=1775025649" alt="" class="w-[19px] h-[19px]" width="19" height="19" />
-            <img src="https://cdn.shopify.com/s/files/1/0653/0800/0327/files/star_10_6.png?v=1775025700" alt="" class="w-[19px] h-[19px]" width="19" height="19" />
+            <img src="https://cdn.shopify.com/s/files/1/0653/0800/0327/files/Google__G__logo.svg_1.png?v=1775025649" alt="Google" class="w-[19px] h-[19px]" width="19" height="19" />
+            <img src="https://cdn.shopify.com/s/files/1/0653/0800/0327/files/star_10_6.png?v=1775025700" alt="5 star rating" class="w-[19px] h-[19px]" width="19" height="19" />
             <img src="https://cdn.shopify.com/s/files/1/0653/0800/0327/files/star_10_6.png?v=1775025700" alt="" class="w-[19px] h-[19px]" width="19" height="19" />
             <img src="https://cdn.shopify.com/s/files/1/0653/0800/0327/files/star_10_6.png?v=1775025700" alt="" class="w-[19px] h-[19px]" width="19" height="19" />
             <img src="https://cdn.shopify.com/s/files/1/0653/0800/0327/files/star_10_6.png?v=1775025700" alt="" class="w-[19px] h-[19px]" width="19" height="19" />
@@ -37,7 +81,7 @@ import heroMobile from '../assets/hero-mobile.webp';
             <span class="font-['Montserrat'] font-medium text-[16px] text-white/90 ml-2">5.0 (114 reviews)</span>
           </div>
           <div class="flex gap-3 items-center justify-center lg:justify-start mt-1">
-            <img src="https://cdn.shopify.com/s/files/1/0653/0800/0327/files/image_1.png?v=1775025861" alt="" class="w-[90px] h-auto" width="90" height="90" loading="lazy" />
+            <img src="https://cdn.shopify.com/s/files/1/0653/0800/0327/files/image_1.png?v=1775025861" alt="Best Kitchen & Bath Contractor award badge" class="w-[90px] h-auto" width="90" height="90" loading="lazy" />
             <p class="font-['Montserrat'] font-bold text-[18px] text-white">Bellevue's Top Kitchen & Bath Contractor</p>
           </div>
         </div>

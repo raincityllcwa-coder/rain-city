@@ -5,73 +5,62 @@ import imgProjectImage1 from "@/assets/1a9ff41667e1b1a100603f9ba342b2a853274b6f.
 import imgProjectImage2 from "@/assets/e1d045053d612f0796a40f57ca1c648d52fa7407.webp?url";
 import imgMoreButton from "@/assets/3b437988bfed0d43dea56bac02897e2e85c27e71.webp?url";
 
-// Все проекты с дополнительными изображениями для галереи
-const allProjects = [
+// Hardcoded fallback (used when Sanity has no data yet)
+const fallbackProjects = [
   {
     image: imgProjectImage,
     title: "Kitchen in Bellevue",
     description: "Kitchen cabinets design and installation.",
-    gallery: [
-      imgProjectImage,
-      imgProjectImage1,
-      imgProjectImage2,
-    ]
+    gallery: [imgProjectImage, imgProjectImage1, imgProjectImage2],
   },
   {
     image: imgProjectImage1,
     title: "Kitchen in Kirkland",
     description: "Full kitchen renovation, flooring, appliances installation.",
-    gallery: [
-      imgProjectImage1,
-      imgProjectImage,
-      imgProjectImage2,
-    ]
+    gallery: [imgProjectImage1, imgProjectImage, imgProjectImage2],
   },
   {
     image: imgProjectImage2,
     title: "Kitchen in Seattle",
     description: "Kitchen cabinets design and installation, countertop installation.",
-    gallery: [
-      imgProjectImage2,
-      imgProjectImage1,
-      imgProjectImage,
-    ]
+    gallery: [imgProjectImage2, imgProjectImage1, imgProjectImage],
   },
   {
     image: imgProjectImage,
     title: "Bathroom in Redmond",
     description: "Complete bathroom renovation with modern fixtures.",
-    gallery: [
-      imgProjectImage,
-      imgProjectImage2,
-      imgProjectImage1,
-    ]
+    gallery: [imgProjectImage, imgProjectImage2, imgProjectImage1],
   },
   {
     image: imgProjectImage1,
     title: "Kitchen in Sammamish",
     description: "Custom kitchen cabinets and quartz countertops.",
-    gallery: [
-      imgProjectImage1,
-      imgProjectImage,
-      imgProjectImage2,
-    ]
+    gallery: [imgProjectImage1, imgProjectImage, imgProjectImage2],
   },
   {
     image: imgProjectImage2,
     title: "Bathroom in Tacoma",
     description: "Luxury bathroom remodel with heated floors.",
-    gallery: [
-      imgProjectImage2,
-      imgProjectImage,
-      imgProjectImage1,
-    ]
-  }
+    gallery: [imgProjectImage2, imgProjectImage, imgProjectImage1],
+  },
 ];
 
-export function ProjectsSection() {
+interface ProjectItem {
+  image: string;
+  title: string;
+  description: string;
+  gallery: string[];
+}
+
+interface Props {
+  projects?: ProjectItem[];
+}
+
+export function ProjectsSection({ projects }: Props) {
+  const allProjects = projects && projects.length > 0 ? projects : fallbackProjects;
+
   const [visibleCount, setVisibleCount] = useState(6);
-  const [selectedProject, setSelectedProject] = useState<typeof allProjects[0] | null>(null);
+  const [selectedProject, setSelectedProject] = useState<ProjectItem | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const lightboxRef = useRef<HTMLDivElement>(null);
   const touchState = useRef({ startX: 0, startY: 0, swiped: false });
@@ -80,10 +69,10 @@ export function ProjectsSection() {
   const hasMore = visibleCount < allProjects.length;
 
   const handleViewMore = () => {
-    setVisibleCount(prev => Math.min(prev + 3, allProjects.length));
+    setVisibleCount((prev) => Math.min(prev + 3, allProjects.length));
   };
 
-  const openLightbox = (project: typeof allProjects[0]) => {
+  const openLightbox = (project: ProjectItem) => {
     setSelectedProject(project);
     setCurrentImageIndex(0);
   };
@@ -94,17 +83,17 @@ export function ProjectsSection() {
   };
 
   const nextImage = useCallback(() => {
-    setSelectedProject(prev => {
+    setSelectedProject((prev) => {
       if (!prev) return null;
-      setCurrentImageIndex(i => i === prev.gallery.length - 1 ? 0 : i + 1);
+      setCurrentImageIndex((i) => (i === prev.gallery.length - 1 ? 0 : i + 1));
       return prev;
     });
   }, []);
 
   const prevImage = useCallback(() => {
-    setSelectedProject(prev => {
+    setSelectedProject((prev) => {
       if (!prev) return null;
-      setCurrentImageIndex(i => i === 0 ? prev.gallery.length - 1 : i - 1);
+      setCurrentImageIndex((i) => (i === 0 ? prev.gallery.length - 1 : i - 1));
       return prev;
     });
   }, []);
@@ -112,14 +101,16 @@ export function ProjectsSection() {
   // Lock body scroll
   useEffect(() => {
     if (selectedProject) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = '';
+      document.body.style.overflow = "";
     }
-    return () => { document.body.style.overflow = ''; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [selectedProject]);
 
-  // Native touch listeners with { passive: false } — React can't do this
+  // Native touch listeners with { passive: false }
   useEffect(() => {
     const el = lightboxRef.current;
     if (!el) return;
@@ -131,7 +122,7 @@ export function ProjectsSection() {
     };
 
     const onTouchMove = (e: TouchEvent) => {
-      e.preventDefault(); // works because { passive: false }
+      e.preventDefault();
     };
 
     const onTouchEnd = (e: TouchEvent) => {
@@ -147,14 +138,14 @@ export function ProjectsSection() {
       }
     };
 
-    el.addEventListener('touchstart', onTouchStart, { passive: true });
-    el.addEventListener('touchmove', onTouchMove, { passive: false });
-    el.addEventListener('touchend', onTouchEnd, { passive: true });
+    el.addEventListener("touchstart", onTouchStart, { passive: true });
+    el.addEventListener("touchmove", onTouchMove, { passive: false });
+    el.addEventListener("touchend", onTouchEnd, { passive: true });
 
     return () => {
-      el.removeEventListener('touchstart', onTouchStart);
-      el.removeEventListener('touchmove', onTouchMove);
-      el.removeEventListener('touchend', onTouchEnd);
+      el.removeEventListener("touchstart", onTouchStart);
+      el.removeEventListener("touchmove", onTouchMove);
+      el.removeEventListener("touchend", onTouchEnd);
     };
   }, [selectedProject, nextImage, prevImage]);
 
@@ -171,20 +162,19 @@ export function ProjectsSection() {
         <h2 className="font-['Lora'] font-bold text-[28px] md:text-[32px] text-black mb-8 md:mb-11">
           Our Projects
         </h2>
-        
+
         <div className="flex flex-col gap-[52px] items-center">
-          {/* Projects Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-[24px] w-full">
             {visibleProjects.map((project, index) => (
-              <div 
-                key={index} 
+              <div
+                key={index}
                 className="flex flex-col gap-[21px] cursor-pointer"
                 onClick={() => openLightbox(project)}
               >
                 <div className="h-[240px] md:h-[279px] rounded-[5px] overflow-hidden">
-                  <img 
-                    src={project.image} 
-                    alt={project.title} 
+                  <img
+                    src={project.image}
+                    alt={project.title}
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                   />
                 </div>
@@ -198,17 +188,12 @@ export function ProjectsSection() {
             ))}
           </div>
 
-          {/* View More Button */}
           {hasMore && (
-            <button 
+            <button
               onClick={handleViewMore}
               className="bg-white border border-[#989898] rounded-[5px] h-[55px] px-[30px] flex items-center gap-[14px] hover:bg-gray-50 transition-colors"
             >
-              <img 
-                src={imgMoreButton} 
-                alt="" 
-                className="size-[21px] object-cover"
-              />
+              <img src={imgMoreButton} alt="" className="size-[21px] object-cover" />
               <span className="font-['Montserrat'] font-normal text-[16px] text-black">
                 View More
               </span>
@@ -219,12 +204,11 @@ export function ProjectsSection() {
 
       {/* Lightbox */}
       {selectedProject && (
-        <div 
+        <div
           ref={lightboxRef}
           className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
           onClick={handleBackdropClick}
         >
-          {/* Close Button */}
           <button
             onClick={closeLightbox}
             className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors z-10"
@@ -233,13 +217,9 @@ export function ProjectsSection() {
             <X className="w-8 h-8" />
           </button>
 
-          {/* Previous Button */}
           {selectedProject.gallery.length > 1 && (
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                prevImage();
-              }}
+              onClick={(e) => { e.stopPropagation(); prevImage(); }}
               className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 transition-colors z-10"
               aria-label="Previous image"
             >
@@ -247,21 +227,17 @@ export function ProjectsSection() {
             </button>
           )}
 
-          {/* Main Content Container */}
-          <div 
+          <div
             className="relative w-full max-w-6xl flex flex-col items-center gap-4"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Image */}
-            <div className="relative w-full flex items-center justify-center" style={{ maxHeight: 'calc(100vh - 150px)' }}>
+            <div className="relative w-full flex items-center justify-center" style={{ maxHeight: "calc(100vh - 150px)" }}>
               <img
                 src={selectedProject.gallery[currentImageIndex]}
                 alt={`${selectedProject.title} - Image ${currentImageIndex + 1}`}
                 className="max-w-full max-h-full object-contain rounded-lg"
               />
             </div>
-
-            {/* Project Info */}
             <div className="text-center text-white px-4">
               <h3 className="font-['Lora'] font-bold text-xl md:text-2xl mb-2">
                 {selectedProject.title}
@@ -277,13 +253,9 @@ export function ProjectsSection() {
             </div>
           </div>
 
-          {/* Next Button */}
           {selectedProject.gallery.length > 1 && (
             <button
-              onClick={(e) => {
-                e.stopPropagation();
-                nextImage();
-              }}
+              onClick={(e) => { e.stopPropagation(); nextImage(); }}
               className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 transition-colors z-10"
               aria-label="Next image"
             >

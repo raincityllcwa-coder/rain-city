@@ -5,9 +5,51 @@ import { ServiceDetails } from '../components/services/ServiceDetails';
 import ServiceBenefits from '../components/services/ServiceBenefits.astro';
 import ServiceCTA from '../components/services/ServiceCTA.astro';
 import ScrollToTop from '../components/ScrollToTop.astro';
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": "Kitchen & Bathroom Remodeling Services",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "item": {
+        "@type": "Service",
+        "name": "Kitchen Cabinets",
+        "url": "https://raincityllc.com/kitchen-cabinets",
+        "description": "Custom and standard kitchen cabinet design and installation. Shaker and Flat door styles."
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "item": {
+        "@type": "Service",
+        "name": "Kitchen Countertops",
+        "url": "https://raincityllc.com/kitchen-countertops",
+        "description": "Premium quartz, granite, and marble countertop fabrication and installation."
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "item": {
+        "@type": "Service",
+        "name": "Bathroom Remodel",
+        "url": "https://raincityllc.com/bathroom-remodel",
+        "description": "Complete bathroom remodeling with porcelain, natural stone, and glass tile."
+      }
+    }
+  ]
+};
 ---
 
-<Layout title="Our Services - Kitchen & Bathroom Remodeling | Rain City Kitchen & Bath" description="Professional kitchen cabinets, countertop installation, and bathroom remodeling services in the Seattle area.">
+<Layout
+  title="Our Services - Kitchen Cabinets, Countertops & Bathroom Remodeling | Rain City"
+  description="Kitchen cabinets, countertop installation, and bathroom remodeling services in Bellevue, Seattle & surrounding areas. Licensed contractors. Free estimates."
+  jsonLd={jsonLd}
+>
   <ServiceHero />
   <ServiceDetails client:visible />
   <ServiceBenefits />

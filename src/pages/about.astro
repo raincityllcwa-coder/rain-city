@@ -2,9 +2,38 @@
 import Layout from '../layouts/Layout.astro';
 import AboutPageContent from '../components/AboutPageContent';
 import ScrollToTop from '../components/ScrollToTop.astro';
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Rain City Kitchen & Bath",
+  "url": "https://raincityllc.com",
+  "telephone": "(253) 466-8709",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Bellevue",
+    "addressRegion": "WA",
+    "addressCountry": "US"
+  },
+  "founder": {
+    "@type": "Person",
+    "name": "Alex",
+    "jobTitle": "Owner & General Manager"
+  },
+  "description": "Licensed general contractors specializing in kitchen and bathroom remodeling in Seattle metropolitan area.",
+  "knowsAbout": ["Kitchen Remodeling", "Bathroom Remodeling", "Cabinet Installation", "Countertop Installation"],
+  "areaServed": {
+    "@type": "State",
+    "name": "Washington"
+  }
+};
 ---
 
-<Layout title="About Us - Rain City Kitchen & Bath | Bellevue, WA" description="Learn about Rain City Kitchen & Bath.">
+<Layout
+  title="About Us - Rain City Kitchen & Bath | Licensed Contractors in Bellevue, WA"
+  description="Meet Alex, owner of Rain City Kitchen & Bath. Licensed general contractors with expertise in kitchen and bathroom remodeling across Bellevue, Seattle, Kirkland & Redmond. 5-star rated."
+  jsonLd={jsonLd}
+>
   <AboutPageContent client:load />
   <ScrollToTop />
 </Layout>
