@@ -1,0 +1,27 @@
+---
+import Layout from '../layouts/Layout.astro';
+import ServiceLandingHero from '../components/services/ServiceLandingHero.astro';
+import { ServiceContentSection } from '../components/services/ServiceContentSection';
+import { ReviewsGridSection } from '../components/services/ReviewsGridSection';
+import { ProjectsSection } from '../components/ProjectsSection';
+import WhyChooseUsSection from '../components/WhyChooseUsSection.astro';
+import OurProcessSection from '../components/OurProcessSection.astro';
+import FAQSection from '../components/FAQSection.astro';
+import ServiceAreaSection from '../components/ServiceAreaSection.astro';
+import WideLeadFormSection from '../components/WideLeadFormSection.astro';
+import ScrollToTop from '../components/ScrollToTop.astro';
+import imgServiceImage from "../assets/45b63473772ac5eedb2419a124f3a11b4a82ba56.webp";
+---
+
+<Layout title="Kitchen Countertops - Quartz, Granite & Marble | Rain City Kitchen & Bath" description="Premium countertops in quartz, granite, and marble.">
+  <ServiceLandingHero backgroundImage={imgServiceImage.src} title="Premium Kitchen Countertops" subtitle="Enhance your kitchen with premium countertops featuring quartz, granite, and marble in a variety of styles and finishes." />
+  <ServiceContentSection client:visible title="Premium Countertop Materials" paragraphs={["We offer a wide variety of countertop materials, including quartz, granite, and marble, available in different styles, colors, and thicknesses to suit your needs.","Each countertop material offers unique benefits, and our expert team will help you choose the perfect option for your kitchen based on your lifestyle, design preferences, and budget."]} />
+  <ReviewsGridSection client:visible />
+  <ProjectsSection client:visible />
+  <WhyChooseUsSection />
+  <OurProcessSection />
+  <FAQSection />
+  <ServiceAreaSection />
+  <WideLeadFormSection />
+  <ScrollToTop />
+</Layout>

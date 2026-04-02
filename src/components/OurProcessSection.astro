@@ -1,0 +1,34 @@
+---
+import imgEstimateIcon from "@/assets/08c1caf6d9c8451a5c95441d4948ff5e26e0e604.webp";
+import imgStep2Icon from "@/assets/6f6eb3ad4a3535b5ed60d144637537fc32372215.webp";
+import imgStep3Icon from "@/assets/0909620456d5f363791371d9f70bca9287bbdc2f.webp";
+import imgStep4Icon from "@/assets/80944d9fb7978f052d1b645c3165386db175027a.webp";
+
+const steps = [
+  { icon: imgEstimateIcon, title: "Request a Free Estimate", description: "Get a free estimate for your project and get 10% discount." },
+  { icon: imgStep2Icon, title: "Measurements", description: "Our team takes precise measurements of your walls and rooms to ensure accuracy." },
+  { icon: imgStep3Icon, title: "Design and Visualization", description: "We create a detailed project plan and a 3D visualization to help you envision the final result." },
+  { icon: imgStep4Icon, title: "Approval and Execution", description: "Once you approve the project, we handle the purchase and delivery of all materials and begin the work." },
+];
+---
+
+<section class="w-full py-12 md:py-16 lg:py-20 bg-white">
+  <div class="max-w-[1150px] mx-auto px-4 md:px-8">
+    <div class="mb-10 md:mb-12">
+      <h2 class="font-['Lora'] font-bold text-[28px] md:text-[32px] text-black">Our Process</h2>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {steps.map((step) => (
+        <div class="flex flex-col gap-6 items-start">
+          <div class="flex items-center gap-4 w-full">
+            <div class="shrink-0 w-[60px] h-[60px]">
+              <img src={step.icon.src} alt={step.title} class="w-full h-full object-cover" width="60" height="60" loading="lazy" />
+            </div>
+            <h3 class="font-['Lora'] font-bold text-[20px] md:text-[22px] text-[#3b350e] flex-1">{step.title}</h3>
+          </div>
+          <p class="font-['Montserrat'] text-[15px] md:text-[16px] text-black leading-relaxed">{step.description}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

@@ -1,0 +1,17 @@
+<section id="contact" class="w-full py-12 md:py-16 lg:py-20 bg-[#f7f6f1]">
+  <div class="max-w-[1150px] mx-auto px-4 md:px-8">
+    <div class="max-w-[767px]">
+      <h2 class="font-['Lora'] font-semibold text-[24px] md:text-[28px] text-black mb-8 md:mb-[50px]">Request Quote Online and Get 10% Discount!</h2>
+      <form class="flex flex-col gap-[20px] mb-[50px] max-w-[456px]" data-form="lead">
+        <input type="text" name="name" placeholder="Your Name" required class="bg-[#f5f5f5] border border-[#e6e6e6] rounded-[5px] h-[50px] px-[13px] py-[14px] font-['Montserrat'] text-[16px] text-black placeholder:text-[#898989] focus:outline-none focus:border-[#007ec5]" />
+        <input type="tel" name="phone" placeholder="(___) ___-____" required pattern="[0-9()\-\s+]{10,}" minlength="10" title="Enter a valid phone number" class="bg-[#f5f5f5] border border-[#e6e6e6] rounded-[5px] h-[50px] px-[14px] py-[15px] font-['Montserrat'] text-[16px] text-black placeholder:text-[#898989] focus:outline-none focus:border-[#007ec5]" />
+        <textarea name="details" required placeholder="A Few Words About Your Project" class="bg-[#f5f5f5] border border-[#e6e6e6] rounded-[5px] h-[106px] px-[14px] py-[15px] font-['Montserrat'] text-[16px] text-black placeholder:text-[#898989] resize-none focus:outline-none focus:border-[#007ec5]"></textarea>
+      </form>
+      <p class="font-['Montserrat'] font-normal text-[14px] text-[#404040] mb-[50px] max-w-[449px]">We respect your time—no spam or ads, just a free quote and discount for your project if you're interested.</p>
+      <button type="submit" form="lead" class="bg-[#007ec5] border border-[#007ec5] rounded-[5px] h-[50px] w-full md:w-auto md:px-[105px] py-[15px] font-['Montserrat'] font-bold text-[16px] text-white hover:bg-[#006ba8] transition-colors" onclick="this.closest('section').querySelector('form').requestSubmit()" style="min-height:48px">Submit</button>
+      <div class="hidden mt-8" data-success="lead">
+        <p class="font-['Montserrat'] text-[20px] text-[#007ec5] font-semibold">Thank you! We'll contact you soon.</p>
+      </div>
+    </div>
+  </div>
+</section>

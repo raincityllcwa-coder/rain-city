@@ -1,0 +1,96 @@
+---
+import Layout from '../layouts/Layout.astro';
+import ScrollToTop from '../components/ScrollToTop.astro';
+---
+
+<Layout
+  title="Contact Us - Rain City Kitchen & Bath | Bellevue, WA"
+  description="Get in touch with Rain City Kitchen & Bath for a free consultation and estimate on your kitchen or bathroom project."
+>
+  <main class="w-full">
+    <section class="w-full py-12 md:py-16 lg:py-24 bg-[#f7f6f1]">
+      <div class="max-w-[1150px] mx-auto px-4 md:px-8">
+        <div class="text-center mb-8 md:mb-12">
+          <h1 class="font-['Lora'] font-bold text-[28px] md:text-[42px] text-black mb-4">
+            Contact Us
+          </h1>
+          <p class="font-['Montserrat'] text-[16px] md:text-[18px] text-gray-700 max-w-[700px] mx-auto">
+            Get in touch with us for a free consultation and estimate on your kitchen or bathroom project.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12">
+          <div class="flex flex-col gap-8">
+            <!-- Phone -->
+            <div class="bg-white rounded-[12px] p-6 shadow-sm">
+              <div class="flex items-start gap-4">
+                <div class="w-12 h-12 bg-[#007ec5] rounded-full flex items-center justify-center flex-shrink-0">
+                  <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="font-['Montserrat'] font-semibold text-[18px] text-black mb-2">Phone</h3>
+                  <a href="tel:+12534668709" class="font-['Montserrat'] text-[16px] text-[#007ec5] hover:underline">(253) 466-8709</a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Address -->
+            <div class="bg-white rounded-[12px] p-6 shadow-sm">
+              <div class="flex items-start gap-4">
+                <div class="w-12 h-12 bg-[#007ec5] rounded-full flex items-center justify-center flex-shrink-0">
+                  <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="font-['Montserrat'] font-semibold text-[18px] text-black mb-2">Address</h3>
+                  <p class="font-['Montserrat'] text-[16px] text-gray-700">
+                    10900 NE 4th St Unit 2300<br />
+                    Bellevue, WA 98004
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Hours -->
+            <div class="bg-white rounded-[12px] p-6 shadow-sm">
+              <div class="flex items-start gap-4">
+                <div class="w-12 h-12 bg-[#007ec5] rounded-full flex items-center justify-center flex-shrink-0">
+                  <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="font-['Montserrat'] font-semibold text-[18px] text-black mb-2">Business Hours</h3>
+                  <p class="font-['Montserrat'] text-[16px] text-gray-700">
+                    Monday - Friday: 8:00 AM - 6:00 PM<br />
+                    Saturday: 9:00 AM - 4:00 PM<br />
+                    Sunday: Closed
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Google Map -->
+          <div class="bg-white rounded-[12px] overflow-hidden shadow-sm h-[500px] lg:h-full">
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2688.5179429856994!2d-122.20572682349396!3d47.61562997118613!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x54906c8c0f1e9f4f%3A0x2e3d1e4c9c5f2f8e!2s10900%20NE%204th%20St%20Unit%202300%2C%20Bellevue%2C%20WA%2098004!5e0!3m2!1sen!2sus!4v1680000000000!5m2!1sen!2sus"
+              width="100%"
+              height="100%"
+              style="border: 0"
+              allowfullscreen
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+              title="Rain City Kitchen & Bath Location"
+            ></iframe>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <ScrollToTop />
+</Layout>

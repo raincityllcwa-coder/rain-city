@@ -1,0 +1,21 @@
+---
+import Layout from '../layouts/Layout.astro';
+import ServiceLandingHero from '../components/services/ServiceLandingHero.astro';
+import { ServiceContentSection } from '../components/services/ServiceContentSection';
+import { ReviewsGridSection } from '../components/services/ReviewsGridSection';
+import { ProjectsSection } from '../components/ProjectsSection';
+import WhyChooseUsSection from '../components/WhyChooseUsSection.astro';
+import OurProcessSection from '../components/OurProcessSection.astro';
+import ScrollToTop from '../components/ScrollToTop.astro';
+import imgServiceImage from "../assets/2221dd725ae6402fca45a45bd79869231da67ce7.webp";
+---
+
+<Layout title="Bathroom Remodel - Expert Renovation | Rain City Kitchen & Bath" description="Complete bathroom remodeling with porcelain, natural stone, and glass tile.">
+  <ServiceLandingHero backgroundImage={imgServiceImage.src} title="Complete Bathroom Remodeling" subtitle="Transform your bathroom into a luxurious retreat with our comprehensive remodeling services." />
+  <ServiceContentSection client:visible title="Complete Bathroom Transformation" paragraphs={["Transform your bathroom with our high-quality materials, including porcelain tile, natural stone, or glass tile. We offer a wide range of styles and finishes to create the perfect look for your space.","Whether you're looking for a spa-like master bathroom or a functional family bath, our team creates spaces that combine beauty, durability, and practicality."]} />
+  <ReviewsGridSection client:visible />
+  <ProjectsSection client:visible />
+  <WhyChooseUsSection />
+  <OurProcessSection />
+  <ScrollToTop />
+</Layout>

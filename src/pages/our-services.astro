@@ -1,0 +1,16 @@
+---
+import Layout from '../layouts/Layout.astro';
+import ServiceHero from '../components/services/ServiceHero.astro';
+import { ServiceDetails } from '../components/services/ServiceDetails';
+import ServiceBenefits from '../components/services/ServiceBenefits.astro';
+import ServiceCTA from '../components/services/ServiceCTA.astro';
+import ScrollToTop from '../components/ScrollToTop.astro';
+---
+
+<Layout title="Our Services - Kitchen & Bathroom Remodeling | Rain City Kitchen & Bath" description="Professional kitchen cabinets, countertop installation, and bathroom remodeling services in the Seattle area.">
+  <ServiceHero />
+  <ServiceDetails client:visible />
+  <ServiceBenefits />
+  <ServiceCTA />
+  <ScrollToTop />
+</Layout>

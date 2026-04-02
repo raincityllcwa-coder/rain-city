@@ -1,0 +1,27 @@
+---
+import Layout from '../layouts/Layout.astro';
+import ServiceLandingHero from '../components/services/ServiceLandingHero.astro';
+import { ServiceContentSection } from '../components/services/ServiceContentSection';
+import { ReviewsGridSection } from '../components/services/ReviewsGridSection';
+import { ProjectsSection } from '../components/ProjectsSection';
+import WhyChooseUsSection from '../components/WhyChooseUsSection.astro';
+import OurProcessSection from '../components/OurProcessSection.astro';
+import FAQSection from '../components/FAQSection.astro';
+import ServiceAreaSection from '../components/ServiceAreaSection.astro';
+import WideLeadFormSection from '../components/WideLeadFormSection.astro';
+import ScrollToTop from '../components/ScrollToTop.astro';
+import imgServiceImage from "../assets/527501f2faa6167ff6095e533f6d5997c54352d6.webp";
+---
+
+<Layout title="Kitchen Cabinets - Custom & Standard Designs | Rain City Kitchen & Bath" description="Professional custom and standard kitchen cabinet installation in Seattle.">
+  <ServiceLandingHero backgroundImage={imgServiceImage.src} title="Premium Kitchen Cabinets" subtitle="Transform your kitchen with custom and standard cabinet solutions designed to match your unique style and needs." />
+  <ServiceContentSection client:visible title="Premium Cabinet Solutions" paragraphs={["At Rain City Kitchen & Bath, we specialize in both standard and custom cabinets to meet your unique needs. Our clients can choose from a variety of styles and color schemes, with Shaker and Flat door styles being the most popular.","Whether you're looking for a complete kitchen transformation or updating your existing cabinets, our team works closely with you to design and install cabinets that maximize functionality while enhancing the beauty of your space."]} />
+  <ReviewsGridSection client:visible />
+  <ProjectsSection client:visible />
+  <WhyChooseUsSection />
+  <OurProcessSection />
+  <FAQSection />
+  <ServiceAreaSection />
+  <WideLeadFormSection />
+  <ScrollToTop />
+</Layout>

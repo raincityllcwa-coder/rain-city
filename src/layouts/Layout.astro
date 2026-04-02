@@ -1,0 +1,122 @@
+---
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  preloadImage?: string;
+}
+
+const { 
+  title = "Rain City Kitchen & Bath – Bellevue's Top Kitchen & Bath Contractor",
+  description = "Professional kitchen and bathroom remodeling services in the Seattle area.",
+  preloadImage
+} = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&family=Montserrat:wght@400;500;600;700&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&family=Montserrat:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'" />
+    {preloadImage && <link rel="preload" as="image" href={preloadImage} type="image/webp" fetchpriority="high" />}
+
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-PG6EF23FP9" is:inline></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-PG6EF23FP9');
+    </script>
+  </head>
+  <body>
+    <div class="bg-white min-h-screen">
+      <Header />
+      <slot />
+      <Footer />
+    </div>
+
+    <!-- Global form handler with phone validation -->
+    <script>
+      // Phone formatting: auto-add (xxx) xxx-xxxx
+      document.querySelectorAll('input[name="phone"]').forEach(input => {
+        input.addEventListener('input', (e) => {
+          const el = e.target as HTMLInputElement;
+          let digits = el.value.replace(/\D/g, '');
+          if (digits.length > 11) digits = digits.slice(0, 11);
+          if (digits.startsWith('1') && digits.length > 1) digits = digits.slice(1);
+          
+          let formatted = '';
+          if (digits.length > 0) formatted = '(' + digits.slice(0, 3);
+          if (digits.length >= 3) formatted += ') ';
+          if (digits.length > 3) formatted += digits.slice(3, 6);
+          if (digits.length >= 6) formatted += '-';
+          if (digits.length > 6) formatted += digits.slice(6, 10);
+          
+          el.value = formatted;
+        });
+      });
+
+      // Fake number detection
+      function isValidPhone(phone: string): boolean {
+        const digits = phone.replace(/\D/g, '');
+        if (digits.length < 10) return false;
+        const last10 = digits.slice(-10);
+        // Reject all same digit
+        if (/^(\d)\1{9}$/.test(last10)) return false;
+        // Reject sequential
+        if (last10 === '1234567890' || last10 === '0987654321') return false;
+        // Reject 555 prefix (fictional)
+        if (last10.slice(3, 6) === '555') return false;
+        // Reject area code starting with 0 or 1
+        if (last10[0] === '0' || last10[0] === '1') return false;
+        return true;
+      }
+
+      // Form submit handler
+      document.querySelectorAll('form[data-form]').forEach(form => {
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const f = form as HTMLFormElement;
+          const id = f.getAttribute('data-form');
+          const btn = f.querySelector('button[type="submit"]') as HTMLButtonElement;
+          const success = document.querySelector(`[data-success="${id}"]`);
+          const phoneInput = f.querySelector('input[name="phone"]') as HTMLInputElement;
+          
+          if (phoneInput && !isValidPhone(phoneInput.value)) {
+            phoneInput.setCustomValidity('Please enter a valid phone number');
+            phoneInput.reportValidity();
+            setTimeout(() => phoneInput.setCustomValidity(''), 3000);
+            return;
+          }
+
+          const data = Object.fromEntries(new FormData(f));
+          data.source = id;
+
+          if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
+
+          try {
+            await fetch('/api/lead', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(data),
+            });
+            window.location.href = '/thanks';
+          } catch (err) {
+            console.error('Form error:', err);
+            if (btn) { btn.disabled = false; btn.textContent = 'Submit'; }
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

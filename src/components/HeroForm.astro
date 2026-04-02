@@ -1,0 +1,15 @@
+<div class="bg-white rounded-[20px] w-full lg:max-w-[379px] p-6 md:p-10 shadow-xl mt-auto lg:mt-0">
+  <h2 class="font-['Lora'] font-semibold text-[22px] md:text-[28px] text-black text-center mb-5 leading-tight">
+    Request Quote Online<br />and Get 10% Discount!
+  </h2>
+  <form class="flex flex-col gap-5" data-form="hero">
+    <input type="text" name="name" placeholder="Your Name" required class="bg-[#f5f5f5] border border-[#e6e6e6] rounded-[5px] h-[50px] px-[14px] font-['Montserrat'] text-[16px] text-black placeholder:text-[#898989] focus:outline-none focus:border-[#007ec5]" />
+    <input type="tel" name="phone" placeholder="(___) ___-____" required pattern="[0-9()\-\s+]{10,}" minlength="10" title="Enter a valid phone number" class="bg-[#f5f5f5] border border-[#e6e6e6] rounded-[5px] h-[50px] px-[14px] font-['Montserrat'] text-[16px] text-black placeholder:text-[#898989] focus:outline-none focus:border-[#007ec5]" />
+    <textarea name="details" required placeholder="A Few Words About Your Project" class="bg-[#f5f5f5] border border-[#e6e6e6] rounded-[5px] h-[106px] px-[14px] py-[15px] font-['Montserrat'] text-[16px] text-black placeholder:text-[#898989] resize-none focus:outline-none focus:border-[#007ec5]"></textarea>
+    <p class="font-['Montserrat'] font-normal text-[14px] text-[#404040] text-center">We respect your time—no spam or ads, just a free quote and discount for your project if you're interested.</p>
+    <button type="submit" class="bg-[#007ec5] border border-[#007ec5] rounded-[5px] h-[50px] font-['Montserrat'] font-bold text-[16px] text-white hover:bg-[#006ba8] transition-colors">Submit</button>
+  </form>
+  <div class="hidden text-center py-8" data-success="hero">
+    <p class="font-['Montserrat'] text-[20px] text-[#007ec5] font-semibold">Thank you! We'll contact you soon.</p>
+  </div>
+</div>
