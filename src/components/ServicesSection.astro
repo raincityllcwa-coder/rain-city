@@ -8,7 +8,7 @@ import imgKc03 from "@/assets/kitchen-cabinets/kc-03.webp";
 import imgKc04 from "@/assets/kitchen-cabinets/kc-04.webp";
 import imgKc05 from "@/assets/kitchen-cabinets/kc-05.webp";
 
-// Kitchen Countertops — 10 photos for carousel
+// Kitchen Countertops — 10 photos
 import imgCt01 from "@/assets/kitchen-countertops/ct-01.webp";
 import imgCt02 from "@/assets/kitchen-countertops/ct-02.webp";
 import imgCt03 from "@/assets/kitchen-countertops/ct-03.webp";
@@ -24,28 +24,28 @@ import imgCt10 from "@/assets/kitchen-countertops/ct-13.webp";
 import imgBathroom from "@/assets/2221dd725ae6402fca45a45bd79869231da67ce7.webp";
 
 const kitchenCabinetsImages = [
-  imgKc01.src,
-  imgKc02.src,
-  imgKc03.src,
-  imgKc04.src,
-  imgKc05.src,
+  { src: imgKc01.src, alt: "White Shaker kitchen cabinets with gold hardware installed in Bellevue WA" },
+  { src: imgKc02.src, alt: "White kitchen cabinets with double oven and subway tile backsplash" },
+  { src: imgKc03.src, alt: "Modern flat panel kitchen cabinets with quartz countertop installation" },
+  { src: imgKc04.src, alt: "Gray concrete-style kitchen cabinets with pendant lighting Bellevue" },
+  { src: imgKc05.src, alt: "Gray Shaker cabinets with stainless steel appliances kitchen remodel" },
 ];
 
 const kitchenCountertopsImages = [
-  imgCt01.src,
-  imgCt02.src,
-  imgCt03.src,
-  imgCt04.src,
-  imgCt05.src,
-  imgCt06.src,
-  imgCt07.src,
-  imgCt08.src,
-  imgCt09.src,
-  imgCt10.src,
+  { src: imgCt01.src, alt: "Quartz waterfall island countertop in modern kitchen Bellevue WA" },
+  { src: imgCt02.src, alt: "White quartz countertop with waterfall edge and dark cabinets" },
+  { src: imgCt03.src, alt: "Marble-look quartz countertops with gray Shaker cabinets Seattle" },
+  { src: imgCt04.src, alt: "Gray kitchen with quartz island countertop and smart refrigerator" },
+  { src: imgCt05.src, alt: "White quartz countertop island with pendant lights Kirkland WA" },
+  { src: imgCt06.src, alt: "Quartz countertop with arabesque tile backsplash and coffee bar" },
+  { src: imgCt07.src, alt: "Quartz island countertop with bar stools and gold pendant lights" },
+  { src: imgCt08.src, alt: "White Shaker cabinets with marble countertop and island Redmond WA" },
+  { src: imgCt09.src, alt: "Super white quartzite countertop kitchen remodel with dark tile floor" },
+  { src: imgCt10.src, alt: "Gray marble countertop island with fireplace accent wall kitchen renovation" },
 ];
 
 const bathroomRemodelImages = [
-  imgBathroom.src,
+  { src: imgBathroom.src, alt: "Bathroom remodel with modern tile and fixtures Bellevue WA" },
 ];
 
 const services = [
@@ -62,7 +62,7 @@ const services = [
       {services.map((s) => (
         <div class="relative">
           <div class={`flex flex-col ${s.reverse ? 'md:flex-row-reverse' : 'md:flex-row'} gap-6 md:gap-0 items-center`}>
-            <ImageCarousel client:visible images={s.images} alt={s.title} link={s.link} />
+            <ImageCarousel client:visible images={s.images} link={s.link} />
             <div class={`hidden md:block absolute ${s.reverse ? 'left-0' : 'right-0'} top-[24px] w-[676px] h-[393px] rounded-[5px]`} style={`background:${s.bg}`}></div>
             <div class={`w-full md:w-[460px] ${s.reverse ? 'md:mr-[90px]' : 'md:ml-[90px]'} relative z-10 p-6 md:p-0 rounded-[5px] md:rounded-none`} style={`background:${s.bg}`}>
               <h3 class="font-['Lora'] font-bold text-[20px] md:text-[24px] mb-[22px]" style={`color:${s.color}`}>{s.title}</h3>
