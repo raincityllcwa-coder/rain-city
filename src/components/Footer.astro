@@ -1,10 +1,24 @@
 ---
 const year = new Date().getFullYear();
+
+const serviceAreas = [
+  "Bellevue, WA",
+  "Kirkland, WA",
+  "Redmond, WA",
+  "Seattle, WA",
+  "Newcastle, WA",
+  "Woodinville, WA",
+  "Bothell, WA",
+  "Mercer Island, WA",
+  "Yarrow Point, WA",
+  "Medina, WA",
+];
 ---
 
 <footer class="w-full py-8 md:py-12 bg-[#051e2a] text-white">
-  <div class="max-w-[1920px] mx-auto px-4 md:px-8 lg:px-[396px]">
-    <div class="flex flex-col md:flex-row justify-between items-center md:items-start gap-8 md:gap-6">
+  <div class="max-w-[1920px] mx-auto px-4 md:px-8 lg:px-[200px]">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-6">
+      <!-- Brand + Address -->
       <div class="flex flex-col gap-[7px] text-center md:text-left">
         <p class="font-['Lora'] font-bold text-[24px] md:text-[30px] text-white uppercase">
           Rain City
@@ -13,11 +27,23 @@ const year = new Date().getFullYear();
         <p class="font-['Montserrat'] font-normal text-[16px] md:text-[20px] text-white">
           Kitchen & Bath
         </p>
-        <p class="font-['Montserrat'] font-normal text-[12px] md:text-[13px] text-white opacity-60 mt-2 max-w-[220px]">
+        <div class="mt-3">
+          <p class="font-['Montserrat'] font-normal text-[13px] md:text-[14px] text-white opacity-80">
+            10900 NE 4th St Unit 2300
+          </p>
+          <p class="font-['Montserrat'] font-normal text-[13px] md:text-[14px] text-white opacity-80">
+            Bellevue, WA 98004
+          </p>
+          <a href="tel:2534668709" class="font-['Montserrat'] font-medium text-[14px] md:text-[15px] text-white opacity-90 hover:opacity-100 transition-opacity mt-2 inline-block">
+            (253) 466-8709
+          </a>
+        </div>
+        <p class="font-['Montserrat'] font-normal text-[11px] md:text-[12px] text-white opacity-50 mt-2 max-w-[240px]">
           Kitchen remodel & bathroom remodeling services in Bellevue, Seattle, Kirkland & Redmond, WA.
         </p>
       </div>
 
+      <!-- Quick Links -->
       <div class="flex flex-col gap-3 text-center md:text-left">
         <h3 class="font-['Montserrat'] font-semibold text-[16px] md:text-[18px] mb-1">
           Quick Links
@@ -28,6 +54,7 @@ const year = new Date().getFullYear();
         <a href="/contact" class="font-['Montserrat'] font-normal text-[14px] md:text-[16px] opacity-80 hover:opacity-100 transition-opacity">Contact</a>
       </div>
 
+      <!-- Services -->
       <div class="flex flex-col gap-3 text-center md:text-left">
         <h3 class="font-['Montserrat'] font-semibold text-[16px] md:text-[18px] mb-1">
           Services
@@ -37,16 +64,16 @@ const year = new Date().getFullYear();
         <a href="/bathroom-remodel" class="font-['Montserrat'] font-normal text-[14px] md:text-[16px] opacity-80 hover:opacity-100 transition-opacity">Bathroom Remodel</a>
       </div>
 
-      <div class="text-center md:text-right">
-        <p class="font-['Montserrat'] font-medium text-[16px] md:text-[18px] mb-2">
-          Call Us: (253) 466-8709
-        </p>
-        <p class="font-['Montserrat'] font-normal text-[14px] md:text-[16px] opacity-80">
-          Bellevue, WA 98004
-        </p>
-        <p class="font-['Montserrat'] font-normal text-[12px] opacity-60 mt-1">
-          Serving Seattle, Kirkland, Redmond, Sammamish & Eastside
-        </p>
+      <!-- Service Area -->
+      <div class="flex flex-col gap-3 text-center md:text-left">
+        <h3 class="font-['Montserrat'] font-semibold text-[16px] md:text-[18px] mb-1">
+          Service Area
+        </h3>
+        <div class="grid grid-cols-2 gap-x-4 gap-y-1">
+          {serviceAreas.map((city) => (
+            <span class="font-['Montserrat'] font-normal text-[13px] md:text-[14px] opacity-70">{city}</span>
+          ))}
+        </div>
       </div>
     </div>
 
