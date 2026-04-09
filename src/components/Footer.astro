@@ -39,7 +39,7 @@ const serviceAreas = [
             (253) 466-8709
           </a>
         </div>
-        <p class="font-['Montserrat'] font-normal text-[11px] md:text-[12px] text-white opacity-50 mt-2 max-w-[240px]">
+        <p class="font-['Montserrat'] font-normal text-[11px] md:text-[12px] text-white opacity-50 mt-2 max-w-[240px] mx-auto md:mx-0">
           Kitchen remodel & bathroom remodeling services in Bellevue, Seattle, Kirkland & Redmond, WA.
         </p>
       </div>
@@ -66,11 +66,11 @@ const serviceAreas = [
       </div>
 
       <!-- Service Area -->
-      <div class="flex flex-col gap-3 text-center md:text-left">
+      <div class="flex flex-col gap-3 text-center md:text-left items-center md:items-start">
         <h3 class="font-['Montserrat'] font-semibold text-[16px] md:text-[18px] mb-1">
           Service Area
         </h3>
-        <div class="flex flex-col gap-0.5">
+        <div class="flex flex-col gap-0.5 items-center md:items-start">
           {serviceAreas.map((city) => (
             <span class="font-['Montserrat'] font-normal text-[13px] opacity-70 whitespace-nowrap">{city}</span>
           ))}
