@@ -7,7 +7,7 @@ export const sanityClient = createClient({
   projectId: "u2nxf2rv",
   dataset: "production",
   apiVersion: "2024-01-01",
-  useCdn: import.meta.env.PROD, // CDN in production, fresh data in dev
+  useCdn: false, // Static site — always fetch fresh data at build time
 });
 
 const builder = imageUrlBuilder(sanityClient);
