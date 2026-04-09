@@ -220,10 +220,10 @@ export function ProjectsSection({ projects }: Props) {
           {selectedProject.gallery.length > 1 && (
             <button
               onClick={(e) => { e.stopPropagation(); prevImage(); }}
-              className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 transition-colors z-10"
+              className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center w-12 h-12 md:w-16 md:h-16 rounded-full bg-black/40 hover:bg-black/70 text-white transition-colors"
               aria-label="Previous image"
             >
-              <ChevronLeft className="w-8 h-8 md:w-12 md:h-12" />
+              <ChevronLeft className="w-7 h-7 md:w-9 md:h-9" />
             </button>
           )}
 
@@ -256,10 +256,10 @@ export function ProjectsSection({ projects }: Props) {
           {selectedProject.gallery.length > 1 && (
             <button
               onClick={(e) => { e.stopPropagation(); nextImage(); }}
-              className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 transition-colors z-10"
+              className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-10 flex items-center justify-center w-12 h-12 md:w-16 md:h-16 rounded-full bg-black/40 hover:bg-black/70 text-white transition-colors"
               aria-label="Next image"
             >
-              <ChevronRight className="w-8 h-8 md:w-12 md:h-12" />
+              <ChevronRight className="w-7 h-7 md:w-9 md:h-9" />
             </button>
           )}
         </div>
