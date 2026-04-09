@@ -30,6 +30,7 @@ export function ImageCarousel({ images, alt, link, interval = 4000 }: ImageCarou
           key={index}
           src={image}
           alt={`${alt} ${index + 1}`}
+          loading={index === 0 ? "eager" : "lazy"}
           className={`w-full h-full object-cover absolute inset-0 transition-opacity duration-1000 ${
             index === currentIndex ? 'opacity-100' : 'opacity-0'
           }`}
