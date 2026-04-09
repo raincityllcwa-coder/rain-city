@@ -228,14 +228,14 @@ export function ProjectsSection({ projects }: Props) {
           )}
 
           <div
-            className="relative w-full max-w-6xl flex flex-col items-center gap-4"
+            className="relative flex flex-col items-center gap-4"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="relative w-full flex items-center justify-center" style={{ maxHeight: "calc(100vh - 150px)" }}>
+            <div className="flex items-center justify-center">
               <img
                 src={selectedProject.gallery[currentImageIndex]}
                 alt={`${selectedProject.title} - Image ${currentImageIndex + 1}`}
-                className="max-w-full max-h-full object-contain rounded-lg"
+                className="max-w-[90vw] max-h-[80vh] w-auto h-auto object-contain rounded-lg"
               />
             </div>
             <div className="text-center text-white px-4">
