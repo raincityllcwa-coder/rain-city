@@ -1,62 +1,20 @@
 import { X } from "lucide-react";
 import imgStar from "@/assets/fd2b4556742a4d9f3ef6861416c529a4eea6a02c.webp?url";
 
+interface ReviewItem {
+  text: string;
+  author: string;
+  image: string;
+  avatar: string | null;
+}
+
 interface ReviewsModalProps {
   isOpen: boolean;
   onClose: () => void;
+  reviews: ReviewItem[];
 }
 
-export function ReviewsModal({ isOpen, onClose }: ReviewsModalProps) {
-  const allReviews = [
-    {
-      text: "Alex did a phenomenal job on our kitchen remodel!! He works fast and is meticulous. He really cares about the quality of his work and the satisfaction of his clients. We are so pleased with how our cabinets turned out!",
-      author: "Jessee Baldwin",
-      image: "https://lh3.googleusercontent.com/geougc-cs/ABOP9puAoW__oTiEGY6ZeLDuTYSqAe-gvO8-ftLlqSZg0X04HjX6-EDXDxUTzAFwcWsoZuivzJQi1u73jnPk6LlE9ySlx8VJSJElfXlbJiWEvdPiCT2ETqrIE7yGvvfGevBYS81ROulb33MkjLpI=s800-w800-h400-rw",
-      avatar: "https://lh3.googleusercontent.com/a-/ALV-UjU0OBEXbB-sb4fy3hdc2P9tYhCG5HiiG5h91CTo-ha7McvJLUE=w200-h200-p-rp-mo-ba3-br100"
-    },
-    {
-      text: "Exceptional kitchen remodel and general contractor service !!! I rarely bother myself to leave feedbacks, but this guy deserves it. Highly professional and professionalism is in details- that's what this guy delivers . Alex is very positive personality, he is super punctual, intelligent and a very pleasant guy to work with . I wish him all the best in his business and without any hesitation I can recommend him to anyone who is looking high quality at a fair price.",
-      author: "Victor C.",
-      image: "https://lh3.googleusercontent.com/geougc-cs/ABOP9pvUFGv08qC8tPPezn03AA4f_Rn_D2TYcOMDa0pqlMIaR524H2sX-YHH2KFiN6a74pfJ1LIQCz-80m1cLcLUfipYYPEPvee3Wit1TqfxYGDGfOFRSREUlAyscaCyBUE2oNa2g7O3nVtQPisg=s800-w800-h400-rw",
-      avatar: null
-    },
-    {
-      text: "Alexander Biriuk built our kitchen cabinets. The results were spectacular, stunning and completed with such care. Alexander is a pleasure to work with and no surprises.",
-      author: "Jeffrey Lang",
-      image: "https://lh3.googleusercontent.com/geougc-cs/ABOP9ptVDYHT5Vr_k5PUZU8HRjIXZpckIl8GskfK46pIvo5AuZhOjGCIGudEyLCA48WG-CmmPFWZ6glWdzO-uoxzZFqdNUcCijZ3T6UM4S6olUi9Eu1iLzxfzCiNjStZBvAq5bN_xfgn=s800-w800-h400-rw",
-      avatar: "https://lh3.googleusercontent.com/a-/ALV-UjW1Q-Qwa8PGarLPIFJL2Ne1iZgdYp5vQoaIBBNRnHpVc8EfjP-d=w72-h72-p-rp-mo-br100"
-    },
-    {
-      text: "We cannot recommend Alex highly enough! From start to finish, he was an absolute pleasure to work with—professional, detail-oriented, and truly passionate about his craft. He installed our kitchen with such precision and care, making sure every detail was perfect. His expertise, problem-solving skills, and friendly attitude made the entire process smooth and stress-free.",
-      author: "Xenia V.",
-      image: "https://lh3.googleusercontent.com/geougc-cs/ABOP9ptDCeBRqKoavCkcrvltzLyEUQec8WuNrcyERtW54jpiTOiV82uYbDc2hrkMsyMHmPalgyx3zDbIMKFr4sNJLDbxRX8pcnWAYrxLWHzYwTJNIS5Mirbk-1iiCYCH_3Xav1UuR6PXAw=s800-w800-h400-rw",
-      avatar: "https://lh3.googleusercontent.com/a-/ALV-UjX4A-NawzgEDRuXGp02sv7GSlvdLyrAab8GBg44ABpwGDvPSzZq=w72-h72-p-rp-mo-ba3-br100"
-    },
-    {
-      text: "Outstanding work! Alex transformed our dated kitchen into a modern, functional space. His attention to detail and commitment to quality is evident in every aspect of the work. Highly recommend!",
-      author: "Michael R.",
-      image: "https://lh3.googleusercontent.com/geougc-cs/ABOP9puAoW__oTiEGY6ZeLDuTYSqAe-gvO8-ftLlqSZg0X04HjX6-EDXDxUTzAFwcWsoZuivzJQi1u73jnPk6LlE9ySlx8VJSJElfXlbJiWEvdPiCT2ETqrIE7yGvvfGevBYS81ROulb33MkjLpI=s800-w800-h400-rw",
-      avatar: null
-    },
-    {
-      text: "Professional, reliable, and skilled. Alex completed our bathroom remodel on time and within budget. The quality of workmanship exceeded our expectations. We couldn't be happier with the results!",
-      author: "Sarah K.",
-      image: "https://lh3.googleusercontent.com/geougc-cs/ABOP9pvUFGv08qC8tPPezn03AA4f_Rn_D2TYcOMDa0pqlMIaR524H2sX-YHH2KFiN6a74pfJ1LIQCz-80m1cLcLUfipYYPEPvee3Wit1TqfxYGDGfOFRSREUlAyscaCyBUE2oNa2g7O3nVtQPisg=s800-w800-h400-rw",
-      avatar: null
-    },
-    {
-      text: "From the initial consultation to the final installation, everything was handled with utmost professionalism. The quality of the cabinets and the precision of the installation exceeded our expectations.",
-      author: "David M.",
-      image: "https://lh3.googleusercontent.com/geougc-cs/ABOP9ptVDYHT5Vr_k5PUZU8HRjIXZpckIl8GskfK46pIvo5AuZhOjGCIGudEyLCA48WG-CmmPFWZ6glWdzO-uoxzZFqdNUcCijZ3T6UM4S6olUi9Eu1iLzxfzCiNjStZBvAq5bN_xfgn=s800-w800-h400-rw",
-      avatar: null
-    },
-    {
-      text: "Alex was fantastic to work with! He listened to our ideas and provided excellent suggestions. The end result is a beautiful kitchen that we absolutely love.",
-      author: "Jennifer L.",
-      image: "https://lh3.googleusercontent.com/geougc-cs/ABOP9ptDCeBRqKoavCkcrvltzLyEUQec8WuNrcyERtW54jpiTOiV82uYbDc2hrkMsyMHmPalgyx3zDbIMKFr4sNJLDbxRX8pcnWAYrxLWHzYwTJNIS5Mirbk-1iiCYCH_3Xav1UuR6PXAw=s800-w800-h400-rw",
-      avatar: null
-    }
-  ];
+export function ReviewsModal({ isOpen, onClose, reviews: allReviews }: ReviewsModalProps) {
 
   if (!isOpen) return null;
 

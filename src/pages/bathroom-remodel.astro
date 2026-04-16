@@ -9,6 +9,24 @@ import OurProcessSection from '../components/OurProcessSection.astro';
 import ScrollToTop from '../components/ScrollToTop.astro';
 import imgServiceImage from "../assets/2221dd725ae6402fca45a45bd79869231da67ce7.webp";
 
+// ── Sanity ──
+import { getReviews, getProjects } from '../lib/queries';
+import { transformReviews, transformProjects } from '../lib/transforms';
+
+let reviewsData: any[] = [];
+let projectsData: any[] = [];
+
+try {
+  const [r, p] = await Promise.all([
+    getReviews('bathroom-remodel'),
+    getProjects('bathroom-remodel'),
+  ]);
+  if (r?.length) reviewsData = transformReviews(r);
+  if (p?.length) projectsData = transformProjects(p);
+} catch (e) {
+  console.warn('[Sanity] bathroom-remodel fetch failed:', e);
+}
+
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "Service",
@@ -32,8 +50,8 @@ const jsonLd = {
 >
   <ServiceLandingHero backgroundImage={imgServiceImage.src} title="Complete Bathroom Remodeling" subtitle="Transform your bathroom into a luxurious retreat with our comprehensive remodeling services." />
   <ServiceContentSection client:visible title="Complete Bathroom Transformation" paragraphs={["Transform your bathroom with our high-quality materials, including porcelain tile, natural stone, or glass tile. We offer a wide range of styles and finishes to create the perfect look for your space.","Whether you're looking for a spa-like master bathroom or a functional family bath, our team creates spaces that combine beauty, durability, and practicality."]} />
-  <ReviewsGridSection client:visible />
-  <ProjectsSection client:visible />
+  <ReviewsGridSection client:visible reviews={reviewsData.length > 0 ? reviewsData : undefined} />
+  <ProjectsSection client:visible projects={projectsData.length > 0 ? projectsData : undefined} />
   <WhyChooseUsSection />
   <OurProcessSection />
   <ScrollToTop />

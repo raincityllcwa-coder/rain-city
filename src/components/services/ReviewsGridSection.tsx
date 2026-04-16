@@ -126,7 +126,7 @@ export function ReviewsGridSection({ reviews: reviewsProp }: Props) {
         </div>
       </div>
 
-      <ReviewsModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <ReviewsModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} reviews={reviews} />
     </section>
   );
 }
