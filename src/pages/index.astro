@@ -57,8 +57,28 @@ const localBusinessJsonLd = {
   "aggregateRating": {
     "@type": "AggregateRating",
     "ratingValue": "5.0",
-    "reviewCount": "114"
+    "reviewCount": "114",
+    "bestRating": "5",
+    "worstRating": "1",
+    "itemReviewed": {
+      "@type": "LocalBusiness",
+      "name": "Rain City Kitchen & Bath"
+    }
   },
+  "openingHoursSpecification": [
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+      "opens": "08:00",
+      "closes": "18:00"
+    },
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Saturday"],
+      "opens": "09:00",
+      "closes": "15:00"
+    }
+  ],
   "hasOfferCatalog": {
     "@type": "OfferCatalog",
     "name": "Kitchen & Bath Remodeling Services",
