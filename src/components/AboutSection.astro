@@ -2,6 +2,22 @@
 import imgAboutUsImage2 from "@/assets/5b0e63419375cdde3628b20312ffa5c436161724.webp";
 import imgAboutUsImage3 from "@/assets/e5d831ab1e3b9339b9d178cf62be97ce415879aa.webp";
 import imgPlayIcon from "@/assets/7cd184714e63d3e219a376ebd63d6f5096b78d98.webp";
+import { sanityClient, urlFor } from '../lib/sanity';
+
+let photo1 = '';
+let photo2 = '';
+let photo3 = '';
+
+try {
+  const settings = await sanityClient.fetch(
+    `*[_type == "siteSettings"][0]{ aboutPhoto1, aboutPhoto2, aboutPhoto3 }`
+  );
+  if (settings?.aboutPhoto1) photo1 = urlFor(settings.aboutPhoto1).width(1036).format('webp').url();
+  if (settings?.aboutPhoto2) photo2 = urlFor(settings.aboutPhoto2).width(850).format('webp').url();
+  if (settings?.aboutPhoto3) photo3 = urlFor(settings.aboutPhoto3).width(1062).format('webp').url();
+} catch (e) {
+  console.warn('[Sanity] AboutSection fetch failed:', e);
+}
 ---
 
 <section id="about" class="w-full py-12 md:py-16 lg:py-20 bg-[#f7f6f1] rounded-[5px]">
@@ -11,7 +27,11 @@ import imgPlayIcon from "@/assets/7cd184714e63d3e219a376ebd63d6f5096b78d98.webp"
       <!-- Block One -->
       <div class="flex flex-col md:flex-row gap-8 md:gap-[90px] items-center">
         <div class="w-full md:w-[518px] h-[280px] md:h-[350px] rounded-[5px] overflow-hidden shrink-0">
-          <img src="https://lh3.googleusercontent.com/geougc/AF1QipOYbfMXZXKe8jbigDTHpaYOtPyna80bbeyNz6PN=h400" alt="Kitchen renovation project in Bellevue WA" class="w-full h-full object-cover" loading="lazy" />
+          {photo1 ? (
+            <img src={photo1} alt="Kitchen renovation project in Bellevue WA" class="w-full h-full object-cover" loading="lazy" />
+          ) : (
+            <div class="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 text-sm">Upload About Photo 1 in Sanity</div>
+          )}
         </div>
         <div class="font-['Montserrat'] font-normal text-[16px] text-black w-full md:w-[482px]">
           <p class="mb-4">Welcome to Rain City Kitchen & Bath — a trusted kitchen remodeling company based in Bellevue, WA. I'm Alex, the owner and general manager. We know how essential kitchens and bathrooms are to any home — they're spaces where you spend a lot of your time, and they deserve to be perfect. My mission is to deliver the best kitchen remodel in Bellevue and surrounding areas, with top-notch quality within an optimal timeframe.</p>
@@ -22,7 +42,7 @@ import imgPlayIcon from "@/assets/7cd184714e63d3e219a376ebd63d6f5096b78d98.webp"
       <!-- Block Two -->
       <div class="flex flex-col md:flex-row-reverse gap-8 md:gap-[82px] items-center">
         <div class="w-full md:w-[425px] h-[260px] md:h-[319px] rounded-[5px] overflow-hidden shrink-0">
-          <img src={imgAboutUsImage2.src} alt="Licensed general contractors for kitchen renovation Bellevue" class="w-full h-full object-cover" loading="lazy" />
+          <img src={photo2 || imgAboutUsImage2.src} alt="Licensed general contractors for kitchen renovation Bellevue" class="w-full h-full object-cover" loading="lazy" />
         </div>
         <div class="flex flex-col gap-8 md:gap-[48px] w-full md:w-[562px]">
           <h3 class="font-['Lora'] font-bold text-[22px] md:text-[24px] text-[#3b350e]">We are General Contractors</h3>
@@ -36,7 +56,7 @@ import imgPlayIcon from "@/assets/7cd184714e63d3e219a376ebd63d6f5096b78d98.webp"
       <!-- Block Three -->
       <div class="flex flex-col md:flex-row gap-8 md:gap-[45px] items-center">
         <div class="w-full md:w-[531px] h-[300px] md:h-[398px] rounded-[5px] overflow-hidden shrink-0">
-          <img src={imgAboutUsImage3.src} alt="Happy customers after bathroom remodeling in Bellevue" class="w-full h-full object-cover" loading="lazy" />
+          <img src={photo3 || imgAboutUsImage3.src} alt="Happy customers after bathroom remodeling in Bellevue" class="w-full h-full object-cover" loading="lazy" />
         </div>
         <div class="flex flex-col gap-8 md:gap-[46px] w-full md:w-[544px]">
           <h3 class="font-['Lora'] font-bold text-[22px] md:text-[24px] text-[#3b350e]">We Give Unforgettable Emotions</h3>
