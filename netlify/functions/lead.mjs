@@ -73,7 +73,7 @@ async function sendEmail({ name, phone, email, details, source, timestamp }) {
         </table>
       </div>
       <div style="padding: 15px; text-align: center; color: #999; font-size: 12px;">
-        Sent from raincitykb.com lead form
+        Sent from raincityllc.com lead form
       </div>
     </div>
   `;
