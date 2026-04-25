@@ -71,13 +71,17 @@ const canonicalUrl = canonical || new URL(Astro.url.pathname, Astro.site || 'htt
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&family=Montserrat:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'" />
     {preloadImage && <link rel="preload" as="image" href={preloadImage} type="image/webp" fetchpriority="high" />}
 
-    <!-- Google Analytics -->
+    <!-- Google Analytics + Google Ads -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-PG6EF23FP9" is:inline></script>
     <script is:inline>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
       gtag('config', 'G-PG6EF23FP9');
+      gtag('config', 'AW-16698244460');
+      gtag('config', 'AW-16698244460/Xc80CNWpyaAcEOz6q5o-', {
+        'phone_conversion_number': '(253) 466-8709'
+      });
     </script>
   </head>
   <body>
