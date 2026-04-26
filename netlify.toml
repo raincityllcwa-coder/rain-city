@@ -2,14 +2,3 @@
   command = "npm install && npm run build"
   publish = "dist"
   functions = "netlify/functions"
-
-# Disable Netlify's automatic pretty URLs (Astro handles URL format)
-[build.processing.html]
-  pretty_urls = false
-
-# Force redirect trailing slash to no-slash (matches sitemap & canonical)
-[[redirects]]
-  from = "/*/"
-  to = "/:splat"
-  status = 301
-  force = true
