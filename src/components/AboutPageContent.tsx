@@ -70,6 +70,11 @@ export default function AboutPage() {
                   Our capabilities extend to complex renovation projects, including painting, flooring, tiling, and various related tasks. Whether you need a simple upgrade or a comprehensive transformation, we are committed to delivering high-quality workmanship and exceptional results tailored to your needs.
                 </p>
               </div>
+              <div className="mt-6 pt-6 border-t border-gray-200">
+                <p className="font-['Montserrat'] text-[14px] text-gray-600">
+                  Washington State Contractor License: <span className="font-semibold text-black">BIRIUCL808C6</span>
+                </p>
+              </div>
             </div>
           </div>
 
