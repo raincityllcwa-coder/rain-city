@@ -199,6 +199,13 @@ export function ProjectsSection({ projects }: Props) {
               </span>
             </button>
           )}
+
+          <a
+            href="/our-projects"
+            className="font-['Montserrat'] font-semibold text-[16px] text-[#007ec5] hover:underline"
+          >
+            View All Projects →
+          </a>
         </div>
       </div>
 

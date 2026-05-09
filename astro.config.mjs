@@ -27,8 +27,11 @@ export default defineConfig({
         if (/\/(kitchen-cabinets|kitchen-countertops|bathroom-remodel)$/.test(url)) {
           return { ...updated, priority: 0.9, changefreq: 'monthly' };
         }
-        if (/\/our-services$/.test(url)) {
+        if (/\/(our-services|our-projects)$/.test(url)) {
           return { ...updated, priority: 0.8, changefreq: 'monthly' };
+        }
+        if (/\/our-projects\/[^/]+$/.test(url)) {
+          return { ...updated, priority: 0.7, changefreq: 'monthly' };
         }
         if (/\/(about|contact)$/.test(url)) {
           return { ...updated, priority: 0.6, changefreq: 'monthly' };
