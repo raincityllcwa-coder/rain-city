@@ -5,9 +5,37 @@ import { sanityClient } from "./sanity";
 export async function getProjects(page: string) {
   return sanityClient.fetch(
     `*[_type == "project" && $page in showOn] | order(order asc) {
-      _id, title, description, mainImage, gallery
+      _id, title, description, mainImage, gallery, slug
     }`,
     { page },
+  );
+}
+
+// All projects for the /our-projects index page
+export async function getAllProjects() {
+  return sanityClient.fetch(
+    `*[_type == "project" && defined(slug.current)] | order(coalesce(completedYear, 0) desc, order asc) {
+      _id, title, description, mainImage, slug, city, completedYear
+    }`,
+  );
+}
+
+// Single project for /our-projects/[slug]
+export async function getProjectBySlug(slug: string) {
+  return sanityClient.fetch(
+    `*[_type == "project" && slug.current == $slug][0] {
+      _id, title, description, mainImage, gallery, slug, city, completedYear,
+      intro, goals, designDecisions, beforeAfter, resultText,
+      metaTitle, metaDescription
+    }`,
+    { slug },
+  );
+}
+
+// All slugs (for getStaticPaths)
+export async function getAllProjectSlugs() {
+  return sanityClient.fetch(
+    `*[_type == "project" && defined(slug.current)].slug.current`,
   );
 }
 

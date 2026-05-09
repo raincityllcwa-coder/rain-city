@@ -1,0 +1,419 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Header from "../../components/Header.astro";
+import Footer from "../../components/Footer.astro";
+import ScrollToTop from "../../components/ScrollToTop.astro";
+import { getAllProjectSlugs, getProjectBySlug } from "../../lib/queries";
+import { urlFor } from "../../lib/sanity";
+
+export async function getStaticPaths() {
+  const slugs = await getAllProjectSlugs();
+  return slugs.map((slug: string) => ({ params: { slug } }));
+}
+
+const { slug } = Astro.params;
+const project = await getProjectBySlug(slug as string);
+
+if (!project) {
+  return Astro.redirect("/our-projects");
+}
+
+// Determine if this is a full case study (has intro + goals)
+const hasCaseStudy = !!(project.intro && project.goals && project.goals.length > 0);
+
+// Photo distribution algorithm
+// All photos = mainImage + gallery (deduplicated by _key/_ref)
+const allPhotos: any[] = [];
+if (project.mainImage) allPhotos.push(project.mainImage);
+if (project.gallery && Array.isArray(project.gallery)) {
+  for (const g of project.gallery) {
+    allPhotos.push(g);
+  }
+}
+
+// Helper to get image URL at given width
+const img = (src: any, w: number, h?: number) => {
+  let b = urlFor(src).width(w).format("webp");
+  if (h) b = b.height(h).fit("crop");
+  return b.url();
+};
+
+// Auto-distribute photos for case study layout:
+// - First photo: hero (top)
+// - Last photo: closing shot (after "The Result")
+// - Middle photos: split into N equal groups, one per text section
+const heroPhoto = allPhotos[0] || null;
+const closingPhoto = allPhotos.length > 2 ? allPhotos[allPhotos.length - 1] : null;
+const middlePhotos = allPhotos.length > 2 ? allPhotos.slice(1, -1) : allPhotos.slice(1);
+
+// Number of text sections that get a photo group
+// Sections in case study: After "Starting Point", After "Couple Wanted", After "Goals", After Design Decisions, After Result
+const NUM_SECTIONS = 5;
+const photoGroups: any[][] = Array.from({ length: NUM_SECTIONS }, () => []);
+middlePhotos.forEach((photo: any, i: number) => {
+  photoGroups[i % NUM_SECTIONS].push(photo);
+});
+
+// Helper to render a photo group with appropriate grid
+function getGridClass(count: number): string {
+  if (count === 1) return "grid-cols-1";
+  if (count === 2) return "grid-cols-1 md:grid-cols-2";
+  return "grid-cols-1 md:grid-cols-2 lg:grid-cols-3";
+}
+
+// Article JSON-LD
+const articleJsonLd = hasCaseStudy
+  ? {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": project.title,
+      "description": project.metaDescription || project.intro?.slice(0, 160),
+      "image": heroPhoto ? [img(heroPhoto, 1600)] : [],
+      "datePublished": project.completedYear ? `${project.completedYear}-01-01` : undefined,
+      "author": {
+        "@type": "Organization",
+        "name": "Rain City Kitchen & Bath",
+        "url": "https://raincityllc.com",
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Rain City Kitchen & Bath",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://raincityllc.com/og-default.jpg",
+        },
+      },
+      "about": {
+        "@type": "Service",
+        "serviceType": "Kitchen Remodeling",
+        "areaServed": project.city
+          ? { "@type": "Place", "name": project.city }
+          : undefined,
+      },
+    }
+  : null;
+
+const breadcrumbJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://raincityllc.com/" },
+    { "@type": "ListItem", "position": 2, "name": "Projects", "item": "https://raincityllc.com/our-projects" },
+    { "@type": "ListItem", "position": 3, "name": project.title, "item": `https://raincityllc.com/our-projects/${slug}` },
+  ],
+};
+
+const combinedJsonLd = articleJsonLd
+  ? [articleJsonLd, breadcrumbJsonLd]
+  : breadcrumbJsonLd;
+
+const pageTitle = project.metaTitle || `${project.title} | Rain City Kitchen & Bath`;
+const pageDescription = project.metaDescription
+  || (project.intro ? project.intro.slice(0, 160) : project.description)
+  || "";
+---
+
+<Layout
+  title={pageTitle}
+  description={pageDescription}
+  jsonLd={combinedJsonLd}
+  canonical={`https://raincityllc.com/our-projects/${slug}`}
+  ogImage={heroPhoto ? img(heroPhoto, 1200, 630) : undefined}
+>
+  <Header />
+
+  <!-- Breadcrumbs -->
+  <nav class="w-full border-b border-gray-200 bg-[#f7f6f1]" aria-label="Breadcrumb">
+    <div class="max-w-[1150px] mx-auto px-4 md:px-8 py-3">
+      <ol class="flex items-center gap-2 font-['Montserrat'] text-[13px] text-gray-600 flex-wrap">
+        <li><a href="/" class="hover:text-[#007ec5]">Home</a></li>
+        <li class="text-gray-400">/</li>
+        <li><a href="/our-projects" class="hover:text-[#007ec5]">Projects</a></li>
+        <li class="text-gray-400">/</li>
+        <li class="text-gray-900 font-medium truncate max-w-[200px] md:max-w-none">{project.title}</li>
+      </ol>
+    </div>
+  </nav>
+
+  {/* Hero Photo */}
+  {heroPhoto && (
+    <section class="w-full">
+      <div class="max-w-[1150px] mx-auto px-4 md:px-8 pt-8 md:pt-12">
+        <div class="w-full aspect-[16/9] rounded-[5px] overflow-hidden bg-gray-200">
+          <img
+            src={img(heroPhoto, 1600)}
+            alt={project.title}
+            class="w-full h-full object-cover"
+            fetchpriority="high"
+            width="1600"
+            height="900"
+          />
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* Article Header */}
+  <section class="w-full">
+    <div class="max-w-[820px] mx-auto px-4 md:px-8 pt-8 md:pt-10">
+      {hasCaseStudy && (
+        <p class="font-['Montserrat'] text-[14px] text-[#007ec5] font-semibold uppercase tracking-wider mb-4">Featured Project</p>
+      )}
+      <h1 class="font-['Lora'] font-bold text-[32px] md:text-[42px] lg:text-[46px] text-black leading-tight mb-6">
+        {project.title}
+      </h1>
+      {project.description && (
+        <p class="font-['Montserrat'] text-[18px] text-gray-700 leading-relaxed mb-8">
+          {project.description}
+        </p>
+      )}
+
+      {(project.city || project.completedYear) && (
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-6 md:gap-8 py-6 border-t border-b border-gray-200">
+          {project.city && (
+            <div>
+              <p class="font-['Montserrat'] text-[12px] text-gray-500 uppercase tracking-wider mb-1">Location</p>
+              <p class="font-['Montserrat'] font-semibold text-[15px] text-black">{project.city}</p>
+            </div>
+          )}
+          <div>
+            <p class="font-['Montserrat'] text-[12px] text-gray-500 uppercase tracking-wider mb-1">Project Type</p>
+            <p class="font-['Montserrat'] font-semibold text-[15px] text-black">{hasCaseStudy ? "Full Remodel" : "Project"}</p>
+          </div>
+          {project.completedYear && (
+            <div>
+              <p class="font-['Montserrat'] text-[12px] text-gray-500 uppercase tracking-wider mb-1">Completed</p>
+              <p class="font-['Montserrat'] font-semibold text-[15px] text-black">{project.completedYear}</p>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  </section>
+
+  {hasCaseStudy ? (
+    <>
+      {/* CASE STUDY LAYOUT */}
+
+      {/* Section 1: Intro */}
+      <article class="w-full">
+        <div class="max-w-[820px] mx-auto px-4 md:px-8 pt-8 md:pt-12 article-prose">
+          {project.intro && (
+            <div set:html={project.intro.split('\n\n').map((p: string) => `<p>${p.trim()}</p>`).join('')} />
+          )}
+        </div>
+      </article>
+
+      {/* Photo group 1 */}
+      {photoGroups[0].length > 0 && (
+        <section class="w-full my-8 md:my-10">
+          <div class="max-w-[820px] mx-auto px-4 md:px-8">
+            <div class={`grid ${getGridClass(photoGroups[0].length)} gap-4`}>
+              {photoGroups[0].map((p: any, i: number) => (
+                <div class="aspect-[4/3] rounded-[5px] overflow-hidden bg-gray-200">
+                  <img src={img(p, 1000)} alt={`${project.title} photo ${i + 2}`} class="w-full h-full object-cover" loading="lazy" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Section 2: Goals */}
+      {project.goals && project.goals.length > 0 && (
+        <article class="w-full">
+          <div class="max-w-[820px] mx-auto px-4 md:px-8 article-prose">
+            <h2>The Project Goals</h2>
+            <ol>
+              {project.goals.map((g: string) => (<li>{g}</li>))}
+            </ol>
+          </div>
+        </article>
+      )}
+
+      {/* Photo group 2 */}
+      {photoGroups[1].length > 0 && (
+        <section class="w-full my-8 md:my-10">
+          <div class="max-w-[820px] mx-auto px-4 md:px-8">
+            <div class={`grid ${getGridClass(photoGroups[1].length)} gap-4`}>
+              {photoGroups[1].map((p: any, i: number) => (
+                <div class="aspect-[4/3] rounded-[5px] overflow-hidden bg-gray-200">
+                  <img src={img(p, 1000)} alt={`${project.title} photo`} class="w-full h-full object-cover" loading="lazy" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Section 3: Design Decisions */}
+      {project.designDecisions && project.designDecisions.length > 0 && (
+        <article class="w-full">
+          <div class="max-w-[820px] mx-auto px-4 md:px-8 article-prose">
+            <h2>The Design Choices That Made the Space Work</h2>
+            {project.designDecisions.map((d: any, i: number) => (
+              <>
+                <h3>{d.heading}</h3>
+                <div set:html={(d.body || '').split('\n\n').map((p: string) => `<p>${p.trim()}</p>`).join('')} />
+                {/* Distribute remaining photo groups across design decisions */}
+                {i === 0 && photoGroups[2].length > 0 && (
+                  <div class={`grid ${getGridClass(photoGroups[2].length)} gap-4 my-8`}>
+                    {photoGroups[2].map((p: any) => (
+                      <div class="aspect-[4/3] rounded-[5px] overflow-hidden bg-gray-200">
+                        <img src={img(p, 1000)} alt={`${project.title} photo`} class="w-full h-full object-cover" loading="lazy" />
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {i === Math.floor(project.designDecisions.length / 2) && photoGroups[3].length > 0 && (
+                  <div class={`grid ${getGridClass(photoGroups[3].length)} gap-4 my-8`}>
+                    {photoGroups[3].map((p: any) => (
+                      <div class="aspect-[4/3] rounded-[5px] overflow-hidden bg-gray-200">
+                        <img src={img(p, 1000)} alt={`${project.title} photo`} class="w-full h-full object-cover" loading="lazy" />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
+            ))}
+          </div>
+        </article>
+      )}
+
+      {/* Before/After Table */}
+      {project.beforeAfter && project.beforeAfter.length > 0 && (
+        <section class="w-full bg-[#f7f6f1] py-12 md:py-16 my-12 md:my-16">
+          <div class="max-w-[1000px] mx-auto px-4 md:px-8">
+            <h2 class="font-['Lora'] font-bold text-[28px] md:text-[32px] text-black mb-8 text-center">What We Replaced and Upgraded</h2>
+            <div class="bg-white rounded-[5px] overflow-hidden border border-gray-200">
+              <div class="overflow-x-auto">
+                <table class="w-full font-['Montserrat'] text-[14px] md:text-[15px]">
+                  <thead>
+                    <tr class="bg-[#3b350e] text-white">
+                      <th class="text-left p-4 font-semibold">Item</th>
+                      <th class="text-left p-4 font-semibold">Before</th>
+                      <th class="text-left p-4 font-semibold">After</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-gray-200">
+                    {project.beforeAfter.map((row: any, i: number) => (
+                      <tr class={i % 2 === 1 ? "bg-gray-50" : ""}>
+                        <td class="p-4 font-semibold">{row.item}</td>
+                        <td class="p-4 text-gray-600">{row.before}</td>
+                        <td class="p-4">{row.after}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Section 4: Result */}
+      {project.resultText && (
+        <article class="w-full">
+          <div class="max-w-[820px] mx-auto px-4 md:px-8 article-prose">
+            <h2>The Result</h2>
+            <div set:html={project.resultText.split('\n\n').map((p: string) => `<p>${p.trim()}</p>`).join('')} />
+          </div>
+        </article>
+      )}
+
+      {/* Photo group 5 + closing photo */}
+      {photoGroups[4].length > 0 && (
+        <section class="w-full my-8 md:my-10">
+          <div class="max-w-[820px] mx-auto px-4 md:px-8">
+            <div class={`grid ${getGridClass(photoGroups[4].length)} gap-4`}>
+              {photoGroups[4].map((p: any) => (
+                <div class="aspect-[4/3] rounded-[5px] overflow-hidden bg-gray-200">
+                  <img src={img(p, 1000)} alt={`${project.title} photo`} class="w-full h-full object-cover" loading="lazy" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {closingPhoto && (
+        <section class="w-full">
+          <div class="max-w-[820px] mx-auto px-4 md:px-8 my-10">
+            <div class="w-full aspect-[16/10] rounded-[5px] overflow-hidden bg-gray-200">
+              <img src={img(closingPhoto, 1400)} alt={`${project.title} final photo`} class="w-full h-full object-cover" loading="lazy" width="1400" height="875" />
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* CTA Section */}
+      <section class="w-full bg-[#3b350e] py-12 md:py-16 mt-12 md:mt-16">
+        <div class="max-w-[820px] mx-auto px-4 md:px-8 text-center">
+          <h2 class="font-['Lora'] font-bold text-[28px] md:text-[36px] text-white mb-4 leading-tight">
+            Thinking About a Kitchen or Bathroom Remodel?
+          </h2>
+          <p class="font-['Montserrat'] text-[16px] md:text-[18px] text-white/85 leading-relaxed mb-8 max-w-[640px] mx-auto">
+            Rain City Kitchen & Bath serves Seattle, Bellevue, Kirkland, Redmond, and the surrounding Eastside. Free in-home consultation, no obligation.
+          </p>
+          <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="/contact" class="inline-flex items-center justify-center bg-[#007ec5] hover:bg-[#006ba8] text-white font-['Montserrat'] font-bold text-[16px] px-8 py-4 rounded-[5px] transition-colors">
+              Get Your Free Estimate
+            </a>
+            <a href="/our-projects" class="inline-flex items-center justify-center bg-transparent hover:bg-white/10 text-white border border-white/40 font-['Montserrat'] font-semibold text-[16px] px-8 py-4 rounded-[5px] transition-colors">
+              See More Projects
+            </a>
+          </div>
+          <p class="font-['Montserrat'] text-[13px] text-white/60 mt-8">
+            Licensed and insured · WA Contractor License #BIRIUCL808C6
+          </p>
+        </div>
+      </section>
+    </>
+  ) : (
+    <>
+      {/* GALLERY-ONLY LAYOUT (project without case study text) */}
+      {middlePhotos.length > 0 && (
+        <section class="w-full">
+          <div class="max-w-[1150px] mx-auto px-4 md:px-8 py-10 md:py-12">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+              {middlePhotos.map((p: any, i: number) => (
+                <div class="aspect-[4/3] rounded-[5px] overflow-hidden bg-gray-200">
+                  <img src={img(p, 800, 600)} alt={`${project.title} photo ${i + 2}`} class="w-full h-full object-cover" loading="lazy" width="800" height="600" />
+                </div>
+              ))}
+              {closingPhoto && (
+                <div class="aspect-[4/3] rounded-[5px] overflow-hidden bg-gray-200">
+                  <img src={img(closingPhoto, 800, 600)} alt={`${project.title} final photo`} class="w-full h-full object-cover" loading="lazy" width="800" height="600" />
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
+
+      <section class="w-full bg-[#f7f6f1] py-12 md:py-16">
+        <div class="max-w-[820px] mx-auto px-4 md:px-8 text-center">
+          <a href="/our-projects" class="inline-flex items-center gap-2 font-['Montserrat'] font-semibold text-[16px] text-[#007ec5] hover:underline">
+            ← Back to All Projects
+          </a>
+        </div>
+      </section>
+    </>
+  )}
+
+  <Footer />
+  <ScrollToTop />
+</Layout>
+
+<style is:global>
+  .article-prose p { font-size: 16px; line-height: 1.7; color: #1a1a1a; margin-bottom: 1.25em; font-family: 'Montserrat', sans-serif; }
+  .article-prose h2 { font-family: 'Lora', serif; font-weight: 700; font-size: 28px; color: #3b350e; margin-top: 2.5em; margin-bottom: 0.8em; line-height: 1.25; }
+  .article-prose h3 { font-family: 'Lora', serif; font-weight: 700; font-size: 22px; color: #3b350e; margin-top: 2em; margin-bottom: 0.6em; }
+  .article-prose ol { counter-reset: list-counter; padding-left: 0; margin: 1.5em 0; list-style: none; }
+  .article-prose ol li { counter-increment: list-counter; position: relative; padding-left: 2.5rem; margin-bottom: 0.85em; font-size: 16px; line-height: 1.6; font-family: 'Montserrat', sans-serif; }
+  .article-prose ol li::before { content: counter(list-counter); position: absolute; left: 0; top: 0; width: 1.75rem; height: 1.75rem; background: #007ec5; color: white; border-radius: 9999px; display: flex; align-items: center; justify-content: center; font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 13px; }
+  @media (max-width: 768px) {
+    .article-prose h2 { font-size: 24px; }
+    .article-prose h3 { font-size: 20px; }
+  }
+</style>
