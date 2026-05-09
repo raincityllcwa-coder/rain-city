@@ -21,7 +21,8 @@ const {
   jsonLd,
 } = Astro.props;
 
-const canonicalUrl = canonical || new URL(Astro.url.pathname, Astro.site || 'https://raincityllc.com').toString();
+const cleanPath = Astro.url.pathname.replace(/\.html$/, '').replace(/\/index$/, '/');
+const canonicalUrl = canonical || new URL(cleanPath, Astro.site || 'https://raincityllc.com').toString();
 ---
 
 <!DOCTYPE html>
