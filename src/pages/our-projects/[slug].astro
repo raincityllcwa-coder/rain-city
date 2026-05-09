@@ -1,8 +1,5 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import Header from "../../components/Header.astro";
-import Footer from "../../components/Footer.astro";
-import ScrollToTop from "../../components/ScrollToTop.astro";
 import { getAllProjectSlugs, getProjectBySlug } from "../../lib/queries";
 import { urlFor } from "../../lib/sanity";
 
@@ -120,8 +117,6 @@ const pageDescription = project.metaDescription
   canonical={`https://raincityllc.com/our-projects/${slug}`}
   ogImage={heroPhoto ? img(heroPhoto, 1200, 630) : undefined}
 >
-  <Header />
-
   <!-- Breadcrumbs -->
   <nav class="w-full border-b border-gray-200 bg-[#f7f6f1]" aria-label="Breadcrumb">
     <div class="max-w-[1150px] mx-auto px-4 md:px-8 py-3">
@@ -401,8 +396,6 @@ const pageDescription = project.metaDescription
     </>
   )}
 
-  <Footer />
-  <ScrollToTop />
 </Layout>
 
 <style is:global>
