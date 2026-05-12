@@ -258,14 +258,14 @@ const pageDescription = project.metaDescription
         </article>
       )}
 
-      {/* Photos after Design Decisions */}
+      {/* Photos after Design Decisions: magazine-style asymmetric layout */}
       {project.designDecisionsPhotos && project.designDecisionsPhotos.length > 0 && (
-        <section class="w-full my-8 md:my-10">
-          <div class="max-w-[1000px] mx-auto px-4 md:px-8">
-            <div class={`grid ${gridColsFor(project.designDecisionsPhotos.length)} gap-4 md:gap-5`}>
+        <section class="w-full my-10 md:my-14">
+          <div class="max-w-[1150px] mx-auto px-4 md:px-8">
+            <div class="magazine-grid">
               {project.designDecisionsPhotos.map((p: any, i: number) => (
-                <div class="aspect-[4/3] rounded-[5px] overflow-hidden bg-gray-200">
-                  <img src={img(p, 900)} alt={`${project.title} construction photo ${i + 1}`} class="w-full h-full object-cover" loading="lazy" />
+                <div class="rounded-[5px] overflow-hidden bg-gray-200">
+                  <img src={img(p, 1200)} alt={`${project.title} construction photo ${i + 1}`} class="w-full h-full object-cover" loading="lazy" />
                 </div>
               ))}
             </div>
@@ -414,5 +414,52 @@ const pageDescription = project.metaDescription
   @media (max-width: 768px) {
     .article-prose h2 { font-size: 24px; }
     .article-prose h3 { font-size: 20px; }
+  }
+
+  /*
+   * Magazine-style grid for the "Photos: After Design Decisions" block.
+   * Cycle of 5 photos on a 6-column grid (desktop):
+   *   - 1st photo (5n+1): big featured, spans 4 cols x 2 rows
+   *   - 2nd photo (5n+2): right-top, spans 2 cols x 1 row
+   *   - 3rd photo (5n+3): right-bottom, spans 2 cols x 1 row
+   *   - 4th photo (5n+4): wide bottom-left, spans 3 cols x 1 row
+   *   - 5th photo (5n+5): wide bottom-right, spans 3 cols x 1 row
+   * Mobile (under 640px) collapses to a plain 2-column grid for readability.
+   * Tablet (640-1023px) reduces to a simpler 4-col pattern.
+   */
+  .magazine-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-auto-rows: 130px;
+    gap: 10px;
+  }
+  .magazine-grid > * {
+    grid-column: span 1;
+    grid-row: span 1;
+  }
+  @media (min-width: 640px) {
+    .magazine-grid {
+      grid-template-columns: repeat(4, 1fr);
+      grid-auto-rows: 160px;
+      grid-auto-flow: dense;
+      gap: 14px;
+    }
+    .magazine-grid > *:nth-child(5n+1) { grid-column: span 3; grid-row: span 2; }
+    .magazine-grid > *:nth-child(5n+2) { grid-column: span 1; grid-row: span 1; }
+    .magazine-grid > *:nth-child(5n+3) { grid-column: span 1; grid-row: span 1; }
+    .magazine-grid > *:nth-child(5n+4) { grid-column: span 2; grid-row: span 1; }
+    .magazine-grid > *:nth-child(5n+5) { grid-column: span 2; grid-row: span 1; }
+  }
+  @media (min-width: 1024px) {
+    .magazine-grid {
+      grid-template-columns: repeat(6, 1fr);
+      grid-auto-rows: 200px;
+      gap: 16px;
+    }
+    .magazine-grid > *:nth-child(5n+1) { grid-column: span 4; grid-row: span 2; }
+    .magazine-grid > *:nth-child(5n+2) { grid-column: span 2; grid-row: span 1; }
+    .magazine-grid > *:nth-child(5n+3) { grid-column: span 2; grid-row: span 1; }
+    .magazine-grid > *:nth-child(5n+4) { grid-column: span 3; grid-row: span 1; }
+    .magazine-grid > *:nth-child(5n+5) { grid-column: span 3; grid-row: span 1; }
   }
 </style>
