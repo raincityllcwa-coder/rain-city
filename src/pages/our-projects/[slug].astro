@@ -36,28 +36,11 @@ const img = (src: any, w: number, h?: number) => {
   return b.url();
 };
 
-// Auto-distribute photos for case study layout:
-// - First photo: hero (top)
-// - Last photo: closing shot (after "The Result")
-// - Middle photos: split into N equal groups, one per text section
+// Photo layout:
+// - First photo: hero (full-width, top of page)
+// - Every other photo: gallery grid at the end, in upload order, no cap
 const heroPhoto = allPhotos[0] || null;
-const closingPhoto = allPhotos.length > 2 ? allPhotos[allPhotos.length - 1] : null;
-const middlePhotos = allPhotos.length > 2 ? allPhotos.slice(1, -1) : allPhotos.slice(1);
-
-// Number of text sections that get a photo group
-// Sections in case study: After "Starting Point", After "Couple Wanted", After "Goals", After Design Decisions, After Result
-const NUM_SECTIONS = 5;
-const photoGroups: any[][] = Array.from({ length: NUM_SECTIONS }, () => []);
-middlePhotos.forEach((photo: any, i: number) => {
-  photoGroups[i % NUM_SECTIONS].push(photo);
-});
-
-// Helper to render a photo group with appropriate grid
-function getGridClass(count: number): string {
-  if (count === 1) return "grid-cols-1";
-  if (count === 2) return "grid-cols-1 md:grid-cols-2";
-  return "grid-cols-1 md:grid-cols-2 lg:grid-cols-3";
-}
+const galleryPhotos = allPhotos.slice(1);
 
 // Article JSON-LD
 const articleJsonLd = hasCaseStudy
@@ -200,21 +183,6 @@ const pageDescription = project.metaDescription
         </div>
       </article>
 
-      {/* Photo group 1 */}
-      {photoGroups[0].length > 0 && (
-        <section class="w-full my-8 md:my-10">
-          <div class="max-w-[820px] mx-auto px-4 md:px-8">
-            <div class={`grid ${getGridClass(photoGroups[0].length)} gap-4`}>
-              {photoGroups[0].map((p: any, i: number) => (
-                <div class="aspect-[4/3] rounded-[5px] overflow-hidden bg-gray-200">
-                  <img src={img(p, 1000)} alt={`${project.title} photo ${i + 2}`} class="w-full h-full object-cover" loading="lazy" />
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
       {/* Section 2: Goals */}
       {project.goals && project.goals.length > 0 && (
         <article class="w-full">
@@ -227,49 +195,15 @@ const pageDescription = project.metaDescription
         </article>
       )}
 
-      {/* Photo group 2 */}
-      {photoGroups[1].length > 0 && (
-        <section class="w-full my-8 md:my-10">
-          <div class="max-w-[820px] mx-auto px-4 md:px-8">
-            <div class={`grid ${getGridClass(photoGroups[1].length)} gap-4`}>
-              {photoGroups[1].map((p: any, i: number) => (
-                <div class="aspect-[4/3] rounded-[5px] overflow-hidden bg-gray-200">
-                  <img src={img(p, 1000)} alt={`${project.title} photo`} class="w-full h-full object-cover" loading="lazy" />
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
       {/* Section 3: Design Decisions */}
       {project.designDecisions && project.designDecisions.length > 0 && (
         <article class="w-full">
           <div class="max-w-[820px] mx-auto px-4 md:px-8 article-prose">
             <h2>The Design Choices That Made the Space Work</h2>
-            {project.designDecisions.map((d: any, i: number) => (
+            {project.designDecisions.map((d: any) => (
               <>
                 <h3>{d.heading}</h3>
                 <div set:html={(d.body || '').split('\n\n').map((p: string) => `<p>${p.trim()}</p>`).join('')} />
-                {/* Distribute remaining photo groups across design decisions */}
-                {i === 0 && photoGroups[2].length > 0 && (
-                  <div class={`grid ${getGridClass(photoGroups[2].length)} gap-4 my-8`}>
-                    {photoGroups[2].map((p: any) => (
-                      <div class="aspect-[4/3] rounded-[5px] overflow-hidden bg-gray-200">
-                        <img src={img(p, 1000)} alt={`${project.title} photo`} class="w-full h-full object-cover" loading="lazy" />
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {i === Math.floor(project.designDecisions.length / 2) && photoGroups[3].length > 0 && (
-                  <div class={`grid ${getGridClass(photoGroups[3].length)} gap-4 my-8`}>
-                    {photoGroups[3].map((p: any) => (
-                      <div class="aspect-[4/3] rounded-[5px] overflow-hidden bg-gray-200">
-                        <img src={img(p, 1000)} alt={`${project.title} photo`} class="w-full h-full object-cover" loading="lazy" />
-                      </div>
-                    ))}
-                  </div>
-                )}
               </>
             ))}
           </div>
@@ -317,26 +251,16 @@ const pageDescription = project.metaDescription
         </article>
       )}
 
-      {/* Photo group 5 + closing photo */}
-      {photoGroups[4].length > 0 && (
-        <section class="w-full my-8 md:my-10">
-          <div class="max-w-[820px] mx-auto px-4 md:px-8">
-            <div class={`grid ${getGridClass(photoGroups[4].length)} gap-4`}>
-              {photoGroups[4].map((p: any) => (
+      {/* Gallery: all remaining photos in upload order, no cap */}
+      {galleryPhotos.length > 0 && (
+        <section class="w-full mt-10 md:mt-14">
+          <div class="max-w-[1150px] mx-auto px-4 md:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+              {galleryPhotos.map((p: any, i: number) => (
                 <div class="aspect-[4/3] rounded-[5px] overflow-hidden bg-gray-200">
-                  <img src={img(p, 1000)} alt={`${project.title} photo`} class="w-full h-full object-cover" loading="lazy" />
+                  <img src={img(p, 1000)} alt={`${project.title} photo ${i + 2}`} class="w-full h-full object-cover" loading="lazy" />
                 </div>
               ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {closingPhoto && (
-        <section class="w-full">
-          <div class="max-w-[820px] mx-auto px-4 md:px-8 my-10">
-            <div class="w-full aspect-[16/10] rounded-[5px] overflow-hidden bg-gray-200">
-              <img src={img(closingPhoto, 1400)} alt={`${project.title} final photo`} class="w-full h-full object-cover" loading="lazy" width="1400" height="875" />
             </div>
           </div>
         </section>
@@ -368,20 +292,15 @@ const pageDescription = project.metaDescription
   ) : (
     <>
       {/* GALLERY-ONLY LAYOUT (project without case study text) */}
-      {middlePhotos.length > 0 && (
+      {galleryPhotos.length > 0 && (
         <section class="w-full">
           <div class="max-w-[1150px] mx-auto px-4 md:px-8 py-10 md:py-12">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-              {middlePhotos.map((p: any, i: number) => (
+              {galleryPhotos.map((p: any, i: number) => (
                 <div class="aspect-[4/3] rounded-[5px] overflow-hidden bg-gray-200">
                   <img src={img(p, 800, 600)} alt={`${project.title} photo ${i + 2}`} class="w-full h-full object-cover" loading="lazy" width="800" height="600" />
                 </div>
               ))}
-              {closingPhoto && (
-                <div class="aspect-[4/3] rounded-[5px] overflow-hidden bg-gray-200">
-                  <img src={img(closingPhoto, 800, 600)} alt={`${project.title} final photo`} class="w-full h-full object-cover" loading="lazy" width="800" height="600" />
-                </div>
-              )}
             </div>
           </div>
         </section>
