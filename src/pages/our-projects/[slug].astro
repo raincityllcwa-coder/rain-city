@@ -19,16 +19,6 @@ if (!project) {
 // Determine if this is a full case study (has intro + goals)
 const hasCaseStudy = !!(project.intro && project.goals && project.goals.length > 0);
 
-// Photo distribution algorithm
-// All photos = mainImage + gallery (deduplicated by _key/_ref)
-const allPhotos: any[] = [];
-if (project.mainImage) allPhotos.push(project.mainImage);
-if (project.gallery && Array.isArray(project.gallery)) {
-  for (const g of project.gallery) {
-    allPhotos.push(g);
-  }
-}
-
 // Helper to get image URL at given width
 const img = (src: any, w: number, h?: number) => {
   let b = urlFor(src).width(w).format("webp");
@@ -37,10 +27,18 @@ const img = (src: any, w: number, h?: number) => {
 };
 
 // Photo layout:
-// - First photo: hero (full-width, top of page)
-// - Every other photo: gallery grid at the end, in upload order, no cap
-const heroPhoto = allPhotos[0] || null;
-const galleryPhotos = allPhotos.slice(1);
+// - mainImage = hero, rendered full-width at top
+// - introPhotos / goalsPhotos / designDecisionsPhotos / beforeAfterPhotos =
+//   process-photo groups, rendered immediately after their matching text section
+// - finalGallery = showcase gallery of finished space, rendered at the very end
+// - If finalGallery is empty, fall back to `gallery` (legacy field, also used
+//   by services pages) so existing projects without the new field still show
+//   their finished photos at the end.
+const heroPhoto = project.mainImage || null;
+const finalGalleryPhotos =
+  (project.finalGallery && project.finalGallery.length > 0)
+    ? project.finalGallery
+    : (project.gallery && project.gallery.length > 0 ? project.gallery : []);
 
 // Render a text field as paragraphs (blank lines = paragraph breaks).
 // Returns an HTML string for use with set:html. Empty input returns empty string.
@@ -53,6 +51,13 @@ const paragraphs = (text: string | null | undefined): string => {
     .map((p) => `<p>${p}</p>`)
     .join("");
 };
+
+// Pick a grid that doesn't look lonely for 1-2 photos and doesn't get cramped for 3+.
+function gridColsFor(count: number): string {
+  if (count === 1) return "grid-cols-1 max-w-[820px] mx-auto";
+  if (count === 2) return "grid-cols-1 md:grid-cols-2";
+  return "grid-cols-1 md:grid-cols-2 lg:grid-cols-3";
+}
 
 // Article JSON-LD
 const articleJsonLd = hasCaseStudy
@@ -193,6 +198,21 @@ const pageDescription = project.metaDescription
         </div>
       </article>
 
+      {/* Photos after Intro */}
+      {project.introPhotos && project.introPhotos.length > 0 && (
+        <section class="w-full my-8 md:my-10">
+          <div class="max-w-[1000px] mx-auto px-4 md:px-8">
+            <div class={`grid ${gridColsFor(project.introPhotos.length)} gap-4 md:gap-5`}>
+              {project.introPhotos.map((p: any, i: number) => (
+                <div class="aspect-[4/3] rounded-[5px] overflow-hidden bg-gray-200">
+                  <img src={img(p, 900)} alt={`${project.title} intro photo ${i + 1}`} class="w-full h-full object-cover" loading="lazy" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Section 2: Goals */}
       {project.goals && project.goals.length > 0 && (
         <article class="w-full">
@@ -205,6 +225,21 @@ const pageDescription = project.metaDescription
             {project.goalsOutro && <div set:html={paragraphs(project.goalsOutro)} />}
           </div>
         </article>
+      )}
+
+      {/* Photos after Goals */}
+      {project.goalsPhotos && project.goalsPhotos.length > 0 && (
+        <section class="w-full my-8 md:my-10">
+          <div class="max-w-[1000px] mx-auto px-4 md:px-8">
+            <div class={`grid ${gridColsFor(project.goalsPhotos.length)} gap-4 md:gap-5`}>
+              {project.goalsPhotos.map((p: any, i: number) => (
+                <div class="aspect-[4/3] rounded-[5px] overflow-hidden bg-gray-200">
+                  <img src={img(p, 900)} alt={`${project.title} demo photo ${i + 1}`} class="w-full h-full object-cover" loading="lazy" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
       )}
 
       {/* Section 3: Design Decisions */}
@@ -221,6 +256,21 @@ const pageDescription = project.metaDescription
             ))}
           </div>
         </article>
+      )}
+
+      {/* Photos after Design Decisions */}
+      {project.designDecisionsPhotos && project.designDecisionsPhotos.length > 0 && (
+        <section class="w-full my-8 md:my-10">
+          <div class="max-w-[1000px] mx-auto px-4 md:px-8">
+            <div class={`grid ${gridColsFor(project.designDecisionsPhotos.length)} gap-4 md:gap-5`}>
+              {project.designDecisionsPhotos.map((p: any, i: number) => (
+                <div class="aspect-[4/3] rounded-[5px] overflow-hidden bg-gray-200">
+                  <img src={img(p, 900)} alt={`${project.title} construction photo ${i + 1}`} class="w-full h-full object-cover" loading="lazy" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
       )}
 
       {/* Before/After Table */}
@@ -257,6 +307,21 @@ const pageDescription = project.metaDescription
         </section>
       )}
 
+      {/* Photos after Before / After */}
+      {project.beforeAfterPhotos && project.beforeAfterPhotos.length > 0 && (
+        <section class="w-full my-8 md:my-10">
+          <div class="max-w-[1000px] mx-auto px-4 md:px-8">
+            <div class={`grid ${gridColsFor(project.beforeAfterPhotos.length)} gap-4 md:gap-5`}>
+              {project.beforeAfterPhotos.map((p: any, i: number) => (
+                <div class="aspect-[4/3] rounded-[5px] overflow-hidden bg-gray-200">
+                  <img src={img(p, 900)} alt={`${project.title} finishes photo ${i + 1}`} class="w-full h-full object-cover" loading="lazy" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Section 4: Result */}
       {project.resultText && (
         <article class="w-full">
@@ -267,14 +332,18 @@ const pageDescription = project.metaDescription
         </article>
       )}
 
-      {/* Gallery: all remaining photos in upload order, no cap */}
-      {galleryPhotos.length > 0 && (
-        <section class="w-full mt-10 md:mt-14">
-          <div class="max-w-[1150px] mx-auto px-4 md:px-8">
+      {/* Final Result Gallery (separate showcase at the end) */}
+      {finalGalleryPhotos.length > 0 && (
+        <section class="w-full bg-[#f7f6f1] py-12 md:py-16 mt-12 md:mt-16">
+          <div class="max-w-[1280px] mx-auto px-4 md:px-8">
+            <h2 class="font-['Lora'] font-bold text-[28px] md:text-[36px] text-[#3b350e] mb-2 text-center">
+              {project.finalGalleryHeading || "The Finished Space"}
+            </h2>
+            <p class="font-['Montserrat'] text-[14px] text-gray-500 text-center mb-10">Click any photo to view full size</p>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-              {galleryPhotos.map((p: any, i: number) => (
-                <div class="aspect-[4/3] rounded-[5px] overflow-hidden bg-gray-200">
-                  <img src={img(p, 1000)} alt={`${project.title} photo ${i + 2}`} class="w-full h-full object-cover" loading="lazy" />
+              {finalGalleryPhotos.map((p: any, i: number) => (
+                <div class="aspect-[4/3] rounded-[5px] overflow-hidden bg-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                  <img src={img(p, 1000)} alt={`${project.title} finished photo ${i + 1}`} class="w-full h-full object-cover" loading="lazy" />
                 </div>
               ))}
             </div>
@@ -308,13 +377,13 @@ const pageDescription = project.metaDescription
   ) : (
     <>
       {/* GALLERY-ONLY LAYOUT (project without case study text) */}
-      {galleryPhotos.length > 0 && (
+      {finalGalleryPhotos.length > 0 && (
         <section class="w-full">
           <div class="max-w-[1150px] mx-auto px-4 md:px-8 py-10 md:py-12">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-              {galleryPhotos.map((p: any, i: number) => (
+              {finalGalleryPhotos.map((p: any, i: number) => (
                 <div class="aspect-[4/3] rounded-[5px] overflow-hidden bg-gray-200">
-                  <img src={img(p, 800, 600)} alt={`${project.title} photo ${i + 2}`} class="w-full h-full object-cover" loading="lazy" width="800" height="600" />
+                  <img src={img(p, 800, 600)} alt={`${project.title} photo ${i + 1}`} class="w-full h-full object-cover" loading="lazy" width="800" height="600" />
                 </div>
               ))}
             </div>
