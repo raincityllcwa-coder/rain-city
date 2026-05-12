@@ -213,13 +213,16 @@
       var btnPrev = lb.querySelector(".lb-prev");
       var btnNext = lb.querySelector(".lb-next");
 
-      // Collect every <img> on the page that is content, not chrome/nav.
-      // We skip images inside <header>, <footer>, <nav>, and inside <a>
-      // (link thumbnails on the related-projects strip stay as links).
+      // Whitelist approach: only pick up images inside a Tailwind aspect-ratio
+      // container, which is the pattern used for every photo wrapper on project
+      // pages (aspect-[16/9] for hero, aspect-[4/3] for grid photos). This
+      // avoids accidentally grabbing icons (phone, logos) sitting elsewhere.
+      // Images wrapped in <a> (e.g. related-project thumbnails) are excluded so
+      // those keep working as navigation links.
       var imgs = Array.prototype.slice
-        .call(document.querySelectorAll("img"))
+        .call(document.querySelectorAll('[class*="aspect-["] img, [class*="aspect-square"] img, [class*="aspect-video"] img'))
         .filter(function (img) {
-          if (img.closest("header, footer, nav, a")) return false;
+          if (img.closest("a")) return false;
           if (!img.src || img.src.indexOf("data:") === 0) return false;
           return true;
         });
