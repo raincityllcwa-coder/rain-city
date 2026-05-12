@@ -201,7 +201,7 @@ const pageDescription = project.metaDescription
       {/* Photos after Intro */}
       {project.introPhotos && project.introPhotos.length > 0 && (
         <section class="w-full my-8 md:my-10">
-          <div class="max-w-[1000px] mx-auto px-4 md:px-8">
+          <div class="max-w-[1150px] mx-auto px-4 md:px-8">
             <div class={`grid ${gridColsFor(project.introPhotos.length)} gap-4 md:gap-5`}>
               {project.introPhotos.map((p: any, i: number) => (
                 <div class="aspect-[4/3] rounded-[5px] overflow-hidden bg-gray-200">
@@ -230,7 +230,7 @@ const pageDescription = project.metaDescription
       {/* Photos after Goals */}
       {project.goalsPhotos && project.goalsPhotos.length > 0 && (
         <section class="w-full my-8 md:my-10">
-          <div class="max-w-[1000px] mx-auto px-4 md:px-8">
+          <div class="max-w-[1150px] mx-auto px-4 md:px-8">
             <div class={`grid ${gridColsFor(project.goalsPhotos.length)} gap-4 md:gap-5`}>
               {project.goalsPhotos.map((p: any, i: number) => (
                 <div class="aspect-[4/3] rounded-[5px] overflow-hidden bg-gray-200">
@@ -310,7 +310,7 @@ const pageDescription = project.metaDescription
       {/* Photos after Before / After */}
       {project.beforeAfterPhotos && project.beforeAfterPhotos.length > 0 && (
         <section class="w-full my-8 md:my-10">
-          <div class="max-w-[1000px] mx-auto px-4 md:px-8">
+          <div class="max-w-[1150px] mx-auto px-4 md:px-8">
             <div class={`grid ${gridColsFor(project.beforeAfterPhotos.length)} gap-4 md:gap-5`}>
               {project.beforeAfterPhotos.map((p: any, i: number) => (
                 <div class="aspect-[4/3] rounded-[5px] overflow-hidden bg-gray-200">
@@ -335,7 +335,7 @@ const pageDescription = project.metaDescription
       {/* Final Result Gallery (separate showcase at the end) */}
       {finalGalleryPhotos.length > 0 && (
         <section class="w-full bg-[#f7f6f1] py-12 md:py-16 mt-12 md:mt-16">
-          <div class="max-w-[1280px] mx-auto px-4 md:px-8">
+          <div class="max-w-[1150px] mx-auto px-4 md:px-8">
             <h2 class="font-['Lora'] font-bold text-[28px] md:text-[36px] text-[#3b350e] mb-2 text-center">
               {project.finalGalleryHeading || "The Finished Space"}
             </h2>
