@@ -25,7 +25,11 @@ export async function getProjectBySlug(slug: string) {
   return sanityClient.fetch(
     `*[_type == "project" && slug.current == $slug][0] {
       _id, title, description, mainImage, gallery, slug, city, completedYear,
-      intro, goals, designDecisions, beforeAfter, resultText,
+      intro,
+      goalsHeading, goalsIntro, goals, goalsOutro,
+      designDecisionsHeading, designDecisionsIntro, designDecisions,
+      beforeAfterHeading, beforeAfterIntro, beforeAfter,
+      resultHeading, resultText,
       metaTitle, metaDescription
     }`,
     { slug },

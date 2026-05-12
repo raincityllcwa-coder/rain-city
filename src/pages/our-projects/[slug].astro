@@ -42,6 +42,18 @@ const img = (src: any, w: number, h?: number) => {
 const heroPhoto = allPhotos[0] || null;
 const galleryPhotos = allPhotos.slice(1);
 
+// Render a text field as paragraphs (blank lines = paragraph breaks).
+// Returns an HTML string for use with set:html. Empty input returns empty string.
+const paragraphs = (text: string | null | undefined): string => {
+  if (!text || !text.trim()) return "";
+  return text
+    .split("\n\n")
+    .map((p) => p.trim())
+    .filter(Boolean)
+    .map((p) => `<p>${p}</p>`)
+    .join("");
+};
+
 // Article JSON-LD
 const articleJsonLd = hasCaseStudy
   ? {
@@ -177,9 +189,7 @@ const pageDescription = project.metaDescription
       {/* Section 1: Intro */}
       <article class="w-full">
         <div class="max-w-[820px] mx-auto px-4 md:px-8 pt-8 md:pt-12 article-prose">
-          {project.intro && (
-            <div set:html={project.intro.split('\n\n').map((p: string) => `<p>${p.trim()}</p>`).join('')} />
-          )}
+          {project.intro && <div set:html={paragraphs(project.intro)} />}
         </div>
       </article>
 
@@ -187,10 +197,12 @@ const pageDescription = project.metaDescription
       {project.goals && project.goals.length > 0 && (
         <article class="w-full">
           <div class="max-w-[820px] mx-auto px-4 md:px-8 article-prose">
-            <h2>The Project Goals</h2>
+            <h2>{project.goalsHeading || "The Project Goals"}</h2>
+            {project.goalsIntro && <div set:html={paragraphs(project.goalsIntro)} />}
             <ol>
               {project.goals.map((g: string) => (<li>{g}</li>))}
             </ol>
+            {project.goalsOutro && <div set:html={paragraphs(project.goalsOutro)} />}
           </div>
         </article>
       )}
@@ -199,11 +211,12 @@ const pageDescription = project.metaDescription
       {project.designDecisions && project.designDecisions.length > 0 && (
         <article class="w-full">
           <div class="max-w-[820px] mx-auto px-4 md:px-8 article-prose">
-            <h2>The Design Choices That Made the Space Work</h2>
+            <h2>{project.designDecisionsHeading || "The Design Choices That Made the Space Work"}</h2>
+            {project.designDecisionsIntro && <div set:html={paragraphs(project.designDecisionsIntro)} />}
             {project.designDecisions.map((d: any) => (
               <>
                 <h3>{d.heading}</h3>
-                <div set:html={(d.body || '').split('\n\n').map((p: string) => `<p>${p.trim()}</p>`).join('')} />
+                <div set:html={paragraphs(d.body)} />
               </>
             ))}
           </div>
@@ -214,7 +227,10 @@ const pageDescription = project.metaDescription
       {project.beforeAfter && project.beforeAfter.length > 0 && (
         <section class="w-full bg-[#f7f6f1] py-12 md:py-16 my-12 md:my-16">
           <div class="max-w-[1000px] mx-auto px-4 md:px-8">
-            <h2 class="font-['Lora'] font-bold text-[28px] md:text-[32px] text-black mb-8 text-center">What We Replaced and Upgraded</h2>
+            <h2 class="font-['Lora'] font-bold text-[28px] md:text-[32px] text-black mb-6 text-center">{project.beforeAfterHeading || "What We Replaced and Upgraded"}</h2>
+            {project.beforeAfterIntro && (
+              <div class="article-prose mb-8 max-w-[820px] mx-auto" set:html={paragraphs(project.beforeAfterIntro)} />
+            )}
             <div class="bg-white rounded-[5px] overflow-hidden border border-gray-200">
               <div class="overflow-x-auto">
                 <table class="w-full font-['Montserrat'] text-[14px] md:text-[15px]">
@@ -245,8 +261,8 @@ const pageDescription = project.metaDescription
       {project.resultText && (
         <article class="w-full">
           <div class="max-w-[820px] mx-auto px-4 md:px-8 article-prose">
-            <h2>The Result</h2>
-            <div set:html={project.resultText.split('\n\n').map((p: string) => `<p>${p.trim()}</p>`).join('')} />
+            <h2>{project.resultHeading || "The Result"}</h2>
+            <div set:html={paragraphs(project.resultText)} />
           </div>
         </article>
       )}
