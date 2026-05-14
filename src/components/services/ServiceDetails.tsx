@@ -21,7 +21,7 @@ const services = [
     bgColor: "#f1f3f7",
     textColor: "#021b3c",
     reverse: true,
-    description: "Premium countertops in quartz, granite, and marble. Complete service from templating to installation.",
+    description: "Premium natural stone countertops in dolomite, granite, marble, quartzite, schist, and soapstone. Complete service from templating to installation.",
   },
   {
     id: "bathroom-remodel",

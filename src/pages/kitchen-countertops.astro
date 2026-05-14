@@ -35,7 +35,7 @@ try {
 }
 
 const faqItems = faqsData.length > 0 ? faqsData : [
-  { question: "What is the best countertop material for kitchens?", answer: "Quartz is our most popular recommendation due to its durability, low maintenance, and wide variety of colors and patterns. Granite and quartzite are excellent natural stone alternatives, while marble offers timeless elegance." },
+  { question: "What is the best countertop material for kitchens?", answer: "We specialize in natural stone countertops, including dolomite, granite, marble, quartzite, schist, and soapstone. Granite and quartzite are popular for their durability and heat resistance. Marble and dolomite offer timeless elegance. Soapstone and schist bring a softer, more textured look. The right choice depends on your lifestyle, design preferences, and budget, and we will walk you through the options during your consultation." },
   { question: "How long does a kitchen remodel take?", answer: "A typical kitchen remodel takes 6-12 weeks, depending on the scope of work. Minor updates like cabinet refacing or countertop replacement can be completed in 2-4 weeks, while full-scale renovations with layout changes may take 3-4 months." },
   { question: "Do I need permits for a kitchen remodel?", answer: "Yes, most kitchen remodels require permits, especially if you're making structural changes, moving plumbing or electrical, or changing the layout. We handle all permit applications and ensure your project meets local building codes." },
   { question: "Do you offer financing options for kitchen remodeling?", answer: "Yes, we partner with trusted financing providers to offer flexible payment plans. We can help you find options that fit your budget, including low-interest loans and special promotional financing." },
@@ -46,7 +46,7 @@ const jsonLd = [
     "@context": "https://schema.org",
     "@type": "Service",
     "name": "Kitchen Countertops Installation",
-    "description": "Premium quartz, granite, and marble countertop fabrication and installation in Bellevue, Seattle and surrounding areas.",
+    "description": "Natural stone countertop fabrication and installation in Bellevue, Seattle and surrounding areas. Dolomite, granite, marble, quartzite, schist, and soapstone.",
     "provider": {
       "@type": "LocalBusiness",
       "name": "Rain City Kitchen & Bath",
@@ -69,8 +69,8 @@ const jsonLd = [
 ---
 
 <Layout
-  title="Kitchen Countertops - Quartz, Granite & Marble | Rain City Kitchen & Bath"
-  description="Premium quartz, granite and marble countertop installation in Bellevue & Seattle. Expert fabrication, delivery and professional installation. Free estimate."
+  title="Natural Stone Kitchen Countertops in Bellevue, WA | Rain City"
+  description="Natural stone kitchen countertop installation in Bellevue & Seattle. Dolomite, granite, marble, quartzite, schist, and soapstone. Fabrication and installation."
   jsonLd={jsonLd}
 >
   <Breadcrumbs items={[
@@ -78,8 +78,8 @@ const jsonLd = [
     { name: "Services", href: "/our-services" },
     { name: "Kitchen Countertops" },
   ]} />
-  <ServiceLandingHero backgroundImage={imgServiceImage.src} title="Premium Kitchen Countertops" subtitle="Enhance your kitchen with premium countertops featuring quartz, granite, and marble in a variety of styles and finishes." />
-  <ServiceContentSection client:visible title="Premium Countertop Materials" paragraphs={["We offer a wide variety of countertop materials, including quartz, granite, and marble, available in different styles, colors, and thicknesses to suit your needs.","Each countertop material offers unique benefits, and our expert team will help you choose the perfect option for your kitchen based on your lifestyle, design preferences, and budget."]} />
+  <ServiceLandingHero backgroundImage={imgServiceImage.src} title="Natural Stone Kitchen Countertops" subtitle="Premium kitchen countertops in dolomite, granite, marble, quartzite, schist, and soapstone." />
+  <ServiceContentSection client:visible title="Natural Stone Countertop Materials" paragraphs={["We offer a wide variety of natural stone countertops, including dolomite, granite, marble, quartzite, schist, and soapstone, available in different styles, colors, and thicknesses to suit your needs.","Each stone has its own character and strengths. Our team will help you choose the right material for your kitchen based on your lifestyle, design preferences, and budget."]} />
   <ReviewsGridSection client:visible reviews={reviewsData.length > 0 ? reviewsData : undefined} />
   <ProjectsSection client:visible projects={projectsData.length > 0 ? projectsData : undefined} />
   <WhyChooseUsSection />
