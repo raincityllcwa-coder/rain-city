@@ -18,7 +18,11 @@
 /bathroom-remodel.html                 /bathroom-remodel                301!
 /thanks.html                           /thanks                          301!
 
-# ─── SEO: convenience sitemap alias ───
-# Some crawlers and SEO tools probe /sitemap.xml by convention.
-# @astrojs/sitemap publishes the index at /sitemap-index.xml; redirect so both work.
-/sitemap.xml                /sitemap-index.xml         301
+# ─── SEO: serve sitemap at the standard /sitemap.xml path ───
+# @astrojs/sitemap hardcodes the output filename to /sitemap-index.xml and there's
+# no option to rename it. Use a Netlify rewrite (status 200, not 301) so the
+# canonical sitemap URL becomes the standard /sitemap.xml that crawlers and SEO
+# tools expect by convention. /sitemap-index.xml stays accessible too in case
+# anything has it cached. The child sitemap-0.xml is referenced from inside the
+# index file and is the standard way sitemap index files work.
+/sitemap.xml                /sitemap-index.xml         200

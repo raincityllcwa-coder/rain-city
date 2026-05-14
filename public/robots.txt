@@ -57,4 +57,4 @@ Allow: /
 User-agent: Amazonbot
 Allow: /
 
-Sitemap: https://raincityllc.com/sitemap-index.xml
+Sitemap: https://raincityllc.com/sitemap.xml
