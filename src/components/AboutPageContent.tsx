@@ -40,10 +40,10 @@ export default function AboutPage() {
             <div className="w-full lg:w-1/2">
               <div className="font-['Montserrat'] text-[16px] text-black space-y-4">
                 <p>
-                  Welcome to Rain City Kitchen & Bath! I'm Alex, the owner and general manager. Here at our company, we know how essential kitchens and bathrooms are to any home — they're spaces where you spend a lot of your time, and they deserve to be perfect. My mission is to create the kitchen or bathroom of your dreams, delivering top-notch quality within an optimal timeframe.
+                  Welcome to Rain City Kitchen & Bath. I'm Alex, owner, general manager, and the person you'll work with from your first call to the final walkthrough. We're a licensed kitchen and bathroom remodeling company based in Bellevue, WA, serving Seattle, Kirkland, Redmond, and the rest of the Eastside. After 100+ completed remodels and over a hundred five-star reviews, one thing is clear: kitchens and bathrooms are where families actually live, and getting them right matters. My job is to make sure you get a remodel you'll love, finished on time, on budget, and built the way I'd build it for my own home.
                 </p>
                 <p>
-                  From the very first day, I aim to build a friendly and positive relationship with each customer. I want you to feel confident and at ease throughout the entire process. My core values include responsibility, meeting deadlines, and delivering exceptional quality. I don't just talk about speed and quality — I make sure to demonstrate them in every project. Your satisfaction and happiness are my top priorities.
+                  When you're searching for kitchen remodel companies near you, what you really want is someone who shows up when they said they would, fixes problems before you have to point them out, and treats your house with respect. That's how we work. Every project has one lead you can text directly the whole way through. No subcontractor chains, no chasing answers, no surprises on the invoice.
                 </p>
               </div>
             </div>
