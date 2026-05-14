@@ -1,7 +1,7 @@
 import imgServiceImage from "@/assets/c4e93df24993f176102d516e4e5e7a4fd86822b6.webp?url";
 import imgServiceImage1 from "@/assets/45b63473772ac5eedb2419a124f3a11b4a82ba56.webp?url";
 import imgServiceImage2 from "@/assets/2221dd725ae6402fca45a45bd79869231da67ce7.webp?url";
-import { CheckCircle2, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 const services = [
   {
@@ -12,14 +12,6 @@ const services = [
     bgColor: "#f7f6f1",
     textColor: "#3b350e",
     description: "Transform your kitchen with custom cabinets. Choose from Shaker, Flat, or custom door styles in a variety of colors and finishes.",
-    features: [
-      "Custom and standard cabinet options",
-      "Shaker and Flat door styles",
-      "Wide variety of colors and finishes",
-      "High-quality craftsmanship",
-      "Professional installation",
-      "Design consultation included",
-    ],
   },
   {
     id: "kitchen-countertops",
@@ -30,14 +22,6 @@ const services = [
     textColor: "#021b3c",
     reverse: true,
     description: "Premium countertops in quartz, granite, and marble. Complete service from templating to installation.",
-    features: [
-      "Quartz, granite, and marble options",
-      "Multiple edge profiles available",
-      "Professional fabrication",
-      "Precise template and measurement",
-      "Expert installation",
-      "Warranty included",
-    ],
   },
   {
     id: "bathroom-remodel",
@@ -47,14 +31,6 @@ const services = [
     bgColor: "#f7f6f1",
     textColor: "#3b350e",
     description: "Complete bathroom transformations with premium tile, modern fixtures, and expert craftsmanship.",
-    features: [
-      "Porcelain, natural stone, and glass tile",
-      "Custom shower and tub installations",
-      "Vanity and cabinet solutions",
-      "Modern fixture installation",
-      "Complete waterproofing",
-      "ADA-compliant options available",
-    ],
   }
 ];
 
@@ -111,20 +87,6 @@ export function ServiceDetails() {
                       <ArrowRight className="w-5 h-5" />
                     </a>
                   </div>
-                </div>
-              </div>
-
-              {/* Features Grid */}
-              <div className="mt-12 md:mt-16">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {service.features.map((feature, idx) => (
-                    <div key={idx} className="flex items-start gap-3">
-                      <CheckCircle2 className="w-5 h-5 text-[#007ec5] shrink-0 mt-0.5" />
-                      <p className="font-['Montserrat'] font-normal text-[15px] md:text-[16px] text-black">
-                        {feature}
-                      </p>
-                    </div>
-                  ))}
                 </div>
               </div>
             </div>
