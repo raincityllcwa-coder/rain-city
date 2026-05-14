@@ -1,0 +1,24 @@
+# Netlify redirects for Rain City Kitchen & Bath
+# Format: <from> <to> <status>
+# https://docs.netlify.com/routing/redirects/
+
+# ─── SEO: prevent .html duplicate URLs ───
+# Astro is built with build.format: 'file', which produces /about.html, /contact.html, etc.
+# Without these rules, Google sees /about AND /about.html as two URLs serving the same content
+# and treats it as duplicate content. The 301 forces the .html variant to the canonical clean URL.
+
+/index.html                            /                                301!
+/about.html                            /about                           301!
+/contact.html                          /contact                         301!
+/our-services.html                     /our-services                    301!
+/our-projects.html                     /our-projects                    301!
+/our-projects/*.html                   /our-projects/:splat             301!
+/kitchen-cabinets.html                 /kitchen-cabinets                301!
+/kitchen-countertops.html              /kitchen-countertops             301!
+/bathroom-remodel.html                 /bathroom-remodel                301!
+/thanks.html                           /thanks                          301!
+
+# ─── SEO: convenience sitemap alias ───
+# Some crawlers and SEO tools probe /sitemap.xml by convention.
+# @astrojs/sitemap publishes the index at /sitemap-index.xml; redirect so both work.
+/sitemap.xml                /sitemap-index.xml         301

@@ -100,10 +100,33 @@ const breadcrumbItems = [
 
 const combinedJsonLd = articleJsonLd ? articleJsonLd : null;
 
-const pageTitle = project.metaTitle || `${project.title} | Rain City Kitchen & Bath`;
-const pageDescription = project.metaDescription
-  || (project.intro ? project.intro.slice(0, 160) : project.description)
-  || "";
+// Build the page title. Google cuts <title> at roughly 60 characters / 580 pixels.
+// If the project title is already long, appending the brand pushes us well past
+// the cut-off ("Complete Kitchen Remodel in South Seattle: ..." + " | Rain City
+// Kitchen & Bath" = 107 chars and the brand half gets clipped anyway).
+// So only append the brand when the project title is short enough to fit.
+const RAW_TITLE = project.title || "";
+const BRAND_SUFFIX = " | Rain City Kitchen & Bath";
+const pageTitle =
+  project.metaTitle ||
+  (RAW_TITLE.length + BRAND_SUFFIX.length <= 65
+    ? RAW_TITLE + BRAND_SUFFIX
+    : RAW_TITLE);
+
+// Description should stay near 150 chars for Google's snippet. Trim cleanly at a
+// word boundary so we don't end mid-word.
+function trimDesc(text: string, max = 155): string {
+  if (text.length <= max) return text;
+  const slice = text.slice(0, max);
+  const lastSpace = slice.lastIndexOf(" ");
+  return (lastSpace > 80 ? slice.slice(0, lastSpace) : slice).trimEnd();
+}
+
+const pageDescription = trimDesc(
+  project.metaDescription
+    || (project.intro ? project.intro.replace(/\s+/g, " ") : project.description)
+    || ""
+);
 ---
 
 <Layout
