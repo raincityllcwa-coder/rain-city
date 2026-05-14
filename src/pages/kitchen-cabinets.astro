@@ -46,7 +46,7 @@ const jsonLd = [
   {
     "@context": "https://schema.org",
     "@type": "Service",
-    "name": "Kitchen Cabinets Installation",
+    "name": "Kitchen Renovation & Cabinets",
     "description": "Custom and standard kitchen cabinet design and installation in Bellevue, Seattle and surrounding areas. Shaker and Flat door styles available.",
     "provider": {
       "@type": "LocalBusiness",
@@ -55,7 +55,7 @@ const jsonLd = [
       "address": { "@type": "PostalAddress", "addressLocality": "Bellevue", "addressRegion": "WA" }
     },
     "areaServed": "Seattle metropolitan area",
-    "serviceType": "Kitchen Cabinet Installation"
+    "serviceType": "Kitchen Renovation & Cabinet Installation"
   },
   {
     "@context": "https://schema.org",
@@ -70,16 +70,16 @@ const jsonLd = [
 ---
 
 <Layout
-  title="Kitchen Cabinets - Custom & Standard Designs | Rain City Kitchen & Bath"
+  title="Kitchen Renovation & Cabinets in Bellevue, WA | Rain City Kitchen & Bath"
   description="Custom and standard kitchen cabinet installation in Bellevue & Seattle. Shaker, Flat door styles. Free estimate. 5-star rated by 114+ homeowners."
   jsonLd={jsonLd}
 >
   <Breadcrumbs items={[
     { name: "Home", href: "/" },
     { name: "Services", href: "/our-services" },
-    { name: "Kitchen Cabinets" },
+    { name: "Kitchen Renovation & Cabinets" },
   ]} />
-  <ServiceLandingHero backgroundImage={imgServiceImage.src} title="Premium Kitchen Cabinets" subtitle="Transform your kitchen with custom and standard cabinet solutions designed to match your unique style and needs." />
+  <ServiceLandingHero backgroundImage={imgServiceImage.src} title="Kitchen Renovation & Cabinets" subtitle="Transform your kitchen with custom and standard cabinet solutions designed to match your unique style and needs." />
   <ServiceContentSection client:visible title="Premium Cabinet Solutions" paragraphs={["At Rain City Kitchen & Bath, we specialize in both standard and custom cabinets to meet your unique needs. Our clients can choose from a variety of styles and color schemes, with Shaker and Flat door styles being the most popular.","Whether you're looking for a complete kitchen transformation or updating your existing cabinets, our team works closely with you to design and install cabinets that maximize functionality while enhancing the beauty of your space."]} />
   <ReviewsGridSection client:visible reviews={reviewsData.length > 0 ? reviewsData : undefined} />
   <ProjectsSection client:visible projects={projectsData.length > 0 ? projectsData : undefined} />

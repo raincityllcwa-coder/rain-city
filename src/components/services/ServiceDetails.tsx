@@ -7,7 +7,7 @@ const services = [
   {
     id: "kitchen-cabinets",
     slug: "kitchen-cabinets",
-    title: "Kitchen Cabinets",
+    title: "Kitchen Renovation & Cabinets",
     image: imgServiceImage,
     bgColor: "#f7f6f1",
     textColor: "#3b350e",
