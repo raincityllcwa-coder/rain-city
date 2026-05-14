@@ -11,7 +11,7 @@ const services = [
     image: imgServiceImage,
     bgColor: "#f7f6f1",
     textColor: "#3b350e",
-    description: "Transform your kitchen with custom or standard cabinets. Choose from Shaker, Flat, or custom door styles in a variety of colors and finishes.",
+    description: "Transform your kitchen with custom cabinets. Choose from Shaker, Flat, or custom door styles in a variety of colors and finishes.",
     features: [
       "Custom and standard cabinet options",
       "Shaker and Flat door styles",
