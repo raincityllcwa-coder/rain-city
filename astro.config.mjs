@@ -3,6 +3,41 @@ import react from '@astrojs/react';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 import path from 'path';
+import { createClient } from '@sanity/client';
+
+// ─── Build per-URL lastmod map for the sitemap ───
+// Google ignores <lastmod> when every URL shares the same date — that just looks
+// like a build timestamp and isn't a real signal. We pull the actual
+// _updatedAt for each project from Sanity at build time and use it for the
+// matching /our-projects/<slug> URL. Static pages get the build date as a
+// fallback (which is still better than nothing for them since they really did
+// all rebuild at once).
+const sanityClient = createClient({
+  projectId: 'u2nxf2rv',
+  dataset: 'production',
+  apiVersion: '2024-01-01',
+  useCdn: false,
+});
+
+const buildDate = new Date().toISOString();
+const lastmodByUrl = new Map();
+
+try {
+  const projects = await sanityClient.fetch(
+    `*[_type == "project" && defined(slug.current)]{"slug": slug.current, _updatedAt}`
+  );
+  for (const p of projects) {
+    lastmodByUrl.set(
+      `https://raincityllc.com/our-projects/${p.slug}`,
+      p._updatedAt
+    );
+  }
+  // eslint-disable-next-line no-console
+  console.log(`[sitemap] loaded ${projects.length} per-project lastmod values from Sanity`);
+} catch (err) {
+  // eslint-disable-next-line no-console
+  console.warn('[sitemap] could not fetch project lastmod from Sanity, falling back to build date:', err?.message);
+}
 
 export default defineConfig({
   site: 'https://raincityllc.com',
@@ -15,28 +50,36 @@ export default defineConfig({
     sitemap({
       filter: (page) => !page.includes('/thanks'),
       changefreq: 'weekly',
-      lastmod: new Date(),
       priority: 0.7,
+      // Global lastmod populates the <lastmod> on sitemap-index.xml so Google
+      // knows when the index itself was last touched. Each URL's lastmod is
+      // overridden below via serialize() with either the real Sanity
+      // _updatedAt or the build date.
+      lastmod: new Date(buildDate),
       serialize(item) {
         const url = item.url.replace(/\/$/, '');
-        const updated = { ...item, url };
+        const next = { ...item, url };
+
+        // Per-URL lastmod: prefer real Sanity _updatedAt for project pages,
+        // build date for everything else.
+        next.lastmod = lastmodByUrl.get(url) || buildDate;
 
         if (url === 'https://raincityllc.com') {
-          return { ...updated, priority: 1.0, changefreq: 'weekly' };
+          return { ...next, priority: 1.0, changefreq: 'weekly' };
         }
         if (/\/(kitchen-cabinets|kitchen-countertops|bathroom-remodel)$/.test(url)) {
-          return { ...updated, priority: 0.9, changefreq: 'monthly' };
+          return { ...next, priority: 0.9, changefreq: 'monthly' };
         }
         if (/\/(our-services|our-projects)$/.test(url)) {
-          return { ...updated, priority: 0.8, changefreq: 'monthly' };
+          return { ...next, priority: 0.8, changefreq: 'monthly' };
         }
         if (/\/our-projects\/[^/]+$/.test(url)) {
-          return { ...updated, priority: 0.7, changefreq: 'monthly' };
+          return { ...next, priority: 0.7, changefreq: 'monthly' };
         }
         if (/\/(about|contact)$/.test(url)) {
-          return { ...updated, priority: 0.6, changefreq: 'monthly' };
+          return { ...next, priority: 0.6, changefreq: 'monthly' };
         }
-        return updated;
+        return next;
       },
     }),
   ],
