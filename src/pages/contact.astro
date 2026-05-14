@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
 import ScrollToTop from '../components/ScrollToTop.astro';
 
 const jsonLd = {
@@ -38,6 +39,10 @@ const jsonLd = {
   description="Get a free consultation and estimate for your kitchen or bathroom remodel. Call (253) 466-8709. Located at 10900 NE 4th St, Bellevue, WA. Mon-Fri 8-6, Sat 9-4."
   jsonLd={jsonLd}
 >
+  <Breadcrumbs items={[
+    { name: "Home", href: "/" },
+    { name: "Contact" },
+  ]} />
   <main class="w-full">
     <section class="w-full py-12 md:py-16 lg:py-24 bg-[#f7f6f1]">
       <div class="max-w-[1150px] mx-auto px-4 md:px-8">

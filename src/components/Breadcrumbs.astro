@@ -1,0 +1,71 @@
+---
+// Breadcrumbs.astro
+// Reusable breadcrumb component with visible navigation and BreadcrumbList JSON-LD.
+//
+// Usage:
+//   <Breadcrumbs items={[
+//     { name: "Home", href: "/" },
+//     { name: "Services", href: "/our-services" },
+//     { name: "Kitchen Cabinets" },        // last item: no href = current page
+//   ]} />
+//
+// Conventions:
+// - Home should always be the first item with href="/".
+// - The last item describes the current page and omits href (so it isn't a link).
+// - Names should be human-readable; do not duplicate the site name in them.
+
+export interface BreadcrumbItem {
+  name: string;
+  href?: string;
+}
+
+interface Props {
+  items: BreadcrumbItem[];
+}
+
+const { items } = Astro.props;
+
+const siteOrigin = "https://raincityllc.com";
+
+// Build BreadcrumbList JSON-LD per schema.org
+const breadcrumbJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": items.map((it, idx) => {
+    const entry: Record<string, any> = {
+      "@type": "ListItem",
+      "position": idx + 1,
+      "name": it.name,
+    };
+    if (it.href) {
+      const url = it.href.startsWith("http") ? it.href : `${siteOrigin}${it.href}`;
+      entry["item"] = url;
+    }
+    return entry;
+  }),
+};
+---
+
+<nav class="w-full border-b border-gray-200 bg-[#f7f6f1]" aria-label="Breadcrumb">
+  <div class="max-w-[1150px] mx-auto px-4 md:px-8 py-3">
+    <ol class="flex items-center gap-2 font-['Montserrat'] text-[13px] text-gray-600 flex-wrap">
+      {items.map((it, idx) => {
+        const isLast = idx === items.length - 1;
+        return (
+          <>
+            <li class={isLast ? "text-gray-900 font-medium truncate max-w-[200px] md:max-w-none" : ""}>
+              {it.href && !isLast ? (
+                <a href={it.href} class="hover:text-[#007ec5]">{it.name}</a>
+              ) : (
+                <span aria-current={isLast ? "page" : undefined}>{it.name}</span>
+              )}
+            </li>
+            {!isLast && <li class="text-gray-400" aria-hidden="true">/</li>}
+          </>
+        );
+      })}
+    </ol>
+  </div>
+</nav>
+
+<script type="application/ld+json" set:html={JSON.stringify(breadcrumbJsonLd)} />

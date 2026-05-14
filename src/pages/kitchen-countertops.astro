@@ -9,6 +9,7 @@ import OurProcessSection from '../components/OurProcessSection.astro';
 import FAQSection from '../components/FAQSection.astro';
 import ServiceAreaSection from '../components/ServiceAreaSection.astro';
 import WideLeadFormSection from '../components/WideLeadFormSection.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
 import ScrollToTop from '../components/ScrollToTop.astro';
 import imgServiceImage from "../assets/45b63473772ac5eedb2419a124f3a11b4a82ba56.webp";
 
@@ -72,6 +73,11 @@ const jsonLd = [
   description="Premium quartz, granite and marble countertop installation in Bellevue & Seattle. Expert fabrication, delivery and professional installation. Free estimate."
   jsonLd={jsonLd}
 >
+  <Breadcrumbs items={[
+    { name: "Home", href: "/" },
+    { name: "Services", href: "/our-services" },
+    { name: "Kitchen Countertops" },
+  ]} />
   <ServiceLandingHero backgroundImage={imgServiceImage.src} title="Premium Kitchen Countertops" subtitle="Enhance your kitchen with premium countertops featuring quartz, granite, and marble in a variety of styles and finishes." />
   <ServiceContentSection client:visible title="Premium Countertop Materials" paragraphs={["We offer a wide variety of countertop materials, including quartz, granite, and marble, available in different styles, colors, and thicknesses to suit your needs.","Each countertop material offers unique benefits, and our expert team will help you choose the perfect option for your kitchen based on your lifestyle, design preferences, and budget."]} />
   <ReviewsGridSection client:visible reviews={reviewsData.length > 0 ? reviewsData : undefined} />

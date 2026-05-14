@@ -1,6 +1,7 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import Lightbox from "../../components/Lightbox.astro";
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
 import { getAllProjectSlugs, getProjectBySlug } from "../../lib/queries";
 import { urlFor } from "../../lib/sanity";
 
@@ -91,19 +92,13 @@ const articleJsonLd = hasCaseStudy
     }
   : null;
 
-const breadcrumbJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  "itemListElement": [
-    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://raincityllc.com/" },
-    { "@type": "ListItem", "position": 2, "name": "Projects", "item": "https://raincityllc.com/our-projects" },
-    { "@type": "ListItem", "position": 3, "name": project.title, "item": `https://raincityllc.com/our-projects/${slug}` },
-  ],
-};
+const breadcrumbItems = [
+  { name: "Home", href: "/" },
+  { name: "Projects", href: "/our-projects" },
+  { name: project.title },
+];
 
-const combinedJsonLd = articleJsonLd
-  ? [articleJsonLd, breadcrumbJsonLd]
-  : breadcrumbJsonLd;
+const combinedJsonLd = articleJsonLd ? articleJsonLd : null;
 
 const pageTitle = project.metaTitle || `${project.title} | Rain City Kitchen & Bath`;
 const pageDescription = project.metaDescription
@@ -114,22 +109,11 @@ const pageDescription = project.metaDescription
 <Layout
   title={pageTitle}
   description={pageDescription}
-  jsonLd={combinedJsonLd}
+  jsonLd={combinedJsonLd ?? undefined}
   canonical={`https://raincityllc.com/our-projects/${slug}`}
   ogImage={heroPhoto ? img(heroPhoto, 1200, 630) : undefined}
 >
-  <!-- Breadcrumbs -->
-  <nav class="w-full border-b border-gray-200 bg-[#f7f6f1]" aria-label="Breadcrumb">
-    <div class="max-w-[1150px] mx-auto px-4 md:px-8 py-3">
-      <ol class="flex items-center gap-2 font-['Montserrat'] text-[13px] text-gray-600 flex-wrap">
-        <li><a href="/" class="hover:text-[#007ec5]">Home</a></li>
-        <li class="text-gray-400">/</li>
-        <li><a href="/our-projects" class="hover:text-[#007ec5]">Projects</a></li>
-        <li class="text-gray-400">/</li>
-        <li class="text-gray-900 font-medium truncate max-w-[200px] md:max-w-none">{project.title}</li>
-      </ol>
-    </div>
-  </nav>
+  <Breadcrumbs items={breadcrumbItems} />
 
   {/* Hero Photo */}
   {heroPhoto && (
@@ -276,7 +260,7 @@ const pageDescription = project.metaDescription
       {/* Before/After Table */}
       {project.beforeAfter && project.beforeAfter.length > 0 && (
         <section class="w-full bg-[#f7f6f1] py-12 md:py-16 my-12 md:my-16">
-          <div class="max-w-[1000px] mx-auto px-4 md:px-8">
+          <div class="max-w-[1150px] mx-auto px-4 md:px-8">
             <h2 class="font-['Lora'] font-bold text-[28px] md:text-[32px] text-black mb-6 text-center">{project.beforeAfterHeading || "What We Replaced and Upgraded"}</h2>
             {project.beforeAfterIntro && (
               <div class="article-prose mb-8 max-w-[820px] mx-auto" set:html={paragraphs(project.beforeAfterIntro)} />

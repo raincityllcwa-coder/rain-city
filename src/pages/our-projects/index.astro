@@ -1,5 +1,6 @@
 ---
 import Layout from "../../layouts/Layout.astro";
+import Breadcrumbs from "../../components/Breadcrumbs.astro";
 import { getAllProjects } from "../../lib/queries";
 import { urlFor } from "../../lib/sanity";
 
@@ -30,6 +31,10 @@ const collectionJsonLd = {
   description="Browse our completed kitchen and bathroom remodels across Bellevue, Seattle, Kirkland, Redmond, and the Eastside. Custom-designed and built by Rain City Kitchen & Bath."
   jsonLd={collectionJsonLd}
 >
+  <Breadcrumbs items={[
+    { name: "Home", href: "/" },
+    { name: "Projects" },
+  ]} />
   <!-- Page Header + Intro -->
   <section class="w-full">
     <div class="max-w-[1150px] mx-auto px-4 md:px-8 pt-12 md:pt-16 pb-8 md:pb-12">

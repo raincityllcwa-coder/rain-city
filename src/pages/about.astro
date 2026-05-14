@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import AboutPageContent from '../components/AboutPageContent';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
 import ScrollToTop from '../components/ScrollToTop.astro';
 
 const jsonLd = {
@@ -39,6 +40,10 @@ const jsonLd = {
   description="Meet Alex, owner of Rain City Kitchen & Bath. Licensed general contractors with expertise in kitchen and bathroom remodeling across Bellevue, Seattle, Kirkland & Redmond. 5-star rated."
   jsonLd={jsonLd}
 >
+  <Breadcrumbs items={[
+    { name: "Home", href: "/" },
+    { name: "About Us" },
+  ]} />
   <AboutPageContent client:load />
   <ScrollToTop />
 </Layout>
