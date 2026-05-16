@@ -10,7 +10,9 @@ import ProcessSection from '../components/ProcessSection.astro';
 import LeadFormSection from '../components/LeadFormSection.astro';
 import ScrollToTop from '../components/ScrollToTop.astro';
 import heroImage from '../assets/f54c0cc7231f70cee3cc02ad5edc8c18c5bbbaf6.webp';
-import heroMobile from '../assets/hero-mobile.webp';
+import googleG from '../assets/badges/google-g.png';
+import starIcon from '../assets/badges/star.png';
+import bestOfBellevue from '../assets/badges/best-of-bellevue.png';
 
 // ── Sanity ──
 import { getProjects, getReviews } from '../lib/queries';
@@ -98,7 +100,6 @@ const localBusinessJsonLd = {
 ---
 
 <Layout
-  preloadImage={heroImage.src}
   title="Kitchen Remodel Bellevue WA | Bathroom Remodeling Services | Rain City Kitchen & Bath"
   description="Top-rated kitchen remodeling company in Bellevue, WA. Kitchen renovation, cabinets, countertops & bathroom remodeling services near me. 5-star rated, 114+ reviews. Free estimate."
   jsonLd={localBusinessJsonLd}
@@ -106,20 +107,21 @@ const localBusinessJsonLd = {
   <!-- Hero Section -->
   <section id="home" class="relative w-full">
     <div class="absolute inset-0 min-h-full">
-      <picture>
-        <source media="(max-width: 768px)" srcset={heroMobile.src} />
-        <Image
-          src={heroImage}
-          alt="Kitchen remodel in Bellevue WA by Rain City Kitchen & Bath"
-          widths={[800, 1200, 1600, 2000]}
-          sizes="(min-width: 1536px) 1536px, 100vw"
-          quality={80}
-          loading="eager"
-          fetchpriority="high"
-          decoding="async"
-          class="w-full h-full min-h-full object-cover"
-        />
-      </picture>
+      {/* Single responsive Image: Astro generates 400/600/800/1200/1600/2000
+          width variants. The browser picks the smallest that fills 100vw.
+          A 400-wide phone now pulls ~25KB instead of the previous 47KB
+          mobile-source PSI flagged. */}
+      <Image
+        src={heroImage}
+        alt="Kitchen remodel in Bellevue WA by Rain City Kitchen & Bath"
+        widths={[400, 600, 800, 1200, 1600, 2000]}
+        sizes="100vw"
+        quality={75}
+        loading="eager"
+        fetchpriority="high"
+        decoding="async"
+        class="absolute inset-0 w-full h-full object-cover"
+      />
       <div class="absolute inset-0 bg-black/60"></div>
     </div>
     <div class="relative max-w-[1150px] mx-auto px-4 md:px-8 py-8 md:py-[37px] w-full min-h-[600px] md:min-h-[630px] flex items-center">
@@ -128,16 +130,16 @@ const localBusinessJsonLd = {
           <h1 class="font-['Lora'] font-bold text-[28px] md:text-[36px] lg:text-[42px] text-white leading-tight">Premium Kitchen & Bath Remodeling in Bellevue, WA</h1>
           <p class="font-['Montserrat'] font-normal text-[16px] md:text-[18px] text-white">Trusted kitchen remodeling company serving Seattle, Kirkland, Redmond & the Eastside. We provide expert craftsmanship and personalized service for your dream kitchen or bathroom renovation.</p>
           <div class="flex gap-[7px] items-center justify-center lg:justify-start">
-            <img src="https://cdn.shopify.com/s/files/1/0653/0800/0327/files/Google__G__logo.svg_1.png?v=1775025649" alt="Google" class="w-[19px] h-[19px]" width="19" height="19" />
-            <img src="https://cdn.shopify.com/s/files/1/0653/0800/0327/files/star_10_6.png?v=1775025700" alt="5 star rating" class="w-[19px] h-[19px]" width="19" height="19" />
-            <img src="https://cdn.shopify.com/s/files/1/0653/0800/0327/files/star_10_6.png?v=1775025700" alt="" class="w-[19px] h-[19px]" width="19" height="19" />
-            <img src="https://cdn.shopify.com/s/files/1/0653/0800/0327/files/star_10_6.png?v=1775025700" alt="" class="w-[19px] h-[19px]" width="19" height="19" />
-            <img src="https://cdn.shopify.com/s/files/1/0653/0800/0327/files/star_10_6.png?v=1775025700" alt="" class="w-[19px] h-[19px]" width="19" height="19" />
-            <img src="https://cdn.shopify.com/s/files/1/0653/0800/0327/files/star_10_6.png?v=1775025700" alt="" class="w-[19px] h-[19px]" width="19" height="19" />
+            <Image src={googleG} alt="Google" width={19} height={19} loading="eager" decoding="async" class="w-[19px] h-[19px]" />
+            <Image src={starIcon} alt="5 star rating" width={19} height={19} loading="eager" decoding="async" class="w-[19px] h-[19px]" />
+            <Image src={starIcon} alt="" width={19} height={19} loading="eager" decoding="async" class="w-[19px] h-[19px]" />
+            <Image src={starIcon} alt="" width={19} height={19} loading="eager" decoding="async" class="w-[19px] h-[19px]" />
+            <Image src={starIcon} alt="" width={19} height={19} loading="eager" decoding="async" class="w-[19px] h-[19px]" />
+            <Image src={starIcon} alt="" width={19} height={19} loading="eager" decoding="async" class="w-[19px] h-[19px]" />
             <span class="font-['Montserrat'] font-medium text-[16px] text-white/90 ml-2">5.0 (114 reviews)</span>
           </div>
           <div class="flex gap-3 items-center justify-center lg:justify-start mt-1">
-            <img src="https://cdn.shopify.com/s/files/1/0653/0800/0327/files/image_1.png?v=1775025861" alt="Best Kitchen Remodel Company Bellevue award badge" class="w-[90px] h-auto" width="90" height="90" loading="lazy" />
+            <Image src={bestOfBellevue} alt="Best Kitchen Remodel Company Bellevue award badge" width={90} height={101} loading="lazy" decoding="async" class="w-[90px] h-auto" />
             <p class="font-['Montserrat'] font-bold text-[18px] text-white">Bellevue's Top Kitchen & Bath Contractor</p>
           </div>
           <p class="font-['Montserrat'] font-normal text-[13px] text-white/75 mt-1">Licensed &amp; Insured · WA Contractor License #BIRIUCL808C6</p>

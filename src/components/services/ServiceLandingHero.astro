@@ -1,4 +1,8 @@
 ---
+import { Image } from "astro:assets";
+import googleG from "@/assets/badges/google-g.png";
+import starIcon from "@/assets/badges/star.png";
+
 interface Props {
   backgroundImage: string;
   title: string;
@@ -9,7 +13,7 @@ const { backgroundImage, title, subtitle } = Astro.props;
 
 <section class="relative w-full min-h-[500px] md:min-h-[630px] flex items-center">
   <div class="absolute inset-0">
-    <img src={backgroundImage} alt={`${title} - Rain City Kitchen & Bath`} class="w-full h-full object-cover" loading="eager" />
+    <img src={backgroundImage} alt={`${title} - Rain City Kitchen & Bath`} class="w-full h-full object-cover" loading="eager" fetchpriority="high" decoding="async" />
     <div class="absolute inset-0 bg-black/60"></div>
   </div>
   <div class="relative max-w-[1150px] mx-auto px-4 md:px-8 py-8 md:py-[37px] w-full">
@@ -18,12 +22,12 @@ const { backgroundImage, title, subtitle } = Astro.props;
         <h1 class="font-['Lora'] font-bold text-[28px] md:text-[36px] lg:text-[42px] text-white leading-tight">{title}</h1>
         <p class="font-['Montserrat'] font-normal text-[16px] md:text-[18px] text-white">{subtitle}</p>
         <div class="flex gap-[7px] items-center justify-center lg:justify-start">
-          <img src="https://cdn.shopify.com/s/files/1/0653/0800/0327/files/Google__G__logo.svg_1.png?v=1775025649" alt="" class="w-[19px] h-[19px]" width="19" height="19" />
-          <img src="https://cdn.shopify.com/s/files/1/0653/0800/0327/files/star_10_6.png?v=1775025700" alt="" class="w-[19px] h-[19px]" width="19" height="19" />
-          <img src="https://cdn.shopify.com/s/files/1/0653/0800/0327/files/star_10_6.png?v=1775025700" alt="" class="w-[19px] h-[19px]" width="19" height="19" />
-          <img src="https://cdn.shopify.com/s/files/1/0653/0800/0327/files/star_10_6.png?v=1775025700" alt="" class="w-[19px] h-[19px]" width="19" height="19" />
-          <img src="https://cdn.shopify.com/s/files/1/0653/0800/0327/files/star_10_6.png?v=1775025700" alt="" class="w-[19px] h-[19px]" width="19" height="19" />
-          <img src="https://cdn.shopify.com/s/files/1/0653/0800/0327/files/star_10_6.png?v=1775025700" alt="" class="w-[19px] h-[19px]" width="19" height="19" />
+          <Image src={googleG} alt="" width={19} height={19} loading="eager" decoding="async" class="w-[19px] h-[19px]" />
+          <Image src={starIcon} alt="" width={19} height={19} loading="eager" decoding="async" class="w-[19px] h-[19px]" />
+          <Image src={starIcon} alt="" width={19} height={19} loading="eager" decoding="async" class="w-[19px] h-[19px]" />
+          <Image src={starIcon} alt="" width={19} height={19} loading="eager" decoding="async" class="w-[19px] h-[19px]" />
+          <Image src={starIcon} alt="" width={19} height={19} loading="eager" decoding="async" class="w-[19px] h-[19px]" />
+          <Image src={starIcon} alt="" width={19} height={19} loading="eager" decoding="async" class="w-[19px] h-[19px]" />
           <span class="font-['Montserrat'] font-medium text-[16px] text-white/90 ml-2">5.0 (114 reviews)</span>
         </div>
       </div>
