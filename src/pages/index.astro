@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { Image } from 'astro:assets';
 import HeroForm from '../components/HeroForm.astro';
 import ServicesSection from '../components/ServicesSection.astro';
 import ProjectsSection from '../components/ProjectsSection.astro';
@@ -107,7 +108,17 @@ const localBusinessJsonLd = {
     <div class="absolute inset-0 min-h-full">
       <picture>
         <source media="(max-width: 768px)" srcset={heroMobile.src} />
-        <img src={heroImage.src} alt="Kitchen remodel in Bellevue WA by Rain City Kitchen & Bath" class="w-full h-full min-h-full object-cover" fetchpriority="high" decoding="async" />
+        <Image
+          src={heroImage}
+          alt="Kitchen remodel in Bellevue WA by Rain City Kitchen & Bath"
+          widths={[800, 1200, 1600, 2000]}
+          sizes="(min-width: 1536px) 1536px, 100vw"
+          quality={80}
+          loading="eager"
+          fetchpriority="high"
+          decoding="async"
+          class="w-full h-full min-h-full object-cover"
+        />
       </picture>
       <div class="absolute inset-0 bg-black/60"></div>
     </div>
