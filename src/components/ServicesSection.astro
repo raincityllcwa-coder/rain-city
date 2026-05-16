@@ -1,5 +1,5 @@
 ---
-import { ImageCarousel } from './ui/ImageCarousel';
+import ImageCarousel from "./ui/ImageCarousel.astro";
 
 // Kitchen Cabinets — 5 photos
 import imgKc01 from "@/assets/kitchen-cabinets/kc-01.webp";
@@ -80,7 +80,7 @@ const services = [
       {services.map((s) => (
         <div class="relative">
           <div class={`flex flex-col ${s.reverse ? 'md:flex-row-reverse' : 'md:flex-row'} gap-6 md:gap-0 items-center`}>
-            <ImageCarousel client:visible images={s.images} link={s.link} />
+            <ImageCarousel images={s.images} link={s.link} />
             <div class={`hidden md:block absolute ${s.reverse ? 'left-0' : 'right-0'} top-[24px] w-[676px] h-[393px] rounded-[5px]`} style={`background:${s.bg}`}></div>
             <div class={`w-full md:w-[460px] ${s.reverse ? 'md:mr-[90px]' : 'md:ml-[90px]'} relative z-10 p-6 md:p-0 rounded-[5px] md:rounded-none`} style={`background:${s.bg}`}>
               <h3 class="font-['Lora'] font-bold text-[20px] md:text-[24px] mb-[22px]" style={`color:${s.color}`}>{s.title}</h3>

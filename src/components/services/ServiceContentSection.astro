@@ -1,0 +1,76 @@
+---
+// ServiceContentSection.astro
+// Text on left, fade-through image slider on right (4-second interval).
+// Vanilla JS replaces the React useState+useEffect from the original tsx.
+import imgCabinets from "@/assets/527501f2faa6167ff6095e533f6d5997c54352d6.webp";
+
+interface Props {
+  title: string;
+  paragraphs: string[];
+}
+
+const { title, paragraphs } = Astro.props;
+
+const images = [
+  imgCabinets.src,
+  "https://images.unsplash.com/photo-1668026694348-b73c5eb5e299?crop=entropy&cs=tinysrgb&fit=max&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBraXRjaGVuJTIwY2FiaW5ldHMlMjBpbnRlcmlvcnxlbnwxfHx8fDE3NzUwMjMzMTF8MA&ixlib=rb-4.1.0&q=75&w=640&fm=webp",
+  "https://images.unsplash.com/photo-1772567732969-c1506edf80a0?crop=entropy&cs=tinysrgb&fit=max&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjBraXRjaGVuJTIwcmVub3ZhdGlvbiUyMGNhYmluZXRyeXxlbnwxfHx8fDE3NzUwMjMzMTF8MA&ixlib=rb-4.1.0&q=75&w=640&fm=webp",
+  "https://images.unsplash.com/photo-1686023858213-9653d3248fdc?crop=entropy&cs=tinysrgb&fit=max&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjdXN0b20lMjBraXRjaGVuJTIwY2FiaW5ldHMlMjBpbnN0YWxsYXRpb258ZW58MXx8fHwxNzc1MDIzMzExfDA&ixlib=rb-4.1.0&q=75&w=640&fm=webp",
+];
+---
+
+<section class="w-full py-12 md:py-16 lg:py-20 bg-white">
+  <div class="max-w-[1150px] mx-auto px-4 md:px-8">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+      {/* Text */}
+      <div class="flex flex-col">
+        <h2 class="font-['Lora'] font-bold text-[28px] md:text-[32px] text-black mb-6 md:mb-8">{title}</h2>
+        <div class="space-y-4">
+          {paragraphs.map((paragraph) => (
+            <p class="font-['Montserrat'] text-[16px] md:text-[18px] text-gray-700 leading-relaxed">{paragraph}</p>
+          ))}
+        </div>
+      </div>
+
+      {/* Fade slider */}
+      <div class="scs-slider w-full h-[300px] md:h-[400px] lg:h-[450px] rounded-[5px] overflow-hidden relative">
+        {images.map((src, i) => (
+          <img
+            src={src}
+            alt="Premium cabinet solutions"
+            loading={i === 0 ? "eager" : "lazy"}
+            class="scs-slide w-full h-full object-cover rounded-[5px] absolute inset-0 transition-opacity duration-1000"
+            style={i === 0 ? "opacity:1" : "opacity:0"}
+          />
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style is:global>
+  /* The duration class above is also fine, this is just a fallback */
+  .scs-slide { transition: opacity 1s ease-in-out; }
+</style>
+
+<script is:inline>
+  (function () {
+    function init() {
+      document.querySelectorAll('.scs-slider').forEach(function (slider) {
+        var slides = slider.querySelectorAll('.scs-slide');
+        if (slides.length < 2) return;
+        var i = 0;
+        setInterval(function () {
+          slides[i].style.opacity = '0';
+          i = (i + 1) % slides.length;
+          slides[i].style.opacity = '1';
+        }, 4000);
+      });
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  })();
+</script>

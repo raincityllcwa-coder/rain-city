@@ -1,0 +1,145 @@
+---
+// AboutPageContent.astro - static body with a video modal toggle (vanilla JS).
+import imgAboutUsImage1 from "@/assets/86d35c22f3ab9a5ba8037f70adb83b514b63ae59.webp";
+import imgAboutUsImage2 from "@/assets/5b0e63419375cdde3628b20312ffa5c436161724.webp";
+import imgAboutUsImage3 from "@/assets/e5d831ab1e3b9339b9d178cf62be97ce415879aa.webp";
+import imgPlayIcon from "@/assets/7cd184714e63d3e219a376ebd63d6f5096b78d98.webp";
+---
+
+<main class="w-full bg-[#f7f6f1]">
+  <div class="max-w-[1150px] mx-auto px-4 md:px-8 py-8 md:py-12 lg:py-16">
+    <h1 class="font-['Lora'] font-bold text-[28px] md:text-[32px] text-black mb-8 md:mb-12 lg:mb-16">
+      About Us
+    </h1>
+
+    {/* Block One */}
+    <div class="flex flex-col lg:flex-row gap-8 lg:gap-16 items-center mb-16 md:mb-24">
+      <div class="w-full lg:w-1/2">
+        <img src={imgAboutUsImage1.src} alt="Rain City Kitchen & Bath Team" class="w-full h-auto rounded-[5px] object-cover" loading="eager" width="540" height="400" />
+      </div>
+      <div class="w-full lg:w-1/2">
+        <div class="font-['Montserrat'] text-[16px] text-black space-y-4">
+          <p>
+            Welcome to Rain City Kitchen & Bath. I'm Alex, owner, general manager, and the person you'll work with from your first call to the final walkthrough. We're a licensed kitchen and bathroom remodeling company based in Bellevue, WA, serving Seattle, Kirkland, Redmond, and the rest of the Eastside. After 100+ completed remodels and over a hundred five-star reviews, one thing is clear: kitchens and bathrooms are where families actually live, and getting them right matters. My job is to make sure you get a remodel you'll love, finished on time, on budget, and built the way I'd build it for my own home.
+          </p>
+          <p>
+            When you're searching for kitchen remodel companies near you, what you really want is someone who shows up when they said they would, fixes problems before you have to point them out, and treats your house with respect. That's how we work. Every project has one lead you can text directly the whole way through. No subcontractor chains, no chasing answers, no surprises on the invoice.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    {/* Block Two */}
+    <div class="flex flex-col lg:flex-row-reverse gap-8 lg:gap-16 items-center mb-16 md:mb-24">
+      <div class="w-full lg:w-1/2">
+        <img src={imgAboutUsImage2.src} alt="General Contractors at Work" class="w-full h-auto rounded-[5px] object-cover" loading="lazy" width="540" height="400" />
+      </div>
+      <div class="w-full lg:w-1/2">
+        <h2 class="font-['Lora'] font-bold text-[22px] md:text-[24px] text-[#3b350e] mb-6 md:mb-8">
+          We are General Contractors
+        </h2>
+        <div class="font-['Montserrat'] text-[16px] text-black space-y-4">
+          <p>
+            My team and I are experienced general contractors equipped with all the necessary licenses and documentation to undertake projects of any scale and complexity. Our expertise spans the entire range of home improvement and renovation services. From the design phase to the assembly and installation of kitchen cabinets, we handle every aspect with precision and care.
+          </p>
+          <p>
+            Our capabilities extend to complex renovation projects, including painting, flooring, tiling, and various related tasks. Whether you need a simple upgrade or a comprehensive transformation, we are committed to delivering high-quality workmanship and exceptional results tailored to your needs.
+          </p>
+        </div>
+        <div class="mt-6 pt-6 border-t border-gray-200">
+          <p class="font-['Montserrat'] text-[14px] text-gray-600">
+            Washington State Contractor License: <span class="font-semibold text-black">BIRIUCL808C6</span>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    {/* Block Three */}
+    <div class="flex flex-col lg:flex-row gap-8 lg:gap-16 items-center">
+      <div class="w-full lg:w-1/2">
+        <img src={imgAboutUsImage3.src} alt="Celebrating with Clients" class="w-full h-auto rounded-[5px] object-cover" loading="lazy" width="540" height="400" />
+      </div>
+      <div class="w-full lg:w-1/2">
+        <h2 class="font-['Lora'] font-bold text-[22px] md:text-[24px] text-[#3b350e] mb-6 md:mb-8">
+          We Give Unforgettable Emotions
+        </h2>
+        <p class="font-['Montserrat'] text-[16px] text-black mb-6 md:mb-8">
+          I am passionate about delivering not only exceptional results but also a memorable experience. As a positive and open person, I love bringing joy and a good mood to my clients. That's why, at the end of each project, I celebrate with you by playing a special trombone tune, making your day truly unforgettable!
+        </p>
+        <button
+          id="ap-video-open"
+          type="button"
+          class="bg-white border border-[#989898] rounded-[5px] px-5 py-4 flex items-center gap-3 hover:bg-gray-50 transition-colors"
+        >
+          <img src={imgPlayIcon.src} alt="" class="w-5 h-5" width="20" height="20" />
+          <span class="font-['Montserrat'] text-[16px] text-black">Watch Video</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</main>
+
+{/* Video modal (hidden by default; controlled via inline script) */}
+<div id="ap-video-modal" class="fixed inset-0 bg-black/75 z-50 hidden items-center justify-center p-4" role="dialog" aria-modal="true" aria-label="Trombone celebration video">
+  <div id="ap-video-inner" class="relative w-full max-w-4xl bg-black rounded-lg overflow-hidden">
+    <button
+      id="ap-video-close"
+      type="button"
+      aria-label="Close video"
+      class="absolute top-4 right-4 text-white text-3xl font-bold z-10 w-10 h-10 flex items-center justify-center hover:bg-white/20 rounded-full transition-colors"
+    >×</button>
+    <div class="relative pt-[56.25%]">
+      <iframe
+        id="ap-video-iframe"
+        class="absolute inset-0 w-full h-full"
+        src="about:blank"
+        title="Rain City Kitchen & Bath - Trombone Celebration"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen
+        loading="lazy"
+      ></iframe>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  (function () {
+    function init() {
+      var open = document.getElementById('ap-video-open');
+      var modal = document.getElementById('ap-video-modal');
+      var close = document.getElementById('ap-video-close');
+      var iframe = document.getElementById('ap-video-iframe');
+      var inner = document.getElementById('ap-video-inner');
+      if (!open || !modal || !close || !iframe || !inner) return;
+
+      var YT = 'https://www.youtube.com/embed/sptaH6Gtews?autoplay=1';
+
+      function show() {
+        iframe.src = YT;
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        document.body.style.overflow = 'hidden';
+      }
+      function hide() {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        iframe.src = 'about:blank';
+        document.body.style.overflow = '';
+      }
+
+      open.addEventListener('click', show);
+      close.addEventListener('click', hide);
+      modal.addEventListener('click', function (e) {
+        if (!inner.contains(e.target)) hide();
+      });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && !modal.classList.contains('hidden')) hide();
+      });
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  })();
+</script>

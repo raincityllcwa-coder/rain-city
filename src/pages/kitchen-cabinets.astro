@@ -1,9 +1,9 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import ServiceLandingHero from '../components/services/ServiceLandingHero.astro';
-import { ServiceContentSection } from '../components/services/ServiceContentSection';
-import { ReviewsGridSection } from '../components/services/ReviewsGridSection';
-import { ProjectsSection } from '../components/ProjectsSection';
+import ServiceContentSection from '../components/services/ServiceContentSection.astro';
+import ReviewsGridSection from '../components/services/ReviewsGridSection.astro';
+import ProjectsSection from '../components/ProjectsSection.astro';
 import WhyChooseUsSection from '../components/WhyChooseUsSection.astro';
 import OurProcessSection from '../components/OurProcessSection.astro';
 import FAQSection from '../components/FAQSection.astro';
@@ -80,9 +80,9 @@ const jsonLd = [
     { name: "Kitchen Renovation & Cabinets" },
   ]} />
   <ServiceLandingHero backgroundImage={imgServiceImage.src} title="Kitchen Renovation & Cabinets" subtitle="Transform your kitchen with custom and standard cabinet solutions designed to match your unique style and needs." />
-  <ServiceContentSection client:visible title="Premium Cabinet Solutions" paragraphs={["At Rain City Kitchen & Bath, we specialize in both standard and custom cabinets to meet your unique needs. Our clients can choose from a variety of styles and color schemes, with Shaker and Flat door styles being the most popular.","Whether you're looking for a complete kitchen transformation or updating your existing cabinets, our team works closely with you to design and install cabinets that maximize functionality while enhancing the beauty of your space."]} />
-  <ReviewsGridSection client:visible reviews={reviewsData.length > 0 ? reviewsData : undefined} />
-  <ProjectsSection client:visible projects={projectsData.length > 0 ? projectsData : undefined} />
+  <ServiceContentSection title="Premium Cabinet Solutions" paragraphs={["At Rain City Kitchen & Bath, we specialize in both standard and custom cabinets to meet your unique needs. Our clients can choose from a variety of styles and color schemes, with Shaker and Flat door styles being the most popular.","Whether you're looking for a complete kitchen transformation or updating your existing cabinets, our team works closely with you to design and install cabinets that maximize functionality while enhancing the beauty of your space."]} />
+  <ReviewsGridSection reviews={reviewsData.length > 0 ? reviewsData : undefined} />
+  <ProjectsSection projects={projectsData.length > 0 ? projectsData : undefined} />
   <WhyChooseUsSection />
   <OurProcessSection />
   <FAQSection faqs={faqsData.length > 0 ? faqsData : undefined} />

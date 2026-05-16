@@ -1,0 +1,170 @@
+---
+// ReviewsSection.astro - homepage testimonial carousel.
+// Vanilla JS replaces React + framer-motion; the dom for all reviews ships once
+// at build time, fades between them via opacity transitions.
+
+import imgStar from "@/assets/fd2b4556742a4d9f3ef6861416c529a4eea6a02c.webp";
+import imgArrowLeftIcon from "@/assets/28489d8b77c472166b57c0782ccc277f85ccd4b7.webp";
+
+interface ReviewItem {
+  text: string;
+  author: string;
+  image: string;
+  avatar: string | null;
+}
+
+interface Props {
+  reviews?: ReviewItem[];
+}
+
+const { reviews: reviewsProp } = Astro.props;
+
+const fallbackReviews: ReviewItem[] = [
+  {
+    text: "Alex did a phenomenal job on our kitchen remodel!! He works fast and is meticulous. He really cares about the quality of his work and the satisfaction of his clients. We are so pleased with how our cabinets turned out!",
+    author: "Jessee Baldwin",
+    image: "https://lh3.googleusercontent.com/geougc-cs/ABOP9puAoW__oTiEGY6ZeLDuTYSqAe-gvO8-ftLlqSZg0X04HjX6-EDXDxUTzAFwcWsoZuivzJQi1u73jnPk6LlE9ySlx8VJSJElfXlbJiWEvdPiCT2ETqrIE7yGvvfGevBYS81ROulb33MkjLpI=s800-w800-h400-rw",
+    avatar: "https://lh3.googleusercontent.com/a-/ALV-UjU0OBEXbB-sb4fy3hdc2P9tYhCG5HiiG5h91CTo-ha7McvJLUE=w200-h200-p-rp-mo-ba3-br100",
+  },
+  {
+    text: "Exceptional kitchen remodel and general contractor service !!! I rarely bother myself to leave feedbacks, but this guy deserves it. Highly professional and professionalism is in details- that's what this guy delivers . Alex is very positive personality, he is super punctual, intelligent and a very pleasant guy to work with . I wish him all the best in his business and without any hesitation I can recommend him to anyone who is looking high quality at a fair price.",
+    author: "Victor C.",
+    image: "https://lh3.googleusercontent.com/geougc-cs/ABOP9pvUFGv08qC8tPPezn03AA4f_Rn_D2TYcOMDa0pqlMIaR524H2sX-YHH2KFiN6a74pfJ1LIQCz-80m1cLcLUfipYYPEPvee3Wit1TqfxYGDGfOFRSREUlAyscaCyBUE2oNa2g7O3nVtQPisg=s800-w800-h400-rw",
+    avatar: null,
+  },
+  {
+    text: "Alexander Biriuk built our kitchen cabinets. The results were spectacular, stunning and completed with such care. Alexander is a pleasure to work with and no surprises.",
+    author: "Jeffrey Lang",
+    image: "https://lh3.googleusercontent.com/geougc-cs/ABOP9ptVDYHT5Vr_k5PUZU8HRjIXZpckIl8GskfK46pIvo5AuZhOjGCIGudEyLCA48WG-CmmPFWZ6glWdzO-uoxzZFqdNUcCijZ3T6UM4S6olUi9Eu1iLzxfzCiNjStZBvAq5bN_xfgn=s800-w800-h400-rw",
+    avatar: "https://lh3.googleusercontent.com/a-/ALV-UjW1Q-Qwa8PGarLPIFJL2Ne1iZgdYp5vQoaIBBNRnHpVc8EfjP-d=w72-h72-p-rp-mo-br100",
+  },
+  {
+    text: "We cannot recommend Alex highly enough! From start to finish, he was an absolute pleasure to work with, professional, detail-oriented, and truly passionate about his craft. He installed our kitchen with such precision and care, making sure every detail was perfect.",
+    author: "Xenia V.",
+    image: "https://lh3.googleusercontent.com/geougc-cs/ABOP9ptDCeBRqKoavCkcrvltzLyEUQec8WuNrcyERtW54jpiTOiV82uYbDc2hrkMsyMHmPalgyx3zDbIMKFr4sNJLDbxRX8pcnWAYrxLWHzYwTJNIS5Mirbk-1iiCYCH_3Xav1UuR6PXAw=s800-w800-h400-rw",
+    avatar: "https://lh3.googleusercontent.com/a-/ALV-UjX4A-NawzgEDRuXGp02sv7GSlvdLyrAab8GBg44ABpwGDvPSzZq=w72-h72-p-rp-mo-ba3-br100",
+  },
+];
+
+const reviews: ReviewItem[] = (reviewsProp && reviewsProp.length > 0) ? reviewsProp : fallbackReviews;
+---
+
+<section class="w-full py-12 md:py-16 lg:py-20 bg-[#f1f3f7]">
+  <div class="max-w-[1150px] mx-auto px-4 md:px-8">
+    <h2 class="font-['Lora'] font-bold text-[28px] md:text-[32px] text-black mb-8 md:mb-11">
+      Our Happy Customers Say
+    </h2>
+
+    <div class="rs-root flex flex-col md:flex-row gap-8 md:gap-[119px] items-center">
+      {/* Image stack (one slide visible) */}
+      <div class="rs-image-stack w-full md:w-[374px] h-[280px] md:h-[368px] rounded-[5px] overflow-hidden shrink-0 relative">
+        {reviews.map((r, i) => (
+          <img
+            data-rs-img={i}
+            src={r.image}
+            alt="Customer review"
+            loading={i === 0 ? "eager" : "lazy"}
+            class="rs-img w-full h-full object-cover absolute inset-0"
+            style={`opacity:${i === 0 ? 1 : 0}; transition: opacity .2s ease;`}
+          />
+        ))}
+      </div>
+
+      {/* Content stack */}
+      <div class="flex flex-col gap-[28px] w-full md:w-[460px] relative">
+        <div class="rs-content-stack relative" style="min-height:300px;">
+          {reviews.map((r, i) => (
+            <div
+              data-rs-slide={i}
+              class="rs-slide flex flex-col gap-[28px]"
+              style={`opacity:${i === 0 ? 1 : 0}; pointer-events:${i === 0 ? 'auto' : 'none'}; position:${i === 0 ? 'relative' : 'absolute'}; inset:0; transition: opacity .2s ease;`}
+            >
+              <div class="flex gap-[7px] items-center">
+                {Array.from({ length: 5 }).map(() => (
+                  <img src={imgStar.src} alt="" class="size-[19px] object-cover" width="19" height="19" />
+                ))}
+              </div>
+              <p class="font-['Montserrat'] font-medium text-[16px] md:text-[18px] text-black leading-normal min-h-[140px] md:min-h-[180px]">
+                "{r.text}"
+              </p>
+              <div class="flex items-center gap-3">
+                {r.avatar ? (
+                  <img src={r.avatar} alt={r.author} class="size-12 rounded-full object-cover border-2 border-gray-200" width="48" height="48" />
+                ) : (
+                  <div class="size-12 rounded-full bg-[#007ec5] flex items-center justify-center text-white font-['Montserrat'] font-bold text-[18px]">
+                    {r.author.charAt(0)}
+                  </div>
+                )}
+                <p class="font-['Montserrat'] font-semibold text-[16px] text-black">{r.author}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div class="flex gap-[9px] items-center">
+          <button
+            type="button"
+            data-rs-prev
+            aria-label="Previous review"
+            class="bg-white border border-[#989898] rounded-[5px] size-[55px] flex items-center justify-center hover:bg-gray-50 transition-colors"
+          >
+            <img src={imgArrowLeftIcon.src} alt="" class="size-[21px] object-cover rotate-180" width="21" height="21" />
+          </button>
+          <button
+            type="button"
+            data-rs-next
+            aria-label="Next review"
+            class="bg-white border border-[#989898] rounded-[5px] size-[55px] flex items-center justify-center hover:bg-gray-50 transition-colors"
+          >
+            <img src={imgArrowLeftIcon.src} alt="" class="size-[21px] object-cover" width="21" height="21" />
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script is:inline>
+  (function () {
+    function init() {
+      document.querySelectorAll('.rs-root').forEach(function (root) {
+        var imgs = root.querySelectorAll('[data-rs-img]');
+        var slides = root.querySelectorAll('[data-rs-slide]');
+        var prev = root.querySelector('[data-rs-prev]');
+        var next = root.querySelector('[data-rs-next]');
+        if (!imgs.length || !slides.length) return;
+
+        var total = imgs.length;
+        var current = 0;
+        var timer;
+
+        function go(to) {
+          var prev = current;
+          current = ((to % total) + total) % total;
+          imgs[prev].style.opacity = '0';
+          slides[prev].style.opacity = '0';
+          slides[prev].style.pointerEvents = 'none';
+          imgs[current].style.opacity = '1';
+          slides[current].style.opacity = '1';
+          slides[current].style.pointerEvents = 'auto';
+        }
+        function nextFn() { go(current + 1); }
+        function prevFn() { go(current - 1); }
+        function restart() {
+          clearInterval(timer);
+          timer = setInterval(nextFn, 5000);
+        }
+
+        if (next) next.addEventListener('click', function () { nextFn(); restart(); });
+        if (prev) prev.addEventListener('click', function () { prevFn(); restart(); });
+
+        timer = setInterval(nextFn, 5000);
+      });
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  })();
+</script>

@@ -1,6 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import AboutPageContent from '../components/AboutPageContent';
+import AboutPageContent from '../components/AboutPageContent.astro';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
 import ScrollToTop from '../components/ScrollToTop.astro';
 
@@ -44,6 +44,6 @@ const jsonLd = {
     { name: "Home", href: "/" },
     { name: "About Us" },
   ]} />
-  <AboutPageContent client:load />
+  <AboutPageContent />
   <ScrollToTop />
 </Layout>

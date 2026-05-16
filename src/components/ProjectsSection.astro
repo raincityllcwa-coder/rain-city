@@ -1,0 +1,273 @@
+---
+// ProjectsSection.astro - grid of project cards on homepage / service pages.
+// Renders all projects at build time but only first 6 are visible; "View More"
+// reveals 3 at a time. Clicking a card opens a vanilla-JS lightbox with
+// swipe + keyboard navigation through that project's gallery.
+
+import imgProjectImage from "@/assets/3b944e1ac697f301b31561de640dda3557f43d69.webp";
+import imgProjectImage1 from "@/assets/1a9ff41667e1b1a100603f9ba342b2a853274b6f.webp";
+import imgProjectImage2 from "@/assets/e1d045053d612f0796a40f57ca1c648d52fa7407.webp";
+import imgMoreButton from "@/assets/3b437988bfed0d43dea56bac02897e2e85c27e71.webp";
+
+interface ProjectItem {
+  image: string;
+  title: string;
+  description: string;
+  gallery: string[];
+}
+
+interface Props {
+  projects?: ProjectItem[];
+}
+
+const { projects: projectsProp } = Astro.props;
+
+const fallbackProjects: ProjectItem[] = [
+  { image: imgProjectImage.src,  title: "Kitchen in Bellevue",   description: "Kitchen cabinets design and installation.",                       gallery: [imgProjectImage.src,  imgProjectImage1.src, imgProjectImage2.src] },
+  { image: imgProjectImage1.src, title: "Kitchen in Kirkland",   description: "Full kitchen renovation, flooring, appliances installation.",    gallery: [imgProjectImage1.src, imgProjectImage.src,  imgProjectImage2.src] },
+  { image: imgProjectImage2.src, title: "Kitchen in Seattle",    description: "Kitchen cabinets design and installation, countertop installation.", gallery: [imgProjectImage2.src, imgProjectImage1.src, imgProjectImage.src]  },
+  { image: imgProjectImage.src,  title: "Bathroom in Redmond",   description: "Complete bathroom renovation with modern fixtures.",              gallery: [imgProjectImage.src,  imgProjectImage2.src, imgProjectImage1.src] },
+  { image: imgProjectImage1.src, title: "Kitchen in Sammamish",  description: "Custom kitchen cabinets and quartz countertops.",                 gallery: [imgProjectImage1.src, imgProjectImage.src,  imgProjectImage2.src] },
+  { image: imgProjectImage2.src, title: "Bathroom in Tacoma",    description: "Luxury bathroom remodel with heated floors.",                     gallery: [imgProjectImage2.src, imgProjectImage.src,  imgProjectImage1.src] },
+];
+
+const allProjects: ProjectItem[] = (projectsProp && projectsProp.length > 0) ? projectsProp : fallbackProjects;
+const INITIAL_VISIBLE = 6;
+
+// Serialize the per-project galleries into a JSON island the script can read,
+// keyed by index. Avoids data-attr noise on each card.
+const galleryData = JSON.stringify(
+  allProjects.map((p) => ({ title: p.title, description: p.description, gallery: p.gallery }))
+);
+---
+
+<section id="projects" class="w-full py-12 md:py-16 lg:py-20">
+  <div class="max-w-[1150px] mx-auto px-4 md:px-8">
+    <h2 class="font-['Lora'] font-bold text-[28px] md:text-[32px] text-black mb-8 md:mb-11">
+      Our Projects
+    </h2>
+
+    <div class="ps-root flex flex-col gap-[52px] items-center">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-[24px] w-full">
+        {allProjects.map((project, index) => (
+          <button
+            type="button"
+            data-ps-card={index}
+            class={`ps-card flex flex-col gap-[21px] cursor-pointer text-left ${index >= INITIAL_VISIBLE ? 'hidden' : ''}`}
+          >
+            <div class="h-[240px] md:h-[279px] rounded-[5px] overflow-hidden">
+              <img
+                src={project.image}
+                alt={project.title}
+                loading={index < INITIAL_VISIBLE ? "lazy" : "lazy"}
+                class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+              />
+            </div>
+            <h3 class="font-['Lora'] font-bold text-[22px] md:text-[24px] text-[#3b350e]">
+              {project.title}
+            </h3>
+            <p class="font-['Montserrat'] font-normal text-[16px] text-black">
+              {project.description}
+            </p>
+          </button>
+        ))}
+      </div>
+
+      {allProjects.length > INITIAL_VISIBLE && (
+        <button
+          type="button"
+          data-ps-more
+          class="bg-white border border-[#989898] rounded-[5px] h-[55px] px-[30px] flex items-center gap-[14px] hover:bg-gray-50 transition-colors"
+        >
+          <img src={imgMoreButton.src} alt="" class="size-[21px] object-cover" width="21" height="21" />
+          <span class="font-['Montserrat'] font-normal text-[16px] text-black">View More</span>
+        </button>
+      )}
+
+      <a href="/our-projects" class="font-['Montserrat'] font-semibold text-[16px] text-[#007ec5] hover:underline">
+        View All Projects →
+      </a>
+    </div>
+  </div>
+
+  {/* Hidden gallery data island */}
+  <script type="application/json" data-ps-data set:html={galleryData}></script>
+</section>
+
+{/* Lightbox (single instance for the page) */}
+<div id="ps-lightbox" class="fixed inset-0 bg-black/90 z-50 hidden items-center justify-center p-4" role="dialog" aria-modal="true">
+  <button
+    id="ps-close"
+    type="button"
+    aria-label="Close"
+    class="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors z-10"
+  >
+    <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <line x1="18" y1="6" x2="6" y2="18"></line>
+      <line x1="6" y1="6" x2="18" y2="18"></line>
+    </svg>
+  </button>
+
+  <button id="ps-prev" type="button" aria-label="Previous image" class="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-10 hidden items-center justify-center w-12 h-12 md:w-16 md:h-16 rounded-full bg-black/40 hover:bg-black/70 text-white transition-colors">
+    <svg class="w-7 h-7 md:w-9 md:h-9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+  </button>
+  <button id="ps-next" type="button" aria-label="Next image" class="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-10 hidden items-center justify-center w-12 h-12 md:w-16 md:h-16 rounded-full bg-black/40 hover:bg-black/70 text-white transition-colors">
+    <svg class="w-7 h-7 md:w-9 md:h-9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+  </button>
+
+  <div class="relative flex flex-col items-center gap-4 pointer-events-none">
+    <div class="flex items-center justify-center pointer-events-auto">
+      <img id="ps-img" src="" alt="" class="max-w-[90vw] max-h-[80vh] w-auto h-auto object-contain rounded-lg" />
+    </div>
+    <div class="text-center text-white px-4">
+      <h3 id="ps-title" class="font-['Lora'] font-bold text-xl md:text-2xl mb-2"></h3>
+      <p id="ps-desc" class="font-['Montserrat'] text-sm md:text-base text-gray-300"></p>
+      <p id="ps-counter" class="font-['Montserrat'] text-xs md:text-sm text-gray-400 mt-2"></p>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  (function () {
+    function init() {
+      var section = document.getElementById('projects');
+      if (!section) return;
+      var dataEl = section.querySelector('[data-ps-data]');
+      if (!dataEl) return;
+      var data;
+      try { data = JSON.parse(dataEl.textContent || '[]'); } catch (e) { return; }
+      if (!data.length) return;
+
+      // ── View More ──
+      var more = section.querySelector('[data-ps-more]');
+      var cards = section.querySelectorAll('[data-ps-card]');
+      var INITIAL = 6;
+      var STEP = 3;
+      var visible = INITIAL;
+
+      function refreshMore() {
+        if (!more) return;
+        if (visible >= cards.length) {
+          more.style.display = 'none';
+        }
+      }
+      if (more) {
+        more.addEventListener('click', function () {
+          var end = Math.min(visible + STEP, cards.length);
+          for (var i = visible; i < end; i++) cards[i].classList.remove('hidden');
+          visible = end;
+          refreshMore();
+        });
+        refreshMore();
+      }
+
+      // ── Lightbox ──
+      var lb = document.getElementById('ps-lightbox');
+      var img = document.getElementById('ps-img');
+      var title = document.getElementById('ps-title');
+      var desc = document.getElementById('ps-desc');
+      var counter = document.getElementById('ps-counter');
+      var close = document.getElementById('ps-close');
+      var prev = document.getElementById('ps-prev');
+      var next = document.getElementById('ps-next');
+      if (!lb || !img) return;
+
+      var currentProject = -1;
+      var currentImage = 0;
+      var touchStartX = 0, touchStartY = 0;
+
+      function render() {
+        var p = data[currentProject];
+        if (!p) return;
+        var imgs = p.gallery || [];
+        if (!imgs.length) return;
+        img.src = imgs[currentImage];
+        img.alt = p.title + ' - Image ' + (currentImage + 1);
+        title.textContent = p.title;
+        desc.textContent = p.description || '';
+        if (imgs.length > 1) {
+          counter.textContent = (currentImage + 1) + ' / ' + imgs.length;
+          counter.style.display = '';
+          prev.classList.remove('hidden'); prev.classList.add('flex');
+          next.classList.remove('hidden'); next.classList.add('flex');
+        } else {
+          counter.style.display = 'none';
+          prev.classList.add('hidden'); prev.classList.remove('flex');
+          next.classList.add('hidden'); next.classList.remove('flex');
+        }
+      }
+
+      function show(idx) {
+        currentProject = idx;
+        currentImage = 0;
+        render();
+        lb.classList.remove('hidden');
+        lb.classList.add('flex');
+        document.body.style.overflow = 'hidden';
+      }
+      function hide() {
+        lb.classList.add('hidden');
+        lb.classList.remove('flex');
+        document.body.style.overflow = '';
+        img.src = '';
+      }
+      function step(dir) {
+        var p = data[currentProject];
+        if (!p) return;
+        var len = (p.gallery || []).length;
+        if (len < 2) return;
+        currentImage = (currentImage + dir + len) % len;
+        render();
+      }
+
+      // Card click
+      cards.forEach(function (card) {
+        card.addEventListener('click', function () {
+          var idx = parseInt(card.getAttribute('data-ps-card'), 10);
+          if (!isNaN(idx)) show(idx);
+        });
+      });
+
+      // Controls
+      close.addEventListener('click', hide);
+      prev.addEventListener('click', function (e) { e.stopPropagation(); step(-1); });
+      next.addEventListener('click', function (e) { e.stopPropagation(); step(1); });
+
+      // Backdrop click to close (but not if click was on prev/next/close or the image area)
+      lb.addEventListener('click', function (e) {
+        var t = e.target;
+        if (t === close || close.contains(t)) return;
+        if (t === prev || prev.contains(t)) return;
+        if (t === next || next.contains(t)) return;
+        // Click on the image itself? close.
+        hide();
+      });
+
+      // Keyboard
+      document.addEventListener('keydown', function (e) {
+        if (lb.classList.contains('hidden')) return;
+        if (e.key === 'Escape') hide();
+        else if (e.key === 'ArrowLeft') step(-1);
+        else if (e.key === 'ArrowRight') step(1);
+      });
+
+      // Touch swipe
+      lb.addEventListener('touchstart', function (e) {
+        touchStartX = e.changedTouches[0].clientX;
+        touchStartY = e.changedTouches[0].clientY;
+      }, { passive: true });
+      lb.addEventListener('touchend', function (e) {
+        var dx = e.changedTouches[0].clientX - touchStartX;
+        var dy = e.changedTouches[0].clientY - touchStartY;
+        if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
+          if (dx > 0) step(-1); else step(1);
+        }
+      }, { passive: true });
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  })();
+</script>

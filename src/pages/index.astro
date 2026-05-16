@@ -2,8 +2,8 @@
 import Layout from '../layouts/Layout.astro';
 import HeroForm from '../components/HeroForm.astro';
 import ServicesSection from '../components/ServicesSection.astro';
-import { ProjectsSection } from '../components/ProjectsSection';
-import { ReviewsSection } from '../components/ReviewsSection';
+import ProjectsSection from '../components/ProjectsSection.astro';
+import ReviewsSection from '../components/ReviewsSection.astro';
 import AboutSection from '../components/AboutSection.astro';
 import ProcessSection from '../components/ProcessSection.astro';
 import LeadFormSection from '../components/LeadFormSection.astro';
@@ -137,8 +137,8 @@ const localBusinessJsonLd = {
   </section>
 
   <ServicesSection />
-  <ProjectsSection client:visible projects={projectsData.length > 0 ? projectsData : undefined} />
-  <ReviewsSection client:visible reviews={reviewsData.length > 0 ? reviewsData : undefined} />
+  <ProjectsSection projects={projectsData.length > 0 ? projectsData : undefined} />
+  <ReviewsSection reviews={reviewsData.length > 0 ? reviewsData : undefined} />
   <AboutSection />
   <ProcessSection />
   <LeadFormSection />

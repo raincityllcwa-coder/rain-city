@@ -1,9 +1,9 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import ServiceLandingHero from '../components/services/ServiceLandingHero.astro';
-import { ServiceContentSection } from '../components/services/ServiceContentSection';
-import { ReviewsGridSection } from '../components/services/ReviewsGridSection';
-import { ProjectsSection } from '../components/ProjectsSection';
+import ServiceContentSection from '../components/services/ServiceContentSection.astro';
+import ReviewsGridSection from '../components/services/ReviewsGridSection.astro';
+import ProjectsSection from '../components/ProjectsSection.astro';
 import WhyChooseUsSection from '../components/WhyChooseUsSection.astro';
 import OurProcessSection from '../components/OurProcessSection.astro';
 import FAQSection from '../components/FAQSection.astro';
@@ -79,9 +79,9 @@ const jsonLd = [
     { name: "Kitchen Countertops" },
   ]} />
   <ServiceLandingHero backgroundImage={imgServiceImage.src} title="Natural Stone Kitchen Countertops" subtitle="Premium kitchen countertops in dolomite, granite, marble, quartzite, schist, and soapstone." />
-  <ServiceContentSection client:visible title="Natural Stone Countertop Materials" paragraphs={["We offer a wide variety of natural stone countertops, including dolomite, granite, marble, quartzite, schist, and soapstone, available in different styles, colors, and thicknesses to suit your needs.","Each stone has its own character and strengths. Our team will help you choose the right material for your kitchen based on your lifestyle, design preferences, and budget."]} />
-  <ReviewsGridSection client:visible reviews={reviewsData.length > 0 ? reviewsData : undefined} />
-  <ProjectsSection client:visible projects={projectsData.length > 0 ? projectsData : undefined} />
+  <ServiceContentSection title="Natural Stone Countertop Materials" paragraphs={["We offer a wide variety of natural stone countertops, including dolomite, granite, marble, quartzite, schist, and soapstone, available in different styles, colors, and thicknesses to suit your needs.","Each stone has its own character and strengths. Our team will help you choose the right material for your kitchen based on your lifestyle, design preferences, and budget."]} />
+  <ReviewsGridSection reviews={reviewsData.length > 0 ? reviewsData : undefined} />
+  <ProjectsSection projects={projectsData.length > 0 ? projectsData : undefined} />
   <WhyChooseUsSection />
   <OurProcessSection />
   <FAQSection faqs={faqsData.length > 0 ? faqsData : undefined} />

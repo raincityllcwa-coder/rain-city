@@ -1,0 +1,66 @@
+---
+// ImageCarousel.astro - simple fade-through carousel.
+// Vanilla JS replaces React's useState+useEffect.
+
+interface CarouselImage {
+  src: string;
+  alt: string;
+}
+
+interface Props {
+  images: (string | CarouselImage)[];
+  alt?: string;
+  link: string;
+  interval?: number;
+}
+
+const { images, alt = "", link, interval = 4000 } = Astro.props;
+
+const normalize = (img: string | CarouselImage, i: number) => ({
+  src: typeof img === "string" ? img : img.src,
+  alt: typeof img === "string" ? `${alt} ${i + 1}` : img.alt,
+});
+
+const slides = images.map(normalize);
+---
+
+<a
+  href={link}
+  class="ic-root w-full md:w-[463px] h-[280px] md:h-[380px] rounded-[5px] overflow-hidden shrink-0 relative z-10 hover:opacity-95 transition-opacity block"
+  data-ic-interval={interval}
+>
+  {slides.map((s, i) => (
+    <img
+      data-ic-slide
+      src={s.src}
+      alt={s.alt}
+      loading={i === 0 ? "eager" : "lazy"}
+      sizes="(min-width: 768px) 463px, 100vw"
+      class="w-full h-full object-cover absolute inset-0 transition-opacity duration-1000"
+      style={`opacity:${i === 0 ? 1 : 0};`}
+    />
+  ))}
+</a>
+
+<script is:inline>
+  (function () {
+    function init() {
+      document.querySelectorAll('.ic-root').forEach(function (root) {
+        var slides = root.querySelectorAll('[data-ic-slide]');
+        if (slides.length < 2) return;
+        var interval = parseInt(root.getAttribute('data-ic-interval'), 10) || 4000;
+        var i = 0;
+        setInterval(function () {
+          slides[i].style.opacity = '0';
+          i = (i + 1) % slides.length;
+          slides[i].style.opacity = '1';
+        }, interval);
+      });
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  })();
+</script>
