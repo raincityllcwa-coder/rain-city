@@ -43,6 +43,12 @@ export default defineConfig({
   trailingSlash: 'never',
   build: {
     format: 'file',
+    // Inline every page's CSS into the <head> so there's no extra request
+    // for the per-route stylesheet on first paint. PSI flagged /_astro/about.*.css
+    // as a render-blocking dependency (~80ms on the critical path); since the
+    // total CSS per page is small (under 10kb), inlining is a net win over a
+    // separate fetch + cache miss.
+    inlineStylesheets: 'always',
   },
   integrations: [
     sitemap({
