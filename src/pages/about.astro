@@ -2,7 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import AboutPageContent from '../components/AboutPageContent.astro';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
-import ScrollToTop from '../components/ScrollToTop.astro';
+import MobileCallButton from '../components/MobileCallButton.astro';
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -45,5 +45,5 @@ const jsonLd = {
     { name: "About Us" },
   ]} />
   <AboutPageContent />
-  <ScrollToTop />
+  <MobileCallButton />
 </Layout>

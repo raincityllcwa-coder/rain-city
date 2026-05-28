@@ -1,4 +1,3 @@
-// netlify/functions/lead.mjs
 export default async (req) => {
   if (req.method !== "POST") {
     return new Response(JSON.stringify({ error: "Method not allowed" }), { status: 405 });
@@ -87,7 +86,7 @@ async function sendEmail({ name, phone, email, details, source, timestamp }) {
     body: JSON.stringify({
       from: "Rain City Leads <onboarding@resend.dev>",
       to: [TO_EMAIL],
-      subject: `🏠 New Lead: ${name} — ${phone}`,
+      subject: `🏠 New Lead: ${name} - ${phone}`,
       html,
     }),
   });
@@ -138,11 +137,6 @@ async function sendTelegram({ name, phone, email, details, source, timestamp }) 
     const err = await res.text();
     throw new Error(`Telegram error: ${res.status} ${err}`);
   }
-}
-
-function escapeMarkdown(text) {
-  if (!text) return "";
-  return text.replace(/[_*[\]()~`>#+\-=|{}.!]/g, "\\$&");
 }
 
 export const config = {

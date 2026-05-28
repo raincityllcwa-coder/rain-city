@@ -7,7 +7,7 @@ export const sanityClient = createClient({
   projectId: "u2nxf2rv",
   dataset: "production",
   apiVersion: "2024-01-01",
-  useCdn: false, // Static site — always fetch fresh data at build time
+  useCdn: false, // Static site: always fetch fresh data at build time
 });
 
 const builder = imageUrlBuilder(sanityClient);

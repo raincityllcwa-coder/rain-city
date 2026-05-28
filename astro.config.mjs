@@ -5,7 +5,7 @@ import path from 'path';
 import { createClient } from '@sanity/client';
 
 // ─── Build per-URL lastmod map for the sitemap ───
-// Google ignores <lastmod> when every URL shares the same date — that just looks
+// Google ignores <lastmod> when every URL shares the same date, which just looks
 // like a build timestamp and isn't a real signal. We pull the actual
 // _updatedAt for each project from Sanity at build time and use it for the
 // matching /our-projects/<slug> URL. Static pages get the build date as a

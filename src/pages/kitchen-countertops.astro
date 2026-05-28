@@ -10,7 +10,7 @@ import FAQSection from '../components/FAQSection.astro';
 import ServiceAreaSection from '../components/ServiceAreaSection.astro';
 import WideLeadFormSection from '../components/WideLeadFormSection.astro';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
-import ScrollToTop from '../components/ScrollToTop.astro';
+import MobileCallButton from '../components/MobileCallButton.astro';
 import imgServiceImage from "../assets/45b63473772ac5eedb2419a124f3a11b4a82ba56.webp";
 
 // ── Sanity ──
@@ -87,5 +87,5 @@ const jsonLd = [
   <FAQSection faqs={faqsData.length > 0 ? faqsData : undefined} />
   <ServiceAreaSection />
   <WideLeadFormSection />
-  <ScrollToTop />
+  <MobileCallButton />
 </Layout>

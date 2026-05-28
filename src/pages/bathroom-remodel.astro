@@ -7,7 +7,7 @@ import ProjectsSection from '../components/ProjectsSection.astro';
 import WhyChooseUsSection from '../components/WhyChooseUsSection.astro';
 import OurProcessSection from '../components/OurProcessSection.astro';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
-import ScrollToTop from '../components/ScrollToTop.astro';
+import MobileCallButton from '../components/MobileCallButton.astro';
 import imgServiceImage from "../assets/2221dd725ae6402fca45a45bd79869231da67ce7.webp";
 
 // ── Sanity ──
@@ -60,5 +60,5 @@ const jsonLd = {
   <ProjectsSection projects={projectsData.length > 0 ? projectsData : undefined} />
   <WhyChooseUsSection />
   <OurProcessSection />
-  <ScrollToTop />
+  <MobileCallButton />
 </Layout>
