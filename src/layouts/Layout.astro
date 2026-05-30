@@ -156,6 +156,7 @@ const canonicalUrl = canonical || new URL(cleanPath, Astro.site || 'https://rain
           const data = Object.fromEntries(new FormData(f));
           data.source = id;
 
+          const originalLabel = btn?.textContent;
           if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
 
           try {
@@ -170,7 +171,7 @@ const canonicalUrl = canonical || new URL(cleanPath, Astro.site || 'https://rain
             window.location.href = '/thanks';
           } catch (err) {
             console.error('Form error:', err);
-            if (btn) { btn.disabled = false; btn.textContent = 'Submit'; }
+            if (btn) { btn.disabled = false; btn.textContent = originalLabel ?? 'Submit'; }
           }
         });
       });
