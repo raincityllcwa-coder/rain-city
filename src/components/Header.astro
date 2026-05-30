@@ -1,5 +1,6 @@
 ---
 import imgTelephoneIcon from "@/assets/a7886c55528f6e197789a4b7d647dd63cdc250d2.webp";
+import logoIcon from "@/assets/logo-icon.png";
 ---
 
 <!-- Top Navigation - Desktop Only -->
@@ -17,7 +18,10 @@ import imgTelephoneIcon from "@/assets/a7886c55528f6e197789a4b7d647dd63cdc250d2.
   <div class="max-w-[1150px] mx-auto px-4 md:px-8 py-3 md:py-[25px] md:pb-[28px]">
     <div class="flex items-center justify-between">
       <a href="/" class="flex flex-col gap-[2px] md:gap-[7px] shrink-0">
-        <p class="font-['Lora'] font-bold text-[24px] md:text-[30px] text-[#051e2a] uppercase leading-[30px] md:leading-tight whitespace-nowrap">Rain City</p>
+        <div class="flex flex-row items-center gap-[10px] md:gap-[15px]">
+          <img src={logoIcon.src} alt="" class="w-[26px] h-[26px] md:w-8 md:h-8 shrink-0" width="32" height="32" />
+          <p class="font-['Lora'] font-bold text-[24px] md:text-[30px] text-[#051e2a] uppercase leading-[30px] md:leading-tight whitespace-nowrap">Rain City</p>
+        </div>
         <div class="h-[1px] bg-[#051e2a] opacity-40 min-w-[120px] md:w-full"></div>
         <p class="font-['Montserrat'] font-normal text-[16px] md:text-[20px] text-[#051e2a] leading-[20px] md:leading-tight whitespace-nowrap">Kitchen & Bath</p>
       </a>
