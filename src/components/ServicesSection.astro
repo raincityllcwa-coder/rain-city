@@ -75,7 +75,7 @@ const services = [
 
 <section id="services" class="w-full py-12 md:py-16 lg:py-20">
   <div class="max-w-[1150px] mx-auto px-4 md:px-8">
-    <h2 class="font-['Lora'] font-bold text-[28px] md:text-[32px] text-black mb-8 md:mb-11">Kitchen Remodeling & Bathroom Renovation Services</h2>
+    <h2 class="font-['Playfair_Display'] font-bold text-[28px] md:text-[32px] text-black mb-8 md:mb-11">Kitchen Remodeling & Bathroom Renovation Services</h2>
     <div class="flex flex-col gap-12 md:gap-[68px]">
       {services.map((s) => (
         <div class="relative">
@@ -83,7 +83,7 @@ const services = [
             <ImageCarousel images={s.images} link={s.link} />
             <div class={`hidden md:block absolute ${s.reverse ? 'left-0' : 'right-0'} top-[24px] w-[676px] h-[393px] rounded-[5px]`} style={`background:${s.bg}`}></div>
             <div class={`w-full md:w-[460px] ${s.reverse ? 'md:mr-[90px]' : 'md:ml-[90px]'} relative z-10 p-6 md:p-0 rounded-[5px] md:rounded-none`} style={`background:${s.bg}`}>
-              <h3 class="font-['Lora'] font-bold text-[20px] md:text-[24px] mb-[22px]" style={`color:${s.color}`}>{s.title}</h3>
+              <h3 class="font-['Playfair_Display'] font-bold text-[20px] md:text-[24px] mb-[22px]" style={`color:${s.color}`}>{s.title}</h3>
               <p class="font-['Montserrat'] font-normal text-[16px] text-black">{s.text}</p>
               <a href={s.link} class="inline-block mt-4 py-3 font-['Montserrat'] font-semibold text-[15px] text-[#007ec5] hover:underline">Learn More →</a>
             </div>

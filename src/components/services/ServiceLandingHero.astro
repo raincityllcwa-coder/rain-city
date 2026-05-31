@@ -19,7 +19,7 @@ const { backgroundImage, title, subtitle } = Astro.props;
   <div class="relative max-w-[1150px] mx-auto px-4 md:px-8 py-8 md:py-[37px] w-full">
     <div class="flex flex-col lg:flex-row gap-8 lg:gap-[100px] items-center justify-between">
       <div class="flex flex-col gap-[12px] md:gap-[15px] w-full lg:w-[441px] text-center lg:text-left">
-        <h1 class="font-['Lora'] font-bold text-[28px] md:text-[36px] lg:text-[42px] text-white leading-tight">{title}</h1>
+        <h1 class="font-['Playfair_Display'] font-bold text-[28px] md:text-[36px] lg:text-[42px] text-white leading-tight">{title}</h1>
         <p class="font-['Montserrat'] font-normal text-[16px] md:text-[18px] text-white">{subtitle}</p>
         <div class="flex gap-[7px] items-center justify-center lg:justify-start">
           <Image src={googleG} alt="" width={19} height={19} loading="eager" decoding="async" class="w-[19px] h-[19px]" />
@@ -34,7 +34,7 @@ const { backgroundImage, title, subtitle } = Astro.props;
 
       <!-- Form -->
       <div class="bg-white rounded-[20px] w-full lg:max-w-[379px] p-6 md:p-10 shadow-xl">
-        <h2 class="font-['Lora'] font-semibold text-[22px] md:text-[28px] text-black text-center mb-5 leading-tight">Book Your Free Consultation</h2>
+        <h2 class="font-['Playfair_Display'] font-semibold text-[22px] md:text-[28px] text-black text-center mb-5 leading-tight">Book Your Free Consultation</h2>
         <form class="flex flex-col gap-5" data-form="service-hero">
           <input type="text" name="name" placeholder="Your Name" required class="bg-[#f5f5f5] border border-[#e6e6e6] rounded-[5px] h-[50px] px-[14px] font-['Montserrat'] text-[16px] text-black placeholder:text-[#898989] focus:outline-none focus:border-[#007ec5]" />
           <input type="tel" name="phone" placeholder="(___) ___-____" required pattern="[0-9()\-\s+]{10,}" minlength="10" title="Enter a valid phone number" class="bg-[#f5f5f5] border border-[#e6e6e6] rounded-[5px] h-[50px] px-[14px] font-['Montserrat'] text-[16px] text-black placeholder:text-[#898989] focus:outline-none focus:border-[#007ec5]" />
