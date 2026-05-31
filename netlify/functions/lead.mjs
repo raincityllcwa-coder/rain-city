@@ -4,7 +4,7 @@ export default async (req) => {
   }
 
   try {
-    const { name, phone, email, details, source } = await req.json();
+    const { name, phone, email, details, bestTime, source } = await req.json();
 
     if (!name || !phone) {
       return new Response(JSON.stringify({ error: "Name and phone are required" }), { status: 400 });
@@ -14,8 +14,8 @@ export default async (req) => {
 
     // Send both in parallel
     const results = await Promise.allSettled([
-      sendEmail({ name, phone, email, details, source, timestamp }),
-      sendTelegram({ name, phone, email, details, source, timestamp }),
+      sendEmail({ name, phone, email, details, bestTime, source, timestamp }),
+      sendTelegram({ name, phone, email, details, bestTime, source, timestamp }),
     ]);
 
     const emailResult = results[0];
@@ -34,7 +34,7 @@ export default async (req) => {
   }
 };
 
-async function sendEmail({ name, phone, email, details, source, timestamp }) {
+async function sendEmail({ name, phone, email, details, bestTime, source, timestamp }) {
   const RESEND_API_KEY = process.env.RESEND_API_KEY;
   const TO_EMAIL = process.env.LEAD_EMAIL || "info@raincityllc.com";
 
@@ -59,6 +59,7 @@ async function sendEmail({ name, phone, email, details, source, timestamp }) {
             <td style="padding: 10px; font-weight: bold; color: #333;">Phone:</td>
             <td style="padding: 10px;"><a href="tel:${phone}" style="color: #007ec5;">${phone}</a></td>
           </tr>
+          ${bestTime ? `<tr><td style="padding: 10px; font-weight: bold; color: #333;">Best time:</td><td style="padding: 10px; color: #333;">${bestTime}</td></tr>` : ""}
           ${email ? `<tr><td style="padding: 10px; font-weight: bold; color: #333;">Email:</td><td style="padding: 10px;"><a href="mailto:${email}" style="color: #007ec5;">${email}</a></td></tr>` : ""}
           ${details ? `<tr style="background: #fff;"><td style="padding: 10px; font-weight: bold; color: #333; vertical-align: top;">Details:</td><td style="padding: 10px; color: #333;">${details}</td></tr>` : ""}
           <tr>
@@ -97,7 +98,7 @@ async function sendEmail({ name, phone, email, details, source, timestamp }) {
   }
 }
 
-async function sendTelegram({ name, phone, email, details, source, timestamp }) {
+async function sendTelegram({ name, phone, email, details, bestTime, source, timestamp }) {
   const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
   const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
@@ -111,6 +112,7 @@ async function sendTelegram({ name, phone, email, details, source, timestamp }) 
     ``,
     `👤 <b>Name:</b> ${name}`,
     `📞 <b>Phone:</b> ${phone}`,
+    bestTime ? `🕒 <b>Best time:</b> ${bestTime}` : null,
     email ? `📧 <b>Email:</b> ${email}` : null,
     details ? `📝 <b>Details:</b> ${details}` : null,
     ``,

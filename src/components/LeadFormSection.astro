@@ -7,6 +7,13 @@
       <form class="flex flex-col gap-[18px]" data-form="lead">
         <input type="text" name="name" placeholder="Your Name" required class="bg-[#f5f5f5] border border-[#e6e6e6] rounded-[5px] h-[50px] px-[14px] font-['Montserrat'] text-[16px] text-black placeholder:text-[#898989] focus:outline-none focus:border-[#007ec5]" />
         <input type="tel" name="phone" placeholder="(___) ___-____" required pattern="[0-9()\-\s+]{10,}" minlength="10" title="Enter a valid phone number" class="bg-[#f5f5f5] border border-[#e6e6e6] rounded-[5px] h-[50px] px-[14px] font-['Montserrat'] text-[16px] text-black placeholder:text-[#898989] focus:outline-none focus:border-[#007ec5]" />
+        <select name="bestTime" class="besttime-light bg-[#f5f5f5] border border-[#e6e6e6] rounded-[5px] h-[50px] px-[14px] font-['Montserrat'] text-[16px] focus:outline-none focus:border-[#007ec5]">
+          <option value="">Best time to call (optional)</option>
+          <option value="Morning">Morning</option>
+          <option value="Afternoon">Afternoon</option>
+          <option value="Evening">Evening</option>
+          <option value="Anytime">Anytime</option>
+        </select>
         <textarea name="details" placeholder="Tell us about your project (optional)" class="bg-[#f5f5f5] border border-[#e6e6e6] rounded-[5px] h-[100px] px-[14px] py-[15px] font-['Montserrat'] text-[16px] text-black placeholder:text-[#898989] resize-none focus:outline-none focus:border-[#007ec5]"></textarea>
         <button type="submit" class="bg-[#007ec5] border border-[#007ec5] rounded-[5px] h-[54px] font-['Montserrat'] font-bold text-[17px] text-white hover:bg-[#006ba8] transition-colors w-full">Book a Free Consultation</button>
       </form>
