@@ -9,10 +9,9 @@ import AboutSection from '../components/AboutSection.astro';
 import ProcessSection from '../components/ProcessSection.astro';
 import LeadFormSection from '../components/LeadFormSection.astro';
 import MobileCallButton from '../components/MobileCallButton.astro';
-import heroImage from '../assets/f54c0cc7231f70cee3cc02ad5edc8c18c5bbbaf6.webp';
+import heroImage from '../assets/hero-kitchen.webp';
 import googleG from '../assets/badges/google-g.png';
 import starIcon from '../assets/badges/star.png';
-import bestOfBellevue from '../assets/badges/best-of-bellevue.png';
 
 // ── Sanity ──
 import { getProjects, getReviews } from '../lib/queries';
@@ -106,47 +105,46 @@ const localBusinessJsonLd = {
 >
   <!-- Hero Section -->
   <section id="home" class="relative w-full">
-    <div class="absolute inset-0 min-h-full">
-      {/* Single responsive Image: Astro generates 400/600/800/1200/1600/2000
-          width variants. The browser picks the smallest that fills 100vw.
-          A 400-wide phone now pulls ~25KB instead of the previous 47KB
-          mobile-source PSI flagged. */}
+    <div class="absolute inset-0 overflow-hidden bg-[#847b6f]">
+      {/* Single responsive Image: Astro generates width variants and the browser
+          picks the smallest that fills 100vw. */}
       <Image
         src={heroImage}
-        alt="Kitchen remodel in Bellevue WA by Rain City Kitchen & Bath"
+        alt="Bright modern kitchen remodel in Bellevue WA by Rain City Kitchen & Bath"
         widths={[400, 600, 800, 1200, 1600, 2000]}
-        sizes="100vw"
+        sizes="(max-width: 1023px) 1024px, 100vw"
         quality={75}
         loading="eager"
         fetchpriority="high"
         decoding="async"
-        class="absolute inset-0 w-full h-full object-cover"
+        class="absolute top-0 left-0 w-full h-[700px] -translate-y-[200px] object-cover lg:h-full lg:translate-y-0"
       />
-      <div class="absolute inset-0 bg-black/60"></div>
+      {/* Desktop: bottom gradient (headline sits at the bottom there) */}
+      <div class="hidden lg:block absolute inset-x-0 bottom-0 h-[65%] pointer-events-none" style="background: linear-gradient(to top, rgba(132,123,111,0.82) 0%, rgba(0,0,0,0.5) 40%, rgba(0,0,0,0) 100%);"></div>
+      {/* Mobile: keep the top bright, darken only behind the text, fade into the taupe below */}
+      <div class="lg:hidden absolute inset-0 pointer-events-none" style="background: linear-gradient(to bottom, rgba(0,0,0,0) 0px, rgba(0,0,0,0) 140px, rgba(0,0,0,0.5) 330px, rgba(0,0,0,0.45) 62%, rgba(132,123,111,0.92) 88%, #847b6f 100%);"></div>
     </div>
-    <div class="relative max-w-[1150px] mx-auto px-4 md:px-8 py-8 md:py-[37px] w-full min-h-[600px] md:min-h-[630px] flex items-center">
-      <div class="flex flex-col lg:flex-row gap-8 lg:gap-[100px] items-center justify-between w-full">
-        <div class="flex flex-col gap-[12px] md:gap-[15px] w-full lg:w-[500px] text-center lg:text-left">
-          <h1 class="font-['Lora'] font-bold text-[28px] md:text-[36px] lg:text-[42px] text-white leading-tight">Premium Kitchen & Bath Remodeling Company in Bellevue, WA</h1>
-          <p class="font-['Montserrat'] font-normal text-[16px] md:text-[18px] text-white">Trusted kitchen remodeling company serving Seattle, Kirkland, Redmond & the Eastside. We provide expert craftsmanship and personalized service for your dream kitchen or bathroom renovation.</p>
-          <div class="flex flex-wrap items-center gap-4 justify-center lg:justify-start mt-1">
-            <Image src={bestOfBellevue} alt="City of Bellevue" width={90} height={101} loading="lazy" decoding="async" class="w-[52px] h-auto shrink-0" />
-            <div class="flex gap-[7px] items-center">
-              <Image src={googleG} alt="Google" width={19} height={19} loading="eager" decoding="async" class="w-[19px] h-[19px]" />
-              <Image src={starIcon} alt="5 star rating" width={19} height={19} loading="eager" decoding="async" class="w-[19px] h-[19px]" />
-              <Image src={starIcon} alt="" width={19} height={19} loading="eager" decoding="async" class="w-[19px] h-[19px]" />
-              <Image src={starIcon} alt="" width={19} height={19} loading="eager" decoding="async" class="w-[19px] h-[19px]" />
-              <Image src={starIcon} alt="" width={19} height={19} loading="eager" decoding="async" class="w-[19px] h-[19px]" />
-              <Image src={starIcon} alt="" width={19} height={19} loading="eager" decoding="async" class="w-[19px] h-[19px]" />
-              <span class="font-['Montserrat'] font-medium text-[16px] text-white/90 ml-2">5.0 (131 Google Reviews)</span>
-            </div>
-          </div>
-          <div class="flex flex-col gap-1">
-            <p class="font-['Montserrat'] font-bold text-[18px] text-white">Bellevue's Top Kitchen & Bath Contractor</p>
-            <p class="font-['Montserrat'] font-normal text-[14px] text-white/80">More than 300 projects successfully completed since 2020. Licensed, Bonded and Insured Washington State General Contractor. License #BIRIUCL808C6</p>
+
+    <div class="relative max-w-[1150px] mx-auto px-4 md:px-8 pt-40 pb-8 lg:pt-14 lg:pb-12 min-h-[580px] lg:min-h-[680px] flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8 lg:gap-10">
+      {/* Form: below the text on mobile, right on desktop */}
+      <div class="order-2 w-full lg:w-[410px] lg:shrink-0">
+        <HeroForm />
+      </div>
+      {/* Headline + rating: above the form on mobile, bottom-left on desktop */}
+      <div class="order-1 flex flex-col gap-[10px] items-start max-w-full lg:max-w-[620px]">
+        <h1 class="font-['Lora'] font-semibold text-[26px] md:text-[30px] lg:text-[32px] text-white leading-tight" style="text-shadow: 0 1px 4px rgba(0,0,0,0.35);">Premium Kitchen &amp; Bath Remodeling Company in Bellevue, WA</h1>
+        <p class="font-['Montserrat'] font-medium text-[16px] md:text-[18px] text-white leading-snug" style="text-shadow: 0 1px 4px rgba(0,0,0,0.35);">Trusted kitchen remodeling company serving Seattle, Kirkland, Redmond &amp; the Eastside. We provide expert craftsmanship and personalized service for your dream kitchen or bathroom renovation.</p>
+        <div class="flex flex-wrap items-center gap-x-3 gap-y-2 mt-1">
+          <Image src={googleG} alt="Google" width={19} height={19} loading="eager" decoding="async" class="w-[22px] h-[22px]" />
+          <span class="font-['Montserrat'] font-medium text-[16px] text-white" style="text-shadow: 0 1px 3px rgba(0,0,0,0.4);">5.0 (131 Google Reviews)</span>
+          <div class="flex gap-[3px]">
+            <Image src={starIcon} alt="5 star rating" width={17} height={17} loading="eager" decoding="async" class="w-[17px] h-[17px] [filter:brightness(0)_invert(1)]" />
+            <Image src={starIcon} alt="" width={17} height={17} loading="eager" decoding="async" class="w-[17px] h-[17px] [filter:brightness(0)_invert(1)]" />
+            <Image src={starIcon} alt="" width={17} height={17} loading="eager" decoding="async" class="w-[17px] h-[17px] [filter:brightness(0)_invert(1)]" />
+            <Image src={starIcon} alt="" width={17} height={17} loading="eager" decoding="async" class="w-[17px] h-[17px] [filter:brightness(0)_invert(1)]" />
+            <Image src={starIcon} alt="" width={17} height={17} loading="eager" decoding="async" class="w-[17px] h-[17px] [filter:brightness(0)_invert(1)]" />
           </div>
         </div>
-        <HeroForm />
       </div>
     </div>
   </section>
