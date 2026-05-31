@@ -9,7 +9,6 @@ import AboutSection from '../components/AboutSection.astro';
 import ProcessSection from '../components/ProcessSection.astro';
 import LeadFormSection from '../components/LeadFormSection.astro';
 import MobileCallButton from '../components/MobileCallButton.astro';
-import heroImage from '../assets/hero-kitchen.webp';
 import googleG from '../assets/badges/google-g.png';
 import starIcon from '../assets/badges/star.png';
 
@@ -106,18 +105,17 @@ const localBusinessJsonLd = {
   <!-- Hero Section -->
   <section id="home" class="relative w-full">
     <div class="absolute inset-0 overflow-hidden bg-[#847b6f]">
-      {/* Single responsive Image: Astro generates width variants and the browser
-          picks the smallest that fills 100vw. */}
-      <Image
-        src={heroImage}
+      {/* Raw img (no Astro processing) so the hero photo keeps full quality.
+          Mobile shifts the photo up to frame the hood; desktop fills the hero. */}
+      <img
+        src="/hero-kitchen.webp"
         alt="Bright modern kitchen remodel in Bellevue WA by Rain City Kitchen & Bath"
-        widths={[400, 600, 800, 1200, 1600, 2000]}
-        sizes="(max-width: 1023px) 1024px, 100vw"
-        quality={75}
-        loading="eager"
+        width="2048"
+        height="1365"
         fetchpriority="high"
+        loading="eager"
         decoding="async"
-        class="absolute top-0 left-0 w-full h-[700px] -translate-y-[200px] object-cover lg:h-full lg:translate-y-0"
+        class="absolute top-0 left-0 w-full h-[700px] -translate-y-[300px] object-cover lg:h-full lg:translate-y-0"
       />
       {/* Desktop: bottom gradient (headline sits at the bottom there) */}
       <div class="hidden lg:block absolute inset-x-0 bottom-0 h-[65%] pointer-events-none" style="background: linear-gradient(to top, rgba(132,123,111,0.82) 0%, rgba(0,0,0,0.5) 40%, rgba(0,0,0,0) 100%);"></div>
@@ -133,7 +131,7 @@ const localBusinessJsonLd = {
       {/* Headline + rating: above the form on mobile, bottom-left on desktop */}
       <div class="order-1 flex flex-col gap-[10px] items-start max-w-full lg:max-w-[620px]">
         <h1 class="font-['Lora'] font-semibold text-[26px] md:text-[30px] lg:text-[32px] text-white leading-tight" style="text-shadow: 0 1px 4px rgba(0,0,0,0.35);">Premium Kitchen &amp; Bath Remodeling Company in Bellevue, WA</h1>
-        <p class="font-['Montserrat'] font-medium text-[16px] md:text-[18px] text-white leading-snug" style="text-shadow: 0 1px 4px rgba(0,0,0,0.35);">Trusted kitchen remodeling company serving Seattle, Kirkland, Redmond &amp; the Eastside. We provide expert craftsmanship and personalized service for your dream kitchen or bathroom renovation.</p>
+        <p class="font-['Montserrat'] font-medium text-[16px] md:text-[18px] text-white leading-snug" style="text-shadow: 0 1px 4px rgba(0,0,0,0.35);">Trusted kitchen remodeling company serving Seattle, Kirkland, Redmond &amp; the Eastside.<span class="hidden lg:inline"> We provide expert craftsmanship and personalized service for your dream kitchen or bathroom renovation.</span></p>
         <div class="flex flex-wrap items-center gap-x-3 gap-y-2 mt-1">
           <Image src={googleG} alt="Google" width={19} height={19} loading="eager" decoding="async" class="w-[22px] h-[22px]" />
           <span class="font-['Montserrat'] font-medium text-[16px] text-white" style="text-shadow: 0 1px 3px rgba(0,0,0,0.4);">5.0 (131 Google Reviews)</span>
