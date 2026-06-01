@@ -75,8 +75,8 @@ const canonicalUrl = canonical || new URL(cleanPath, Astro.site || 'https://rain
         Preconnecting here saves ~100-200ms of DNS+TLS handshake when the first
         Sanity-hosted <img> request fires. */}
     <link rel="preconnect" href="https://cdn.sanity.io" crossorigin />
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Montserrat:wght@400;500;600;700&display=swap" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Montserrat:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'" />
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Montserrat:wght@400;500;600;700&display=optional" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Montserrat:wght@400;500;600;700&display=optional" />
     {preloadImage && <link rel="preload" as="image" href={preloadImage} type="image/webp" fetchpriority="high" />}
 
     <!-- Google Analytics + Google Ads -->
