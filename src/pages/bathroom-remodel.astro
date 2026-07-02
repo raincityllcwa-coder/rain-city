@@ -6,42 +6,69 @@ import ReviewsGridSection from '../components/services/ReviewsGridSection.astro'
 import ProjectsSection from '../components/ProjectsSection.astro';
 import WhyChooseUsSection from '../components/WhyChooseUsSection.astro';
 import OurProcessSection from '../components/OurProcessSection.astro';
+import FAQSection from '../components/FAQSection.astro';
+import ServiceAreaSection from '../components/ServiceAreaSection.astro';
+import WideLeadFormSection from '../components/WideLeadFormSection.astro';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
 import MobileCallButton from '../components/MobileCallButton.astro';
 import imgServiceImage from "../assets/2221dd725ae6402fca45a45bd79869231da67ce7.webp";
 
 // ── Sanity ──
-import { getReviews, getProjects } from '../lib/queries';
+import { getReviews, getProjects, getFAQs } from '../lib/queries';
 import { transformReviews, transformProjects } from '../lib/transforms';
 
 let reviewsData: any[] = [];
 let projectsData: any[] = [];
+let faqsData: any[] = [];
 
 try {
-  const [r, p] = await Promise.all([
+  const [r, p, f] = await Promise.all([
     getReviews('bathroom-remodel'),
     getProjects('bathroom-remodel'),
+    getFAQs('bathroom-remodel'),
   ]);
   if (r?.length) reviewsData = transformReviews(r);
   if (p?.length) projectsData = transformProjects(p);
+  if (f?.length) faqsData = f;
 } catch (e) {
   console.warn('[Sanity] bathroom-remodel fetch failed:', e);
 }
 
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "Service",
-  "name": "Bathroom Remodeling",
-  "description": "Complete bathroom remodeling with porcelain tile, natural stone, and glass tile in Bellevue, Seattle and surrounding areas.",
-  "provider": {
-    "@type": "LocalBusiness",
-    "name": "Rain City Kitchen & Bath",
-    "telephone": "(253) 466-8709",
-    "address": { "@type": "PostalAddress", "addressLocality": "Bellevue", "addressRegion": "WA" }
+// Single FAQ source: the same list feeds both the visible FAQSection and the
+// FAQPage JSON-LD, so the structured data always matches the page content.
+const faqItems = faqsData.length > 0 ? faqsData : [
+  { question: "How long does a bathroom remodel take?", answer: "Most bathroom remodels take 2-4 weeks for a standard bathroom and 4-8 weeks for a full master bathroom renovation, depending on the scope of work, materials, and any layout changes." },
+  { question: "Do I need permits for a bathroom remodel?", answer: "Permits are required when plumbing or electrical work is moved or added, which covers most full bathroom remodels. We handle all permit applications and make sure your project meets local building codes." },
+  { question: "What tile materials do you work with?", answer: "We install porcelain tile, natural stone, and glass tile in a wide range of styles and finishes. During your consultation we will help you choose materials that fit your design, budget, and maintenance preferences." },
+  { question: "Can I stay in my home during a bathroom remodel?", answer: "Yes. The bathroom being remodeled will be out of service during construction, but we keep the work area contained and clean so the rest of your home stays livable. If it is your only bathroom, we will plan the schedule to minimize downtime." },
+  { question: "Do you offer financing options for bathroom remodeling?", answer: "Yes, we partner with trusted financing providers to offer flexible payment plans. We can help you find options that fit your budget, including low-interest loans and special promotional financing." },
+];
+
+const jsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "name": "Bathroom Remodeling",
+    "description": "Complete bathroom remodeling with porcelain tile, natural stone, and glass tile in Bellevue, Seattle and surrounding areas.",
+    "provider": {
+      "@type": "LocalBusiness",
+      "name": "Rain City Kitchen & Bath",
+      "telephone": "(253) 466-8709",
+      "address": { "@type": "PostalAddress", "addressLocality": "Bellevue", "addressRegion": "WA" }
+    },
+    "areaServed": "Seattle metropolitan area",
+    "serviceType": "Bathroom Remodeling"
   },
-  "areaServed": "Seattle metropolitan area",
-  "serviceType": "Bathroom Remodeling"
-};
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqItems.map(faq => ({
+      "@type": "Question",
+      "name": faq.question,
+      "acceptedAnswer": { "@type": "Answer", "text": faq.answer }
+    }))
+  }
+];
 ---
 
 <Layout
@@ -60,5 +87,8 @@ const jsonLd = {
   <ProjectsSection projects={projectsData.length > 0 ? projectsData : undefined} />
   <WhyChooseUsSection />
   <OurProcessSection />
+  <FAQSection faqs={faqItems} />
+  <ServiceAreaSection />
+  <WideLeadFormSection />
   <MobileCallButton />
 </Layout>
