@@ -1,28 +1,77 @@
+// Escape user-supplied text for HTML contexts (email body, Telegram HTML parse mode).
+// Telegram rejects the whole message with a 400 ("can't parse entities") if a raw
+// "<" from a user (e.g. "budget <10k") reaches parse_mode: "HTML", which silently
+// kills the notification. Every interpolated field must go through this.
+const escapeHtml = (value) =>
+  String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+
+// Basic abuse guard: cap field lengths so a bot can't ship megabytes into
+// the email/Telegram pipeline.
+const clip = (value, max) => String(value ?? "").trim().slice(0, max);
+
 export default async (req) => {
   if (req.method !== "POST") {
     return new Response(JSON.stringify({ error: "Method not allowed" }), { status: 405 });
   }
 
   try {
-    const { name, phone, email, details, bestTime, source } = await req.json();
+    const body = await req.json();
 
-    if (!name || !phone) {
+    // Raw values: for plain-text contexts (email subject).
+    const raw = {
+      name: clip(body.name, 200),
+      phone: clip(body.phone, 50),
+      email: clip(body.email, 200),
+      details: clip(body.details, 3000),
+      bestTime: clip(body.bestTime, 50),
+      source: clip(body.source, 100),
+    };
+
+    if (!raw.name || !raw.phone) {
       return new Response(JSON.stringify({ error: "Name and phone are required" }), { status: 400 });
     }
 
+    // Escaped values: for HTML contexts (email body, Telegram HTML).
+    const safe = {
+      name: escapeHtml(raw.name),
+      phone: escapeHtml(raw.phone),
+      email: escapeHtml(raw.email),
+      details: escapeHtml(raw.details),
+      bestTime: escapeHtml(raw.bestTime),
+      source: escapeHtml(raw.source),
+    };
+
     const timestamp = new Date().toLocaleString("en-US", { timeZone: "America/Los_Angeles" });
 
-    // Send both in parallel
+    // Send both in parallel. Each sender resolves to "sent" or "skipped"
+    // (channel not configured) and throws on a real delivery error.
     const results = await Promise.allSettled([
-      sendEmail({ name, phone, email, details, bestTime, source, timestamp }),
-      sendTelegram({ name, phone, email, details, bestTime, source, timestamp }),
+      sendEmail({ raw, safe, timestamp }),
+      sendTelegram({ safe, timestamp }),
     ]);
 
-    const emailResult = results[0];
-    const telegramResult = results[1];
+    const [emailResult, telegramResult] = results;
+    console.log("Email:", emailResult.status, emailResult.value || emailResult.reason?.message || "");
+    console.log("Telegram:", telegramResult.status, telegramResult.value || telegramResult.reason?.message || "");
 
-    console.log("Email:", emailResult.status, emailResult.reason?.message || "ok");
-    console.log("Telegram:", telegramResult.status, telegramResult.reason?.message || "ok");
+    const delivered = results.filter(
+      (r) => r.status === "fulfilled" && r.value === "sent"
+    ).length;
+
+    // If nothing actually went out (every channel failed or is unconfigured),
+    // report an error so the site can tell the visitor instead of showing a
+    // false "Thank you" while the lead evaporates.
+    if (delivered === 0) {
+      return new Response(JSON.stringify({ error: "Lead delivery failed" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
 
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
@@ -34,13 +83,20 @@ export default async (req) => {
   }
 };
 
-async function sendEmail({ name, phone, email, details, bestTime, source, timestamp }) {
+async function sendEmail({ raw, safe, timestamp }) {
   const RESEND_API_KEY = process.env.RESEND_API_KEY;
   const TO_EMAIL = process.env.LEAD_EMAIL || "info@raincityllc.com";
+  // Sender must belong to a domain verified in Resend. Until raincityllc.com
+  // is verified there, the resend.dev sandbox sender only delivers to the
+  // Resend account owner's own email address.
+  const FROM = process.env.LEAD_FROM || "Rain City Leads <onboarding@resend.dev>";
 
   if (!RESEND_API_KEY) {
     console.warn("RESEND_API_KEY not set, skipping email");
-    return;
+    return "skipped";
+  }
+  if (!process.env.LEAD_FROM) {
+    console.warn("LEAD_FROM not set, using resend.dev sandbox sender (delivers only to the Resend account owner)");
   }
 
   const html = `
@@ -53,18 +109,18 @@ async function sendEmail({ name, phone, email, details, bestTime, source, timest
         <table style="width: 100%; border-collapse: collapse;">
           <tr>
             <td style="padding: 10px; font-weight: bold; color: #333; width: 120px;">Name:</td>
-            <td style="padding: 10px; color: #333;">${name}</td>
+            <td style="padding: 10px; color: #333;">${safe.name}</td>
           </tr>
           <tr style="background: #fff;">
             <td style="padding: 10px; font-weight: bold; color: #333;">Phone:</td>
-            <td style="padding: 10px;"><a href="tel:${phone}" style="color: #007ec5;">${phone}</a></td>
+            <td style="padding: 10px;"><a href="tel:${safe.phone}" style="color: #007ec5;">${safe.phone}</a></td>
           </tr>
-          ${bestTime ? `<tr><td style="padding: 10px; font-weight: bold; color: #333;">Best time:</td><td style="padding: 10px; color: #333;">${bestTime}</td></tr>` : ""}
-          ${email ? `<tr><td style="padding: 10px; font-weight: bold; color: #333;">Email:</td><td style="padding: 10px;"><a href="mailto:${email}" style="color: #007ec5;">${email}</a></td></tr>` : ""}
-          ${details ? `<tr style="background: #fff;"><td style="padding: 10px; font-weight: bold; color: #333; vertical-align: top;">Details:</td><td style="padding: 10px; color: #333;">${details}</td></tr>` : ""}
+          ${safe.bestTime ? `<tr><td style="padding: 10px; font-weight: bold; color: #333;">Best time:</td><td style="padding: 10px; color: #333;">${safe.bestTime}</td></tr>` : ""}
+          ${safe.email ? `<tr><td style="padding: 10px; font-weight: bold; color: #333;">Email:</td><td style="padding: 10px;"><a href="mailto:${safe.email}" style="color: #007ec5;">${safe.email}</a></td></tr>` : ""}
+          ${safe.details ? `<tr style="background: #fff;"><td style="padding: 10px; font-weight: bold; color: #333; vertical-align: top;">Details:</td><td style="padding: 10px; color: #333;">${safe.details}</td></tr>` : ""}
           <tr>
             <td style="padding: 10px; font-weight: bold; color: #333;">Source:</td>
-            <td style="padding: 10px; color: #666;">${source || "Website"}</td>
+            <td style="padding: 10px; color: #666;">${safe.source || "Website"}</td>
           </tr>
           <tr style="background: #fff;">
             <td style="padding: 10px; font-weight: bold; color: #333;">Time:</td>
@@ -85,9 +141,9 @@ async function sendEmail({ name, phone, email, details, bestTime, source, timest
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: "Rain City Leads <onboarding@resend.dev>",
+      from: FROM,
       to: [TO_EMAIL],
-      subject: `🏠 New Lead: ${name} - ${phone}`,
+      subject: `🏠 New Lead: ${raw.name} - ${raw.phone}`,
       html,
     }),
   });
@@ -96,27 +152,28 @@ async function sendEmail({ name, phone, email, details, bestTime, source, timest
     const err = await res.text();
     throw new Error(`Resend error: ${res.status} ${err}`);
   }
+  return "sent";
 }
 
-async function sendTelegram({ name, phone, email, details, bestTime, source, timestamp }) {
+async function sendTelegram({ safe, timestamp }) {
   const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
   const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
   if (!BOT_TOKEN || !CHAT_ID) {
     console.warn("Telegram not configured, skipping");
-    return;
+    return "skipped";
   }
 
   const text = [
     `🏠 <b>New Lead</b>`,
     ``,
-    `👤 <b>Name:</b> ${name}`,
-    `📞 <b>Phone:</b> ${phone}`,
-    bestTime ? `🕒 <b>Best time:</b> ${bestTime}` : null,
-    email ? `📧 <b>Email:</b> ${email}` : null,
-    details ? `📝 <b>Details:</b> ${details}` : null,
+    `👤 <b>Name:</b> ${safe.name}`,
+    `📞 <b>Phone:</b> ${safe.phone}`,
+    safe.bestTime ? `🕒 <b>Best time:</b> ${safe.bestTime}` : null,
+    safe.email ? `📧 <b>Email:</b> ${safe.email}` : null,
+    safe.details ? `📝 <b>Details:</b> ${safe.details}` : null,
     ``,
-    `📍 <b>Source:</b> ${source || "Website"}`,
+    `📍 <b>Source:</b> ${safe.source || "Website"}`,
     `🕐 ${timestamp}`,
   ]
     .filter(Boolean)
@@ -139,6 +196,7 @@ async function sendTelegram({ name, phone, email, details, bestTime, source, tim
     const err = await res.text();
     throw new Error(`Telegram error: ${res.status} ${err}`);
   }
+  return "sent";
 }
 
 export const config = {

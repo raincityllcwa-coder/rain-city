@@ -149,7 +149,6 @@ const canonicalUrl = canonical || new URL(cleanPath, Astro.site || 'https://rain
           const f = form as HTMLFormElement;
           const id = f.getAttribute('data-form');
           const btn = f.querySelector('button[type="submit"]') as HTMLButtonElement;
-          const success = document.querySelector(`[data-success="${id}"]`);
           const phoneInput = f.querySelector('input[name="phone"]') as HTMLInputElement;
           
           if (phoneInput && !isValidPhone(phoneInput.value)) {
@@ -166,11 +165,14 @@ const canonicalUrl = canonical || new URL(cleanPath, Astro.site || 'https://rain
           if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
 
           try {
-            await fetch('/api/lead', {
+            const res = await fetch('/api/lead', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(data),
             });
+            // fetch() resolves on 4xx/5xx too; without this check a failed
+            // delivery still redirected to /thanks and the lead was lost silently.
+            if (!res.ok) throw new Error('Lead API responded with ' + res.status);
             if (typeof gtag === 'function') {
               gtag('event', 'form_submission', { event_category: 'lead', event_label: id });
             }
@@ -178,6 +180,14 @@ const canonicalUrl = canonical || new URL(cleanPath, Astro.site || 'https://rain
           } catch (err) {
             console.error('Form error:', err);
             if (btn) { btn.disabled = false; btn.textContent = originalLabel ?? 'Submit'; }
+            let errEl = f.querySelector('.form-error-msg') as HTMLElement | null;
+            if (!errEl) {
+              errEl = document.createElement('p');
+              errEl.className = 'form-error-msg';
+              errEl.style.cssText = 'background:#c0392b;color:#fff;padding:10px 14px;border-radius:5px;font-family:Montserrat,sans-serif;font-size:14px;line-height:1.5;';
+              f.appendChild(errEl);
+            }
+            errEl.textContent = 'Something went wrong sending your request. Please try again or call (253) 466-8709.';
           }
         });
       });
