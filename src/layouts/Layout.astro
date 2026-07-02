@@ -1,6 +1,7 @@
 ---
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import Lightbox from '../components/Lightbox.astro';
 import '../styles/global.css';
 
 interface Props {
@@ -96,6 +97,8 @@ const canonicalUrl = canonical || new URL(cleanPath, Astro.site || 'https://rain
     <style is:global>
       select.besttime-light { color: #000; }
       select.besttime-light:has(option[value=""]:checked) { color: #898989; }
+      /* Honeypot anti-spam field: visually removed, still present for bots */
+      .hp-field { position: absolute !important; left: -9999px !important; top: auto !important; width: 1px !important; height: 1px !important; overflow: hidden !important; }
     </style>
   </head>
   <body>
@@ -104,6 +107,7 @@ const canonicalUrl = canonical || new URL(cleanPath, Astro.site || 'https://rain
       <slot />
       <Footer />
     </div>
+    <Lightbox />
 
     <!-- Global form handler with phone validation -->
     <script>

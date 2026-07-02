@@ -1,8 +1,9 @@
 ---
 // ProjectsSection.astro - grid of project cards on homepage / service pages.
 // Renders all projects at build time but only first 6 are visible; "View More"
-// reveals 3 at a time. Clicking a card opens a vanilla-JS lightbox with
-// swipe + keyboard navigation through that project's gallery.
+// reveals 3 at a time. Clicking a card opens the shared site Lightbox
+// (window.__lightbox from Lightbox.astro, included once in Layout) with that
+// project's gallery, title, and description as the caption.
 
 import imgProjectImage from "@/assets/3b944e1ac697f301b31561de640dda3557f43d69.webp";
 import imgProjectImage1 from "@/assets/1a9ff41667e1b1a100603f9ba342b2a853274b6f.webp";
@@ -59,7 +60,7 @@ const galleryData = JSON.stringify(
               <img
                 src={project.image}
                 alt={project.title}
-                loading={index < INITIAL_VISIBLE ? "lazy" : "lazy"}
+                loading="lazy"
                 class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
               />
             </div>
@@ -93,39 +94,6 @@ const galleryData = JSON.stringify(
   {/* Hidden gallery data island */}
   <script type="application/json" data-ps-data set:html={galleryData}></script>
 </section>
-
-{/* Lightbox (single instance for the page) */}
-<div id="ps-lightbox" class="fixed inset-0 bg-black/90 z-50 hidden items-center justify-center p-4" role="dialog" aria-modal="true">
-  <button
-    id="ps-close"
-    type="button"
-    aria-label="Close"
-    class="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors z-10"
-  >
-    <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-      <line x1="18" y1="6" x2="6" y2="18"></line>
-      <line x1="6" y1="6" x2="18" y2="18"></line>
-    </svg>
-  </button>
-
-  <button id="ps-prev" type="button" aria-label="Previous image" class="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-10 hidden items-center justify-center w-12 h-12 md:w-16 md:h-16 rounded-full bg-black/40 hover:bg-black/70 text-white transition-colors">
-    <svg class="w-7 h-7 md:w-9 md:h-9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-  </button>
-  <button id="ps-next" type="button" aria-label="Next image" class="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-10 hidden items-center justify-center w-12 h-12 md:w-16 md:h-16 rounded-full bg-black/40 hover:bg-black/70 text-white transition-colors">
-    <svg class="w-7 h-7 md:w-9 md:h-9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-  </button>
-
-  <div class="relative flex flex-col items-center gap-4 pointer-events-none">
-    <div class="flex items-center justify-center pointer-events-auto">
-      <img id="ps-img" src="" alt="" class="max-w-[90vw] max-h-[80vh] w-auto h-auto object-contain rounded-lg" />
-    </div>
-    <div class="text-center text-white px-4">
-      <h3 id="ps-title" class="font-['Playfair_Display'] font-bold text-xl md:text-2xl mb-2"></h3>
-      <p id="ps-desc" class="font-['Montserrat'] text-sm md:text-base text-gray-300"></p>
-      <p id="ps-counter" class="font-['Montserrat'] text-xs md:text-sm text-gray-400 mt-2"></p>
-    </div>
-  </div>
-</div>
 
 <script is:inline>
   (function () {
@@ -161,108 +129,18 @@ const galleryData = JSON.stringify(
         refreshMore();
       }
 
-      // ── Lightbox ──
-      var lb = document.getElementById('ps-lightbox');
-      var img = document.getElementById('ps-img');
-      var title = document.getElementById('ps-title');
-      var desc = document.getElementById('ps-desc');
-      var counter = document.getElementById('ps-counter');
-      var close = document.getElementById('ps-close');
-      var prev = document.getElementById('ps-prev');
-      var next = document.getElementById('ps-next');
-      if (!lb || !img) return;
-
-      var currentProject = -1;
-      var currentImage = 0;
-      var touchStartX = 0, touchStartY = 0;
-
-      function render() {
-        var p = data[currentProject];
-        if (!p) return;
-        var imgs = p.gallery || [];
-        if (!imgs.length) return;
-        img.src = imgs[currentImage];
-        img.alt = p.title + ' - Image ' + (currentImage + 1);
-        title.textContent = p.title;
-        desc.textContent = p.description || '';
-        if (imgs.length > 1) {
-          counter.textContent = (currentImage + 1) + ' / ' + imgs.length;
-          counter.style.display = '';
-          prev.classList.remove('hidden'); prev.classList.add('flex');
-          next.classList.remove('hidden'); next.classList.add('flex');
-        } else {
-          counter.style.display = 'none';
-          prev.classList.add('hidden'); prev.classList.remove('flex');
-          next.classList.add('hidden'); next.classList.remove('flex');
-        }
-      }
-
-      function show(idx) {
-        currentProject = idx;
-        currentImage = 0;
-        render();
-        lb.classList.remove('hidden');
-        lb.classList.add('flex');
-        document.body.style.overflow = 'hidden';
-      }
-      function hide() {
-        lb.classList.add('hidden');
-        lb.classList.remove('flex');
-        document.body.style.overflow = '';
-        img.src = '';
-      }
-      function step(dir) {
-        var p = data[currentProject];
-        if (!p) return;
-        var len = (p.gallery || []).length;
-        if (len < 2) return;
-        currentImage = (currentImage + dir + len) % len;
-        render();
-      }
-
-      // Card click
+      // ── Gallery: delegate to the shared Lightbox (Lightbox.astro in Layout) ──
       cards.forEach(function (card) {
         card.addEventListener('click', function () {
           var idx = parseInt(card.getAttribute('data-ps-card'), 10);
-          if (!isNaN(idx)) show(idx);
+          var p = data[idx];
+          if (isNaN(idx) || !p || !window.__lightbox) return;
+          var items = (p.gallery || []).map(function (src) {
+            return { src: src, title: p.title, description: p.description };
+          });
+          if (items.length) window.__lightbox.open(items, 0);
         });
       });
-
-      // Controls
-      close.addEventListener('click', hide);
-      prev.addEventListener('click', function (e) { e.stopPropagation(); step(-1); });
-      next.addEventListener('click', function (e) { e.stopPropagation(); step(1); });
-
-      // Backdrop click to close (but not if click was on prev/next/close or the image area)
-      lb.addEventListener('click', function (e) {
-        var t = e.target;
-        if (t === close || close.contains(t)) return;
-        if (t === prev || prev.contains(t)) return;
-        if (t === next || next.contains(t)) return;
-        // Click on the image itself? close.
-        hide();
-      });
-
-      // Keyboard
-      document.addEventListener('keydown', function (e) {
-        if (lb.classList.contains('hidden')) return;
-        if (e.key === 'Escape') hide();
-        else if (e.key === 'ArrowLeft') step(-1);
-        else if (e.key === 'ArrowRight') step(1);
-      });
-
-      // Touch swipe
-      lb.addEventListener('touchstart', function (e) {
-        touchStartX = e.changedTouches[0].clientX;
-        touchStartY = e.changedTouches[0].clientY;
-      }, { passive: true });
-      lb.addEventListener('touchend', function (e) {
-        var dx = e.changedTouches[0].clientX - touchStartX;
-        var dy = e.changedTouches[0].clientY - touchStartY;
-        if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
-          if (dx > 0) step(-1); else step(1);
-        }
-      }, { passive: true });
     }
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', init);

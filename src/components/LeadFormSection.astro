@@ -5,6 +5,9 @@
       <p class="font-['Montserrat'] font-medium text-[16px] md:text-[18px] text-[#007ec5] mb-8 md:mb-10">Free design consultation. No pressure, no obligation.</p>
 
       <form class="flex flex-col gap-[18px]" data-form="lead">
+        <div class="hp-field" aria-hidden="true">
+          <label>Leave this field empty<input type="text" name="_gotcha" tabindex="-1" autocomplete="off" /></label>
+        </div>
         <input type="text" name="name" placeholder="Your Name" required class="bg-[#f5f5f5] border border-[#e6e6e6] rounded-[5px] h-[50px] px-[14px] font-['Montserrat'] text-[16px] text-black placeholder:text-[#898989] focus:outline-none focus:border-[#007ec5]" />
         <input type="tel" name="phone" placeholder="(___) ___-____" required pattern="[0-9()\-\s+]{10,}" minlength="10" title="Enter a valid phone number" class="bg-[#f5f5f5] border border-[#e6e6e6] rounded-[5px] h-[50px] px-[14px] font-['Montserrat'] text-[16px] text-black placeholder:text-[#898989] focus:outline-none focus:border-[#007ec5]" />
         <select name="bestTime" class="besttime-light bg-[#f5f5f5] border border-[#e6e6e6] rounded-[5px] h-[50px] px-[14px] font-['Montserrat'] text-[16px] focus:outline-none focus:border-[#007ec5]">
@@ -29,10 +32,6 @@
           <span class="font-['Montserrat'] font-medium text-[13px] text-[#404040] ml-1">5.0 · 131 reviews on Google</span>
         </div>
         <p class="font-['Montserrat'] font-normal text-[12px] text-[#898989]">We'll contact you within 2 hours · No spam, ever</p>
-      </div>
-
-      <div class="hidden mt-8" data-success="lead">
-        <p class="font-['Montserrat'] text-[20px] text-[#007ec5] font-semibold">Thank you! We'll call you shortly.</p>
       </div>
     </div>
   </div>

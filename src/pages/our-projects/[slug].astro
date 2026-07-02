@@ -1,6 +1,5 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import Lightbox from "../../components/Lightbox.astro";
 import Breadcrumbs from "../../components/Breadcrumbs.astro";
 import { getAllProjectSlugs, getProjectBySlug } from "../../lib/queries";
 import { urlFor } from "../../lib/sanity";
@@ -408,7 +407,6 @@ const pageDescription = trimDesc(
     </>
   )}
 
-  <Lightbox />
 </Layout>
 
 <style is:global>

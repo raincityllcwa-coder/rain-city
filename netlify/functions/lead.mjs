@@ -14,13 +14,56 @@ const escapeHtml = (value) =>
 // the email/Telegram pipeline.
 const clip = (value, max) => String(value ?? "").trim().slice(0, max);
 
-export default async (req) => {
+// Best-effort in-memory rate limit, per warm function instance. Not a hard
+// guarantee across instances or cold starts, but it blunts bot bursts without
+// any external storage: max 5 submissions per IP per 10 minutes.
+const RL_WINDOW_MS = 10 * 60 * 1000;
+const RL_MAX = 5;
+const rlHits = new Map();
+function rateLimited(ip) {
+  const now = Date.now();
+  const recent = (rlHits.get(ip) || []).filter((t) => now - t < RL_WINDOW_MS);
+  if (recent.length >= RL_MAX) {
+    rlHits.set(ip, recent);
+    return true;
+  }
+  recent.push(now);
+  rlHits.set(ip, recent);
+  if (rlHits.size > 5000) rlHits.clear(); // memory guard
+  return false;
+}
+
+export default async (req, context) => {
   if (req.method !== "POST") {
     return new Response(JSON.stringify({ error: "Method not allowed" }), { status: 405 });
   }
 
+  const ip =
+    context?.ip ||
+    req.headers.get("x-nf-client-connection-ip") ||
+    (req.headers.get("x-forwarded-for") || "").split(",")[0].trim() ||
+    "unknown";
+  if (rateLimited(ip)) {
+    console.warn("Rate limited:", ip);
+    return new Response(JSON.stringify({ error: "Too many requests" }), {
+      status: 429,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
   try {
     const body = await req.json();
+
+    // Honeypot: humans never see the _gotcha field, bots auto-fill it.
+    // Answer with a normal-looking success so the bot learns nothing,
+    // but send nothing.
+    if (clip(body._gotcha, 100)) {
+      console.warn("Honeypot triggered, dropping submission from", ip);
+      return new Response(JSON.stringify({ success: true }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
 
     // Raw values: for plain-text contexts (email subject).
     const raw = {

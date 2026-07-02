@@ -67,3 +67,19 @@ export async function getFAQs(page: string) {
     { page },
   );
 }
+
+// ─── Site settings ──────────────────────────────────────
+// Memoized: the same siteSettings document is needed by AboutSection (homepage)
+// and WhyChooseUsSection (three service pages). One request per build instead
+// of one per component per page.
+
+let siteSettingsPromise: Promise<any> | null = null;
+
+export function getSiteSettings() {
+  if (!siteSettingsPromise) {
+    siteSettingsPromise = sanityClient.fetch(
+      `*[_type == "siteSettings"][0]{ ownerPhoto, aboutPhoto1, aboutPhoto2, aboutPhoto3 }`,
+    );
+  }
+  return siteSettingsPromise;
+}

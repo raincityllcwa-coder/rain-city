@@ -36,6 +36,9 @@ const { backgroundImage, title, subtitle } = Astro.props;
       <div class="bg-white rounded-[20px] w-full lg:max-w-[379px] p-6 md:p-10 shadow-xl">
         <h2 class="font-['Playfair_Display'] font-semibold text-[22px] md:text-[28px] text-black text-center mb-5 leading-tight">Book Your Free Consultation</h2>
         <form class="flex flex-col gap-5" data-form="service-hero">
+          <div class="hp-field" aria-hidden="true">
+            <label>Leave this field empty<input type="text" name="_gotcha" tabindex="-1" autocomplete="off" /></label>
+          </div>
           <input type="text" name="name" placeholder="Your Name" required class="bg-[#f5f5f5] border border-[#e6e6e6] rounded-[5px] h-[50px] px-[14px] font-['Montserrat'] text-[16px] text-black placeholder:text-[#898989] focus:outline-none focus:border-[#007ec5]" />
           <input type="tel" name="phone" placeholder="(___) ___-____" required pattern="[0-9()\-\s+]{10,}" minlength="10" title="Enter a valid phone number" class="bg-[#f5f5f5] border border-[#e6e6e6] rounded-[5px] h-[50px] px-[14px] font-['Montserrat'] text-[16px] text-black placeholder:text-[#898989] focus:outline-none focus:border-[#007ec5]" />
           <select name="bestTime" class="besttime-light bg-[#f5f5f5] border border-[#e6e6e6] rounded-[5px] h-[50px] px-[14px] font-['Montserrat'] text-[16px] focus:outline-none focus:border-[#007ec5]">
@@ -48,9 +51,6 @@ const { backgroundImage, title, subtitle } = Astro.props;
           <textarea name="details" required placeholder="Tell us about your project" class="bg-[#f5f5f5] border border-[#e6e6e6] rounded-[5px] h-[106px] px-[14px] py-[15px] font-['Montserrat'] text-[16px] text-black placeholder:text-[#898989] resize-none focus:outline-none focus:border-[#007ec5]"></textarea>
           <button type="submit" class="bg-[#007ec5] border border-[#007ec5] rounded-[5px] h-[50px] font-['Montserrat'] font-bold text-[16px] text-white hover:bg-[#006ba8] transition-colors">Book a Free Consultation</button>
         </form>
-        <div class="hidden text-center py-8" data-success="service-hero">
-          <p class="font-['Montserrat'] text-[20px] text-[#007ec5] font-semibold">Thank you! We'll contact you soon.</p>
-        </div>
       </div>
     </div>
   </div>

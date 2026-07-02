@@ -5,16 +5,15 @@ import imgPlayIcon from "@/assets/7cd184714e63d3e219a376ebd63d6f5096b78d98.webp"
 import imgOfficeExterior from "@/assets/office/office-exterior.webp";
 import imgOfficeInterior from "@/assets/office/office-interior.webp";
 import imgOfficeAlex from "@/assets/office/office-alex.webp";
-import { sanityClient, urlFor } from '../lib/sanity';
+import { urlFor } from '../lib/sanity';
+import { getSiteSettings } from '../lib/queries';
 
 let photo1 = '';
 let photo2 = '';
 let photo3 = '';
 
 try {
-  const settings = await sanityClient.fetch(
-    `*[_type == "siteSettings"][0]{ aboutPhoto1, aboutPhoto2, aboutPhoto3 }`
-  );
+  const settings = await getSiteSettings();
   if (settings?.aboutPhoto1) photo1 = urlFor(settings.aboutPhoto1).width(1036).format('webp').url();
   if (settings?.aboutPhoto2) photo2 = urlFor(settings.aboutPhoto2).width(850).format('webp').url();
   if (settings?.aboutPhoto3) photo3 = urlFor(settings.aboutPhoto3).width(1062).format('webp').url();

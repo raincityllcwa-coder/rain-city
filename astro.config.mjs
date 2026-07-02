@@ -3,6 +3,7 @@ import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 import path from 'path';
 import { createClient } from '@sanity/client';
+import { SANITY_PROJECT_ID, SANITY_DATASET, SANITY_API_VERSION } from './sanity.shared.mjs';
 
 // ─── Build per-URL lastmod map for the sitemap ───
 // Google ignores <lastmod> when every URL shares the same date, which just looks
@@ -12,9 +13,9 @@ import { createClient } from '@sanity/client';
 // fallback (which is still better than nothing for them since they really did
 // all rebuild at once).
 const sanityClient = createClient({
-  projectId: 'u2nxf2rv',
-  dataset: 'production',
-  apiVersion: '2024-01-01',
+  projectId: SANITY_PROJECT_ID,
+  dataset: SANITY_DATASET,
+  apiVersion: SANITY_API_VERSION,
   useCdn: false,
 });
 

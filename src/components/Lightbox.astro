@@ -1,20 +1,23 @@
 ---
 // Lightbox.astro
-// Self-contained photo lightbox. Auto-attaches to all <img> tags on the page
-// except those inside <header>, <footer>, <nav>, or inside <a> links
-// (so navigation thumbnails like "Other projects" stay as links).
+// The single photo lightbox for the whole site, included once in Layout.astro.
+// Do not add it to individual pages, that would duplicate the #lb element.
 //
-// Usage: just drop <Lightbox /> anywhere in a page.
+// Two ways photos get in:
 //
-// Features:
-//   - Click any photo to open
-//   - Prev / Next buttons
-//   - Arrow keys: navigate, Esc: close
-//   - Click backdrop or image to close
-//   - Touch swipe on mobile
-//   - Photo counter (e.g. "3 / 16")
-//   - Preloads neighboring images
-//   - Auto-upgrades Sanity URLs to higher resolution for the overlay
+// 1. Auto-attach: any <img> inside a Tailwind aspect-ratio container or inside
+//    .magazine-grid, excluding images wrapped in <a> (those stay navigation
+//    links). All matches on the page form one navigable sequence. This is the
+//    project case-study behavior.
+//
+// 2. Gallery API for scripts: window.__lightbox.open(items, startIndex) where
+//    items is an array of URL strings or objects
+//    { src, hiRes?, thumb?, alt?, title?, description? }.
+//    ProjectsSection uses this for its per-project galleries with captions.
+//
+// Features: prev/next, arrow keys, Esc, backdrop/image click to close, touch
+// swipe, counter, optional caption (title + description), neighbor preload,
+// automatic hi-res upgrade for Sanity CDN URLs.
 ---
 
 <div id="lb" class="lb" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Photo viewer">
@@ -43,6 +46,11 @@
     <img id="lb-img" src="" alt="" />
     <div class="lb-spinner" id="lb-spinner" aria-hidden="true"></div>
   </div>
+
+  <div class="lb-caption is-hidden" id="lb-caption">
+    <h3 class="lb-caption-title" id="lb-caption-title"></h3>
+    <p class="lb-caption-desc" id="lb-caption-desc"></p>
+  </div>
 </div>
 
 <style is:global>
@@ -70,8 +78,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 70px 80px;
+    padding: 70px 80px 110px;
     box-sizing: border-box;
+  }
+  .lb.no-caption .lb-stage {
+    padding-bottom: 70px;
   }
   .lb-stage img {
     max-width: 100%;
@@ -104,6 +115,34 @@
   }
   @keyframes lb-spin {
     to { transform: rotate(360deg); }
+  }
+  .lb-caption {
+    position: absolute;
+    left: 50%;
+    bottom: 26px;
+    transform: translateX(-50%);
+    width: min(720px, calc(100% - 32px));
+    text-align: center;
+    pointer-events: none;
+    z-index: 10;
+  }
+  .lb-caption.is-hidden {
+    display: none;
+  }
+  .lb-caption-title {
+    font-family: "Playfair Display", serif;
+    font-weight: 700;
+    font-size: 22px;
+    color: #fff;
+    margin: 0 0 6px;
+    line-height: 1.3;
+  }
+  .lb-caption-desc {
+    font-family: "Montserrat", sans-serif;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.75);
+    margin: 0;
+    line-height: 1.5;
   }
   .lb-close,
   .lb-prev,
@@ -166,7 +205,8 @@
     pointer-events: none;
   }
   .lb-prev.is-hidden,
-  .lb-next.is-hidden {
+  .lb-next.is-hidden,
+  .lb-counter.is-hidden {
     display: none;
   }
   body.lb-locked {
@@ -174,7 +214,19 @@
   }
   @media (max-width: 640px) {
     .lb-stage {
-      padding: 56px 8px;
+      padding: 56px 8px 96px;
+    }
+    .lb.no-caption .lb-stage {
+      padding-bottom: 56px;
+    }
+    .lb-caption {
+      bottom: 16px;
+    }
+    .lb-caption-title {
+      font-size: 17px;
+    }
+    .lb-caption-desc {
+      font-size: 12px;
     }
     .lb-prev {
       left: 6px;
@@ -205,112 +257,127 @@
   (function () {
     function initLightbox() {
       var lb = document.getElementById("lb");
-      if (!lb) return;
+      if (!lb || lb.dataset.ready === "1") return;
+      lb.dataset.ready = "1";
+
       var lbImg = document.getElementById("lb-img");
       var counter = document.getElementById("lb-counter");
       var spinner = document.getElementById("lb-spinner");
+      var caption = document.getElementById("lb-caption");
+      var captionTitle = document.getElementById("lb-caption-title");
+      var captionDesc = document.getElementById("lb-caption-desc");
       var btnClose = lb.querySelector(".lb-close");
       var btnPrev = lb.querySelector(".lb-prev");
       var btnNext = lb.querySelector(".lb-next");
 
-      // Whitelist approach: only pick up images inside a Tailwind aspect-ratio
-      // container, which is the pattern used for every photo wrapper on project
-      // pages (aspect-[16/9] for hero, aspect-[4/3] for grid photos). This
-      // avoids accidentally grabbing icons (phone, logos) sitting elsewhere.
-      // Images wrapped in <a> (e.g. related-project thumbnails) are excluded so
-      // those keep working as navigation links.
-      var imgs = Array.prototype.slice
-        .call(document.querySelectorAll('[class*="aspect-["] img, [class*="aspect-square"] img, [class*="aspect-video"] img'))
-        .filter(function (img) {
-          if (img.closest("a")) return false;
-          if (!img.src || img.src.indexOf("data:") === 0) return false;
-          return true;
-        });
-
-      if (imgs.length === 0) return;
-
+      var items = [];
       var currentIndex = 0;
 
-      function getHiRes(img) {
-        var src = img.currentSrc || img.src;
-        // Sanity CDN: bump width to 1800 and drop height/fit so we get full image
-        if (src.indexOf("cdn.sanity.io") !== -1) {
-          var url = src.split("?")[0];
-          var params = {};
-          if (src.indexOf("?") !== -1) {
-            src.split("?")[1].split("&").forEach(function (p) {
-              var kv = p.split("=");
-              if (kv[0]) params[kv[0]] = kv[1];
-            });
-          }
-          params.w = "1800";
-          delete params.h;
-          delete params.fit;
-          params.fm = params.fm || "webp";
-          params.q = params.q || "85";
-          var qs = Object.keys(params)
-            .map(function (k) { return k + "=" + params[k]; })
-            .join("&");
-          return url + "?" + qs;
+      // Sanity CDN: bump width to 1800 and drop crop params for the overlay.
+      function getHiRes(src) {
+        if (!src || src.indexOf("cdn.sanity.io") === -1) return src;
+        var url = src.split("?")[0];
+        var params = {};
+        if (src.indexOf("?") !== -1) {
+          src.split("?")[1].split("&").forEach(function (p) {
+            var kv = p.split("=");
+            if (kv[0]) params[kv[0]] = kv[1];
+          });
         }
-        return src;
+        params.w = "1800";
+        delete params.h;
+        delete params.fit;
+        params.fm = params.fm || "webp";
+        params.q = params.q || "85";
+        var qs = Object.keys(params)
+          .map(function (k) { return k + "=" + params[k]; })
+          .join("&");
+        return url + "?" + qs;
       }
 
-      function showSpinner() {
-        spinner.classList.add("is-visible");
-      }
-      function hideSpinner() {
-        spinner.classList.remove("is-visible");
+      function normalize(list) {
+        return (list || []).map(function (it) {
+          if (typeof it === "string") it = { src: it };
+          return {
+            src: it.src,
+            thumb: it.thumb || null,
+            hiRes: it.hiRes || getHiRes(it.src),
+            alt: it.alt || "",
+            title: it.title || "",
+            description: it.description || "",
+          };
+        }).filter(function (it) { return !!it.src; });
       }
 
-      function open(index) {
+      function showSpinner() { spinner.classList.add("is-visible"); }
+      function hideSpinner() { spinner.classList.remove("is-visible"); }
+      function doneLoading() {
+        lbImg.classList.remove("is-loading");
+        hideSpinner();
+      }
+
+      function render(index) {
         currentIndex = index;
-        var img = imgs[index];
+        var it = items[index];
+        if (!it) return;
 
-        // 1. Immediately show the already-loaded thumbnail so there's no blank flash
-        lbImg.src = img.currentSrc || img.src;
-        lbImg.alt = img.alt || "";
         lbImg.classList.add("is-loading");
         showSpinner();
+        lbImg.alt = it.alt || it.title || "";
 
-        counter.textContent = index + 1 + " / " + imgs.length;
-
-        // 2. Upgrade to hi-res in background, swap when ready
-        var hiRes = getHiRes(img);
-        if (hiRes !== lbImg.src) {
+        var target = it.hiRes || it.src;
+        if (it.thumb && it.thumb !== target) {
+          // Paint the already-loaded page thumbnail instantly, then swap in hi-res.
+          lbImg.src = it.thumb;
           var loader = new Image();
           loader.onload = function () {
-            if (currentIndex === index) {
-              lbImg.src = hiRes;
-              lbImg.classList.remove("is-loading");
-              hideSpinner();
-            }
+            if (currentIndex === index) { lbImg.src = target; doneLoading(); }
           };
-          loader.onerror = function () {
-            lbImg.classList.remove("is-loading");
-            hideSpinner();
-          };
-          loader.src = hiRes;
+          loader.onerror = doneLoading;
+          loader.src = target;
         } else {
-          lbImg.classList.remove("is-loading");
-          hideSpinner();
+          lbImg.src = target;
+          if (lbImg.complete && lbImg.naturalWidth > 0) {
+            doneLoading();
+          } else {
+            lbImg.onload = doneLoading;
+            lbImg.onerror = doneLoading;
+          }
         }
 
+        counter.textContent = index + 1 + " / " + items.length;
+        counter.classList.toggle("is-hidden", items.length <= 1);
+        btnPrev.classList.toggle("is-hidden", items.length <= 1);
+        btnNext.classList.toggle("is-hidden", items.length <= 1);
+
+        var hasCaption = !!(it.title || it.description);
+        caption.classList.toggle("is-hidden", !hasCaption);
+        lb.classList.toggle("no-caption", !hasCaption);
+        captionTitle.textContent = it.title || "";
+        captionTitle.style.display = it.title ? "" : "none";
+        captionDesc.textContent = it.description || "";
+        captionDesc.style.display = it.description ? "" : "none";
+
+        preload((index + 1) % items.length);
+        preload((index - 1 + items.length) % items.length);
+      }
+
+      function preload(index) {
+        if (items.length < 2) return;
+        var it = items[index];
+        if (!it) return;
+        var im = new Image();
+        im.src = it.hiRes || it.src;
+      }
+
+      function openWith(list, startIndex) {
+        var normalized = normalize(list);
+        if (!normalized.length) return;
+        items = normalized;
         lb.classList.add("is-open");
         lb.setAttribute("aria-hidden", "false");
         document.body.classList.add("lb-locked");
-
-        if (imgs.length <= 1) {
-          btnPrev.classList.add("is-hidden");
-          btnNext.classList.add("is-hidden");
-        } else {
-          btnPrev.classList.remove("is-hidden");
-          btnNext.classList.remove("is-hidden");
-        }
-
-        // Preload neighbors
-        preload((index + 1) % imgs.length);
-        preload((index - 1 + imgs.length) % imgs.length);
+        render(Math.min(Math.max(startIndex || 0, 0), items.length - 1));
       }
 
       function close() {
@@ -319,34 +386,42 @@
         document.body.classList.remove("lb-locked");
         setTimeout(function () {
           lbImg.src = "";
-          lbImg.classList.remove("is-loading");
-          hideSpinner();
+          doneLoading();
         }, 250);
       }
 
-      function next() {
-        open((currentIndex + 1) % imgs.length);
-      }
-      function prev() {
-        open((currentIndex - 1 + imgs.length) % imgs.length);
-      }
+      function next() { render((currentIndex + 1) % items.length); }
+      function prev() { render((currentIndex - 1 + items.length) % items.length); }
 
-      function preload(index) {
-        if (index < 0 || index >= imgs.length) return;
-        var im = new Image();
-        im.src = getHiRes(imgs[index]);
-      }
+      // Public API for scripts (ProjectsSection galleries etc).
+      window.__lightbox = { open: openWith, close: close };
 
-      // Attach click handler to every photo
-      imgs.forEach(function (img, i) {
-        img.style.cursor = "zoom-in";
-        img.addEventListener("click", function (e) {
-          e.preventDefault();
-          open(i);
+      // Auto-attach: aspect-ratio containers plus the magazine grid on case
+      // studies; images inside links keep working as links.
+      var pageImgs = Array.prototype.slice
+        .call(document.querySelectorAll('[class*="aspect-["] img, [class*="aspect-square"] img, [class*="aspect-video"] img, .magazine-grid img'))
+        .filter(function (img, i, arr) {
+          if (arr.indexOf(img) !== i) return false;
+          if (img.closest("a")) return false;
+          if (!img.src || img.src.indexOf("data:") === 0) return false;
+          return true;
         });
-      });
 
-      // Close on backdrop or image click. Buttons stop propagation themselves.
+      if (pageImgs.length) {
+        var autoItems = pageImgs.map(function (img) {
+          var src = img.currentSrc || img.src;
+          return { src: src, thumb: src, hiRes: getHiRes(src), alt: img.alt || "" };
+        });
+        pageImgs.forEach(function (img, i) {
+          img.style.cursor = "zoom-in";
+          img.addEventListener("click", function (e) {
+            e.preventDefault();
+            openWith(autoItems, i);
+          });
+        });
+      }
+
+      // Close on backdrop or image click. Buttons handle themselves.
       lb.addEventListener("click", function (e) {
         if (e.target.closest(".lb-prev") || e.target.closest(".lb-next") || e.target.closest(".lb-close")) {
           return;
@@ -354,20 +429,10 @@
         close();
       });
 
-      btnClose.addEventListener("click", function (e) {
-        e.stopPropagation();
-        close();
-      });
-      btnPrev.addEventListener("click", function (e) {
-        e.stopPropagation();
-        prev();
-      });
-      btnNext.addEventListener("click", function (e) {
-        e.stopPropagation();
-        next();
-      });
+      btnClose.addEventListener("click", function (e) { e.stopPropagation(); close(); });
+      btnPrev.addEventListener("click", function (e) { e.stopPropagation(); prev(); });
+      btnNext.addEventListener("click", function (e) { e.stopPropagation(); next(); });
 
-      // Keyboard
       document.addEventListener("keydown", function (e) {
         if (!lb.classList.contains("is-open")) return;
         if (e.key === "Escape") close();
@@ -375,30 +440,20 @@
         else if (e.key === "ArrowRight") next();
       });
 
-      // Touch swipe
       var touchStartX = 0;
       var touchStartY = 0;
-      lb.addEventListener(
-        "touchstart",
-        function (e) {
-          touchStartX = e.changedTouches[0].screenX;
-          touchStartY = e.changedTouches[0].screenY;
-        },
-        { passive: true }
-      );
-      lb.addEventListener(
-        "touchend",
-        function (e) {
-          var dx = e.changedTouches[0].screenX - touchStartX;
-          var dy = e.changedTouches[0].screenY - touchStartY;
-          // Horizontal swipe wins only if it's clearly horizontal
-          if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
-            if (dx > 0) prev();
-            else next();
-          }
-        },
-        { passive: true }
-      );
+      lb.addEventListener("touchstart", function (e) {
+        touchStartX = e.changedTouches[0].screenX;
+        touchStartY = e.changedTouches[0].screenY;
+      }, { passive: true });
+      lb.addEventListener("touchend", function (e) {
+        var dx = e.changedTouches[0].screenX - touchStartX;
+        var dy = e.changedTouches[0].screenY - touchStartY;
+        if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
+          if (dx > 0) prev();
+          else next();
+        }
+      }, { passive: true });
     }
 
     if (document.readyState === "loading") {
