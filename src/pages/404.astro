@@ -1,0 +1,35 @@
+---
+// Custom 404. Netlify automatically serves /404.html from the publish
+// directory for any path that matches nothing, replacing its generic
+// "Page not found" screen with a branded page that keeps visitors on site.
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout
+  title="Page Not Found | Rain City Kitchen & Bath"
+  description="The page you are looking for does not exist. Browse our kitchen and bathroom remodeling services and projects in the Bellevue and Seattle area."
+  noindex={true}
+>
+  <section class="w-full bg-[#f7f6f1]">
+    <div class="max-w-[820px] mx-auto px-4 md:px-8 py-20 md:py-28 text-center">
+      <p class="font-['Playfair_Display'] font-bold text-[72px] md:text-[96px] text-[#051e2a] leading-none mb-4">404</p>
+      <h1 class="font-['Playfair_Display'] font-bold text-[26px] md:text-[34px] text-black mb-4">
+        This Page Doesn't Exist
+      </h1>
+      <p class="font-['Montserrat'] text-[16px] md:text-[18px] text-gray-700 leading-relaxed mb-10 max-w-[560px] mx-auto">
+        The page may have been moved or the link is out of date. Here are a few places to go instead.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/" class="inline-flex items-center justify-center bg-[#007ec5] hover:bg-[#006ba8] text-white font-['Montserrat'] font-bold text-[16px] px-8 py-4 rounded-[5px] transition-colors">
+          Back to Homepage
+        </a>
+        <a href="/our-projects" class="inline-flex items-center justify-center bg-white hover:bg-gray-50 text-[#051e2a] border border-[#989898] font-['Montserrat'] font-semibold text-[16px] px-8 py-4 rounded-[5px] transition-colors">
+          See Our Projects
+        </a>
+      </div>
+      <p class="font-['Montserrat'] text-[15px] text-gray-600 mt-10">
+        Or call us: <a href="tel:2534668709" class="text-[#007ec5] font-semibold hover:underline">(253) 466-8709</a>
+      </p>
+    </div>
+  </section>
+</Layout>

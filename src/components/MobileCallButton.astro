@@ -17,7 +17,10 @@
 
   window.addEventListener('scroll', () => {
     if (!callBtn) return;
+    // Toggle classes, not style.display: an inline style would override the
+    // md:hidden utility and make the "mobile-only" button appear on desktop.
     const show = window.scrollY > 300;
-    callBtn.style.display = show ? 'flex' : 'none';
+    callBtn.classList.toggle('hidden', !show);
+    callBtn.classList.toggle('flex', show);
   }, { passive: true });
 </script>

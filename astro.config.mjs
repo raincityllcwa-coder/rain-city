@@ -87,6 +87,34 @@ export default defineConfig({
         return next;
       },
     }),
+    {
+      // Netlify does not support a mid-path splat (/our-projects/*.html is
+      // silently ignored), so the .html -> clean-URL 301 for project pages
+      // cannot be a wildcard rule. Instead we append one explicit rule per
+      // project slug to dist/_redirects after the build. Slugs come from the
+      // same Sanity fetch used for the sitemap lastmod above.
+      name: 'project-html-redirects',
+      hooks: {
+        'astro:build:done': async ({ dir }) => {
+          const paths = [...lastmodByUrl.keys()].map((u) =>
+            u.replace('https://raincityllc.com', '')
+          );
+          if (paths.length === 0) {
+            console.warn('[redirects] no project slugs loaded, skipping per-project .html rules');
+            return;
+          }
+          const fs = await import('node:fs');
+          const lines = paths.map((p) => `${p}.html${' '.repeat(Math.max(1, 39 - p.length - 5))}${p} 301!`);
+          fs.appendFileSync(
+            new URL('_redirects', dir),
+            '\n# Auto-generated at build time: per-project .html duplicates -> clean URLs\n' +
+              lines.join('\n') +
+              '\n'
+          );
+          console.log(`[redirects] appended ${lines.length} per-project .html rules`);
+        },
+      },
+    },
   ],
   vite: {
     plugins: [tailwindcss()],

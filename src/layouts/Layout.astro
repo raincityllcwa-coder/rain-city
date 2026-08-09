@@ -163,7 +163,9 @@ const canonicalUrl = canonical || new URL(cleanPath, Astro.site || 'https://rain
           }
 
           const data = Object.fromEntries(new FormData(f));
-          data.source = id;
+          // Form id + page path: a "cta" lead from /bathroom-remodel and one
+          // from /kitchen-cabinets are otherwise indistinguishable.
+          data.source = (id || 'form') + ' @ ' + location.pathname;
 
           const originalLabel = btn?.textContent;
           if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }

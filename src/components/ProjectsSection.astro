@@ -15,6 +15,7 @@ interface ProjectItem {
   title: string;
   description: string;
   gallery: string[];
+  slug?: string | null;
 }
 
 interface Props {
@@ -37,9 +38,11 @@ const INITIAL_VISIBLE = 6;
 
 // Serialize the per-project galleries into a JSON island the script can read,
 // keyed by index. Avoids data-attr noise on each card.
+// Escape "<" so content like "</script>" in a title or description cannot
+// terminate the JSON island's script tag early.
 const galleryData = JSON.stringify(
   allProjects.map((p) => ({ title: p.title, description: p.description, gallery: p.gallery }))
-);
+).replace(/</g, "\\u003c");
 ---
 
 <section id="projects" class="w-full py-12 md:py-16 lg:py-20">
@@ -51,26 +54,39 @@ const galleryData = JSON.stringify(
     <div class="ps-root flex flex-col gap-[52px] items-center">
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-[24px] w-full">
         {allProjects.map((project, index) => (
-          <button
-            type="button"
+          <div
             data-ps-card={index}
-            class={`ps-card flex flex-col gap-[21px] cursor-pointer text-left ${index >= INITIAL_VISIBLE ? 'hidden' : ''}`}
+            class={`ps-card flex flex-col gap-[21px] text-left ${index >= INITIAL_VISIBLE ? 'hidden' : ''}`}
           >
-            <div class="h-[240px] md:h-[279px] rounded-[5px] overflow-hidden">
+            <button
+              type="button"
+              data-ps-gallery={index}
+              aria-label={`Open photo gallery: ${project.title}`}
+              class="block w-full h-[240px] md:h-[279px] rounded-[5px] overflow-hidden cursor-zoom-in"
+            >
               <img
                 src={project.image}
                 alt={project.title}
                 loading="lazy"
                 class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
               />
-            </div>
+            </button>
             <h3 class="font-['Playfair_Display'] font-bold text-[22px] md:text-[24px] text-[#051e2a]">
-              {project.title}
+              {project.slug ? (
+                <a href={`/our-projects/${project.slug}`} class="hover:text-[#007ec5] transition-colors">{project.title}</a>
+              ) : (
+                project.title
+              )}
             </h3>
             <p class="font-['Montserrat'] font-normal text-[16px] text-black">
               {project.description}
             </p>
-          </button>
+            {project.slug && (
+              <a href={`/our-projects/${project.slug}`} class="font-['Montserrat'] font-semibold text-[15px] text-[#007ec5] hover:underline">
+                Read the full project →
+              </a>
+            )}
+          </div>
         ))}
       </div>
 
@@ -130,9 +146,12 @@ const galleryData = JSON.stringify(
       }
 
       // ── Gallery: delegate to the shared Lightbox (Lightbox.astro in Layout) ──
-      cards.forEach(function (card) {
-        card.addEventListener('click', function () {
-          var idx = parseInt(card.getAttribute('data-ps-card'), 10);
+      // Bound to the photo button only; the title and "Read the full project"
+      // links navigate to the case page instead of opening the lightbox.
+      var galleryBtns = section.querySelectorAll('[data-ps-gallery]');
+      galleryBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var idx = parseInt(btn.getAttribute('data-ps-gallery'), 10);
           var p = data[idx];
           if (isNaN(idx) || !p || !window.__lightbox) return;
           var items = (p.gallery || []).map(function (src) {

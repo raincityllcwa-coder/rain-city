@@ -7,6 +7,7 @@ export interface ProjectProp {
   title: string;
   description: string;
   gallery: string[];
+  slug?: string | null;
 }
 
 export function transformProjects(projects: any[]): ProjectProp[] {
@@ -29,6 +30,7 @@ export function transformProjects(projects: any[]): ProjectProp[] {
       image: mainUrl,
       title: p.title || "",
       description: p.description || "",
+      slug: p.slug?.current || null,
       gallery:
         galleryUrls.length > 0
           ? [mainHiRes, ...galleryUrls]
