@@ -1,9 +1,11 @@
 ---
 // ProjectsSection.astro - grid of project cards on homepage / service pages.
 // Renders all projects at build time but only first 6 are visible; "View More"
-// reveals 3 at a time. Clicking a card opens the shared site Lightbox
-// (window.__lightbox from Lightbox.astro, included once in Layout) with that
-// project's gallery, title, and description as the caption.
+// reveals 3 at a time. A card with a slug is a plain link to its case page
+// (/our-projects/<slug>): sends visitors and link equity to the case studies
+// instead of trapping photos in an overlay. Only slugless projects (including
+// the hardcoded fallback set) keep the Lightbox gallery, since they have no
+// page of their own to open.
 
 import imgProjectImage from "@/assets/3b944e1ac697f301b31561de640dda3557f43d69.webp";
 import imgProjectImage1 from "@/assets/1a9ff41667e1b1a100603f9ba342b2a853274b6f.webp";
@@ -53,7 +55,31 @@ const galleryData = JSON.stringify(
 
     <div class="ps-root flex flex-col gap-[52px] items-center">
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-[24px] w-full">
-        {allProjects.map((project, index) => (
+        {allProjects.map((project, index) => project.slug ? (
+          <a
+            href={`/our-projects/${project.slug}`}
+            data-ps-card={index}
+            class={`ps-card group flex flex-col gap-[21px] text-left ${index >= INITIAL_VISIBLE ? 'hidden' : ''}`}
+          >
+            <div class="w-full h-[240px] md:h-[279px] rounded-[5px] overflow-hidden">
+              <img
+                src={project.image}
+                alt={project.title}
+                loading="lazy"
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              />
+            </div>
+            <h3 class="font-['Playfair_Display'] font-bold text-[22px] md:text-[24px] text-[#051e2a] group-hover:text-[#007ec5] transition-colors">
+              {project.title}
+            </h3>
+            <p class="font-['Montserrat'] font-normal text-[16px] text-black">
+              {project.description}
+            </p>
+            <span class="font-['Montserrat'] font-semibold text-[15px] text-[#007ec5] group-hover:underline">
+              Read the full project →
+            </span>
+          </a>
+        ) : (
           <div
             data-ps-card={index}
             class={`ps-card flex flex-col gap-[21px] text-left ${index >= INITIAL_VISIBLE ? 'hidden' : ''}`}
@@ -72,20 +98,11 @@ const galleryData = JSON.stringify(
               />
             </button>
             <h3 class="font-['Playfair_Display'] font-bold text-[22px] md:text-[24px] text-[#051e2a]">
-              {project.slug ? (
-                <a href={`/our-projects/${project.slug}`} class="hover:text-[#007ec5] transition-colors">{project.title}</a>
-              ) : (
-                project.title
-              )}
+              {project.title}
             </h3>
             <p class="font-['Montserrat'] font-normal text-[16px] text-black">
               {project.description}
             </p>
-            {project.slug && (
-              <a href={`/our-projects/${project.slug}`} class="font-['Montserrat'] font-semibold text-[15px] text-[#007ec5] hover:underline">
-                Read the full project →
-              </a>
-            )}
           </div>
         ))}
       </div>
