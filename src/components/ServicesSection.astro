@@ -1,5 +1,6 @@
 ---
 import ImageCarousel from "./ui/ImageCarousel.astro";
+import { getDocById } from "../lib/queries";
 
 // Kitchen Cabinets: 5 photos
 import imgKc01 from "@/assets/kitchen-cabinets/kc-01.webp";
@@ -71,11 +72,18 @@ const services = [
   { images: kitchenCountertopsImages, link: "/kitchen-countertops", title: "Kitchen Countertops", color: "#051e2a", bg: "#f1f3f7", text: "We offer a wide variety of natural stone countertops, including dolomite, granite, marble, quartzite, schist, and soapstone, available in different styles, colors, and thicknesses. Our kitchen remodeling services include delivery, precise fabrication, and professional installation across Bellevue, Kirkland, Redmond, and the Eastside.", reverse: true },
   { images: bathroomRemodelImages, link: "/bathroom-remodel", title: "Bathroom Remodel", color: "#051e2a", bg: "#f7f6f1", text: "Looking for bathroom remodeling services near you? Transform your bathroom with our high-quality materials, including porcelain tile, natural stone, or glass tile. We offer a wide range of styles and finishes to create the perfect look for your space.", reverse: false },
 ];
+
+const shared = await getDocById('copy.shared');
+const cards = shared?.serviceCards || [];
+services.forEach((s, i) => {
+  if (cards[i]?.title) s.title = cards[i].title;
+  if (cards[i]?.text) s.text = cards[i].text;
+});
 ---
 
 <section id="services" class="w-full py-12 md:py-16 lg:py-20">
   <div class="max-w-[1150px] mx-auto px-4 md:px-8">
-    <h2 class="font-['Playfair_Display'] font-bold text-[28px] md:text-[32px] text-black mb-8 md:mb-11">Kitchen Remodeling & Bathroom Renovation Services</h2>
+    <h2 class="font-['Playfair_Display'] font-bold text-[28px] md:text-[32px] text-black mb-8 md:mb-11">{shared?.servicesHeading || "Kitchen Remodeling & Bathroom Renovation Services"}</h2>
     <div class="flex flex-col gap-12 md:gap-[68px]">
       {services.map((s) => (
         <div class="relative">

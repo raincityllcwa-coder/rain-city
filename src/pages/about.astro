@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { getPageMeta } from '../lib/queries';
 import AboutPageContent from '../components/AboutPageContent.astro';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
 import MobileCallButton from '../components/MobileCallButton.astro';
@@ -33,11 +34,12 @@ const jsonLd = {
     "name": "Washington"
   }
 };
+const meta = await getPageMeta('about');
 ---
 
 <Layout
-  title="About Us - Rain City Kitchen & Bath | Licensed Contractors in Bellevue, WA"
-  description="Meet Alex, owner of Rain City Kitchen & Bath. Licensed general contractors with expertise in kitchen and bathroom remodeling across Bellevue, Seattle, Kirkland & Redmond. 5-star rated."
+  title={meta?.metaTitle || "About Us - Rain City Kitchen & Bath | Licensed Contractors in Bellevue, WA"}
+  description={meta?.metaDescription || "Meet Alex, owner of Rain City Kitchen & Bath. Licensed general contractors with expertise in kitchen and bathroom remodeling across Bellevue, Seattle, Kirkland & Redmond. 5-star rated."}
   jsonLd={jsonLd}
 >
   <Breadcrumbs items={[

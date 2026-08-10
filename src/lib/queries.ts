@@ -84,3 +84,46 @@ export function getSiteSettings() {
   }
   return siteSettingsPromise;
 }
+
+// ─── Editable copy layer (Sanity-managed texts with hardcoded fallbacks) ───
+// Each doc is fetched once per build and cached module-level. Every consumer
+// falls back to the current hardcoded string when a doc or field is missing,
+// so the site renders identically with an empty dataset.
+
+const copyCache = new Map<string, Promise<any>>();
+
+export function getDocById(id: string) {
+  if (!copyCache.has(id)) {
+    copyCache.set(
+      id,
+      sanityClient
+        .fetch(`*[_id == $id][0]`, { id })
+        .catch((e) => {
+          console.warn(`[Sanity] copy doc ${id} fetch failed:`, e?.message);
+          return null;
+        }),
+    );
+  }
+  return copyCache.get(id);
+}
+
+// Meta title/description override for a static page. Doc ids: meta.<key>
+export async function getPageMeta(key: string) {
+  return getDocById(`meta.${key}`);
+}
+
+// ─── Landing pages (SEO local pages, fully Sanity-managed) ───
+
+export async function getLandingPages() {
+  return sanityClient.fetch(
+    `*[_type == "landingPage" && defined(slug.current)]{
+      _id, _createdAt, _updatedAt,
+      title, "slug": slug.current, service, city,
+      metaTitle, metaDescription,
+      h1, subtitle,
+      sections[]{heading, body},
+      faqs[]{question, answer},
+      showReviews, showLeadForm
+    }`,
+  );
+}

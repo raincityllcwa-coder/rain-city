@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { getPageMeta } from '../lib/queries';
 import ServiceHero from '../components/services/ServiceHero.astro';
 import ServiceDetails from '../components/services/ServiceDetails.astro';
 import ServiceBenefits from '../components/services/ServiceBenefits.astro';
@@ -44,11 +45,12 @@ const jsonLd = {
     }
   ]
 };
+const meta = await getPageMeta('our-services');
 ---
 
 <Layout
-  title="Our Services - Kitchen Renovation & Cabinets, Countertops, Bathroom | Rain City"
-  description="Kitchen cabinets, countertop installation, and bathroom remodeling services in Bellevue, Seattle & surrounding areas. Licensed contractors. Free estimates."
+  title={meta?.metaTitle || "Our Services - Kitchen Renovation & Cabinets, Countertops, Bathroom | Rain City"}
+  description={meta?.metaDescription || "Kitchen cabinets, countertop installation, and bathroom remodeling services in Bellevue, Seattle & surrounding areas. Licensed contractors. Free estimates."}
   jsonLd={jsonLd}
 >
   <Breadcrumbs items={[

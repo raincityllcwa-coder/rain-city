@@ -13,7 +13,7 @@ import googleG from '../assets/badges/google-g.png';
 import starIcon from '../assets/badges/star.png';
 
 // ── Sanity ──
-import { getProjects, getReviews } from '../lib/queries';
+import { getProjects, getReviews, getPageMeta, getDocById } from '../lib/queries';
 import { transformProjects, transformReviews } from '../lib/transforms';
 
 let projectsData: any[] = [];
@@ -29,6 +29,9 @@ try {
 } catch (e) {
   console.warn('[Sanity] Homepage fetch failed:', e);
 }
+
+const meta = await getPageMeta('home');
+const homeCopy = await getDocById('copy.home');
 
 const localBusinessJsonLd = {
   "@context": "https://schema.org",
@@ -98,8 +101,8 @@ const localBusinessJsonLd = {
 ---
 
 <Layout
-  title="Remodeling a Kitchen in Bellevue? Get a Free In-Home Estimate"
-  description="Cabinets, countertops, full renovations across Bellevue and the Eastside. Licensed and insured, 131 five-star reviews. Call (253) 466-8709."
+  title={meta?.metaTitle || "Remodeling a Kitchen in Bellevue? Get a Free In-Home Estimate"}
+  description={meta?.metaDescription || "Cabinets, countertops, full renovations across Bellevue and the Eastside. Licensed and insured, 131 five-star reviews. Call (253) 466-8709."}
   preloadImage="/hero-kitchen.webp"
   jsonLd={localBusinessJsonLd}
 >
@@ -131,8 +134,8 @@ const localBusinessJsonLd = {
       </div>
       {/* Headline + rating: above the form on mobile, bottom-left on desktop */}
       <div class="order-1 flex flex-col gap-[10px] items-start max-w-full lg:max-w-[620px]">
-        <h1 class="font-['Playfair_Display'] font-semibold text-[26px] md:text-[30px] lg:text-[32px] text-white leading-tight" style="text-shadow: 0 1px 4px rgba(0,0,0,0.35);">Premium Kitchen &amp; Bath Remodeling Company in Bellevue, WA</h1>
-        <p class="font-['Montserrat'] font-medium text-[16px] md:text-[18px] text-white leading-snug" style="text-shadow: 0 1px 4px rgba(0,0,0,0.35);">Trusted kitchen remodeling company serving Seattle, Kirkland, Redmond &amp; the Eastside.<span class="hidden lg:inline"> We provide expert craftsmanship and personalized service for your dream kitchen or bathroom renovation.</span></p>
+        <h1 class="font-['Playfair_Display'] font-semibold text-[26px] md:text-[30px] lg:text-[32px] text-white leading-tight" style="text-shadow: 0 1px 4px rgba(0,0,0,0.35);">{homeCopy?.heroTitle || "Premium Kitchen & Bath Remodeling Company in Bellevue, WA"}</h1>
+        <p class="font-['Montserrat'] font-medium text-[16px] md:text-[18px] text-white leading-snug" style="text-shadow: 0 1px 4px rgba(0,0,0,0.35);">{homeCopy?.heroSubtitle || "Trusted kitchen remodeling company serving Seattle, Kirkland, Redmond & the Eastside."}<span class="hidden lg:inline"> {homeCopy?.heroSubtitleExtra || "We provide expert craftsmanship and personalized service for your dream kitchen or bathroom renovation."}</span></p>
         <div class="flex flex-wrap items-center gap-x-3 gap-y-2 mt-1">
           <Image src={googleG} alt="Google" width={19} height={19} loading="eager" decoding="async" class="w-[22px] h-[22px]" />
           <span class="font-['Montserrat'] font-medium text-[16px] text-white" style="text-shadow: 0 1px 3px rgba(0,0,0,0.4);">5.0 (131 Google Reviews)</span>

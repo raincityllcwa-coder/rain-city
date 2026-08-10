@@ -34,6 +34,14 @@ try {
   }
   // eslint-disable-next-line no-console
   console.log(`[sitemap] loaded ${projects.length} per-project lastmod values from Sanity`);
+  const landings = await sanityClient.fetch(
+    `*[_type == "landingPage" && defined(slug.current)]{"slug": slug.current, _updatedAt}`
+  );
+  for (const l of landings) {
+    lastmodByUrl.set(`https://raincityllc.com/${l.slug}`, l._updatedAt);
+  }
+  // eslint-disable-next-line no-console
+  console.log(`[sitemap] loaded ${landings.length} landing page lastmod values from Sanity`);
 } catch (err) {
   // eslint-disable-next-line no-console
   console.warn('[sitemap] could not fetch project lastmod from Sanity, falling back to build date:', err?.message);

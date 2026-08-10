@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { getPageMeta } from '../lib/queries';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
 import MobileCallButton from '../components/MobileCallButton.astro';
 
@@ -32,11 +33,12 @@ const jsonLd = {
     { "@type": "OpeningHoursSpecification", "dayOfWeek": "Saturday", "opens": "09:00", "closes": "16:00" }
   ]
 };
+const meta = await getPageMeta('contact');
 ---
 
 <Layout
-  title="Contact Us - Free Estimate | Rain City Kitchen & Bath | Bellevue, WA"
-  description="Get a free consultation and estimate for your kitchen or bathroom remodel. Call (253) 466-8709. Located at 10900 NE 4th St, Bellevue, WA. Mon-Fri 8-6, Sat 9-4."
+  title={meta?.metaTitle || "Contact Us - Free Estimate | Rain City Kitchen & Bath | Bellevue, WA"}
+  description={meta?.metaDescription || "Get a free consultation and estimate for your kitchen or bathroom remodel. Call (253) 466-8709. Located at 10900 NE 4th St, Bellevue, WA. Mon-Fri 8-6, Sat 9-4."}
   jsonLd={jsonLd}
 >
   <Breadcrumbs items={[

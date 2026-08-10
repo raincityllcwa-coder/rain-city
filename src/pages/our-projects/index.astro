@@ -1,7 +1,7 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import Breadcrumbs from "../../components/Breadcrumbs.astro";
-import { getAllProjects } from "../../lib/queries";
+import { getAllProjects, getPageMeta } from "../../lib/queries";
 import { urlFor } from "../../lib/sanity";
 
 const projects = await getAllProjects();
@@ -24,11 +24,12 @@ const collectionJsonLd = {
     "image": p.mainImage ? urlFor(p.mainImage).width(800).format("webp").url() : undefined
   }))
 };
+const meta = await getPageMeta('our-projects');
 ---
 
 <Layout
-  title="Kitchen and Bathroom Remodeling Projects in Seattle Area | Rain City Kitchen & Bath"
-  description="Browse our completed kitchen and bathroom remodels across Bellevue, Seattle, Kirkland, Redmond, and the Eastside. Custom-designed and built by Rain City Kitchen & Bath."
+  title={meta?.metaTitle || "Kitchen and Bathroom Remodeling Projects in Seattle Area | Rain City Kitchen & Bath"}
+  description={meta?.metaDescription || "Browse our completed kitchen and bathroom remodels across Bellevue, Seattle, Kirkland, Redmond, and the Eastside. Custom-designed and built by Rain City Kitchen & Bath."}
   jsonLd={collectionJsonLd}
 >
   <Breadcrumbs items={[
