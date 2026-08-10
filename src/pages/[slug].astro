@@ -11,6 +11,7 @@ import FAQSection from '../components/FAQSection.astro';
 import WideLeadFormSection from '../components/WideLeadFormSection.astro';
 import MobileCallButton from '../components/MobileCallButton.astro';
 import { getLandingPages } from '../lib/queries';
+import { urlFor } from '../lib/sanity';
 
 export async function getStaticPaths() {
   let pages: any[] = [];
@@ -111,6 +112,11 @@ if (faqItems.length > 0) {
       <div class="max-w-[1150px] mx-auto px-4 md:px-8">
         {section.heading && (
           <h2 class="font-['Playfair_Display'] font-bold text-[24px] md:text-[28px] text-black mb-6">{section.heading}</h2>
+        )}
+        {section.image?.asset && (
+          <div class="w-full max-w-[860px] rounded-[5px] overflow-hidden mb-6">
+            <img src={urlFor(section.image).width(1200).format('webp').url()} alt={section.image.alt || section.heading || page.h1} class="w-full h-auto object-cover" loading="lazy" />
+          </div>
         )}
         <div class="font-['Montserrat'] text-[16px] text-black max-w-[860px]" set:html={paragraphs(section.body)} />
       </div>

@@ -14,6 +14,7 @@ import imgMoreButton from "@/assets/3b437988bfed0d43dea56bac02897e2e85c27e71.web
 
 interface ProjectItem {
   image: string;
+  imageAlt?: string | null;
   title: string;
   description: string;
   gallery: string[];
@@ -64,7 +65,7 @@ const galleryData = JSON.stringify(
             <div class="w-full h-[240px] md:h-[279px] rounded-[5px] overflow-hidden">
               <img
                 src={project.image}
-                alt={project.title}
+                alt={project.imageAlt || project.title}
                 loading="lazy"
                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               />
@@ -92,7 +93,7 @@ const galleryData = JSON.stringify(
             >
               <img
                 src={project.image}
-                alt={project.title}
+                alt={project.imageAlt || project.title}
                 loading="lazy"
                 class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
               />

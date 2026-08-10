@@ -121,7 +121,7 @@ export async function getLandingPages() {
       title, "slug": slug.current, service, city,
       metaTitle, metaDescription,
       h1, subtitle,
-      sections[]{heading, body},
+      sections[]{heading, body, image},
       faqs[]{question, answer},
       showReviews, showLeadForm
     }`,

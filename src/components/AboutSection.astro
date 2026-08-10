@@ -9,6 +9,9 @@ import { urlFor } from '../lib/sanity';
 import { getSiteSettings, getDocById } from '../lib/queries';
 
 const aboutCopy = await getDocById('copy.about');
+let alt1 = 'Kitchen renovation project in Bellevue WA';
+let alt2 = 'Licensed general contractors for kitchen renovation Bellevue';
+let alt3 = 'Happy customers after bathroom remodeling in Bellevue';
 
 let photo1 = '';
 let photo2 = '';
@@ -19,6 +22,9 @@ try {
   if (settings?.aboutPhoto1) photo1 = urlFor(settings.aboutPhoto1).width(1036).format('webp').url();
   if (settings?.aboutPhoto2) photo2 = urlFor(settings.aboutPhoto2).width(850).format('webp').url();
   if (settings?.aboutPhoto3) photo3 = urlFor(settings.aboutPhoto3).width(1062).format('webp').url();
+  if (settings?.aboutPhoto1?.alt) alt1 = settings.aboutPhoto1.alt;
+  if (settings?.aboutPhoto2?.alt) alt2 = settings.aboutPhoto2.alt;
+  if (settings?.aboutPhoto3?.alt) alt3 = settings.aboutPhoto3.alt;
 } catch (e) {
   console.warn('[Sanity] AboutSection fetch failed:', e);
 }
@@ -32,7 +38,7 @@ try {
       <div class="flex flex-col md:flex-row gap-8 md:gap-[90px] items-center">
         <div class="w-full md:w-[518px] h-[280px] md:h-[350px] rounded-[5px] overflow-hidden shrink-0">
           {photo1 ? (
-            <img src={photo1} alt="Kitchen renovation project in Bellevue WA" class="w-full h-full object-cover" loading="lazy" />
+            <img src={photo1} alt={alt1} class="w-full h-full object-cover" loading="lazy" />
           ) : (
             <div class="w-full h-full bg-gray-200 flex items-center justify-center text-gray-400 text-sm">Upload About Photo 1 in Sanity</div>
           )}
@@ -62,7 +68,7 @@ try {
       <!-- Block Two -->
       <div class="flex flex-col md:flex-row-reverse gap-8 md:gap-[82px] items-center">
         <div class="w-full md:w-[425px] h-[260px] md:h-[319px] rounded-[5px] overflow-hidden shrink-0">
-          <img src={photo2 || imgAboutUsImage2.src} alt="Licensed general contractors for kitchen renovation Bellevue" class="w-full h-full object-cover" loading="lazy" />
+          <img src={photo2 || imgAboutUsImage2.src} alt={alt2} class="w-full h-full object-cover" loading="lazy" />
         </div>
         <div class="flex flex-col gap-8 md:gap-[48px] w-full md:w-[562px]">
           <h3 class="font-['Playfair_Display'] font-bold text-[22px] md:text-[24px] text-[#051e2a]">{aboutCopy?.gcHeading || "We are General Contractors"}</h3>
@@ -76,7 +82,7 @@ try {
       <!-- Block Three -->
       <div class="flex flex-col md:flex-row gap-8 md:gap-[45px] items-center">
         <div class="w-full md:w-[531px] h-[300px] md:h-[398px] rounded-[5px] overflow-hidden shrink-0">
-          <img src={photo3 || imgAboutUsImage3.src} alt="Happy customers after bathroom remodeling in Bellevue" class="w-full h-full object-cover" loading="lazy" />
+          <img src={photo3 || imgAboutUsImage3.src} alt={alt3} class="w-full h-full object-cover" loading="lazy" />
         </div>
         <div class="flex flex-col gap-8 md:gap-[46px] w-full md:w-[544px]">
           <h3 class="font-['Playfair_Display'] font-bold text-[22px] md:text-[24px] text-[#051e2a]">{aboutCopy?.emotionsHeading || "We Give Unforgettable Emotions"}</h3>

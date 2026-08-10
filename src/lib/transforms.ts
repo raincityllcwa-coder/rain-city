@@ -4,6 +4,7 @@ import { urlFor } from "./sanity";
 
 export interface ProjectProp {
   image: string;
+  imageAlt?: string | null;
   title: string;
   description: string;
   gallery: string[];
@@ -28,6 +29,7 @@ export function transformProjects(projects: any[]): ProjectProp[] {
 
     return {
       image: mainUrl,
+      imageAlt: p.mainImage?.alt || null,
       title: p.title || "",
       description: p.description || "",
       slug: p.slug?.current || null,

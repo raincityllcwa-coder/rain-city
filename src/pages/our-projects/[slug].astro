@@ -151,7 +151,7 @@ const combinedJsonLd = articleJsonLd ? articleJsonLd : null;
         <div class="w-full aspect-[16/9] rounded-[5px] overflow-hidden bg-gray-200">
           <img
             src={img(heroPhoto, 1600)}
-            alt={project.title}
+            alt={project.mainImage?.alt || project.title}
             class="w-full h-full object-cover"
             fetchpriority="high"
             width="1600"
@@ -218,7 +218,7 @@ const combinedJsonLd = articleJsonLd ? articleJsonLd : null;
             <div class={`grid ${gridColsFor(project.introPhotos.length)} gap-4 md:gap-5`}>
               {project.introPhotos.map((p: any, i: number) => (
                 <div class="aspect-[4/3] rounded-[5px] overflow-hidden bg-gray-200">
-                  <img src={img(p, 900)} alt={`${project.title} intro photo ${i + 1}`} class="w-full h-full object-cover" loading="lazy" />
+                  <img src={img(p, 900)} alt={p?.alt || `${project.title} intro photo ${i + 1}`} class="w-full h-full object-cover" loading="lazy" />
                 </div>
               ))}
             </div>
@@ -247,7 +247,7 @@ const combinedJsonLd = articleJsonLd ? articleJsonLd : null;
             <div class={`grid ${gridColsFor(project.goalsPhotos.length)} gap-4 md:gap-5`}>
               {project.goalsPhotos.map((p: any, i: number) => (
                 <div class="aspect-[4/3] rounded-[5px] overflow-hidden bg-gray-200">
-                  <img src={img(p, 900)} alt={`${project.title} demo photo ${i + 1}`} class="w-full h-full object-cover" loading="lazy" />
+                  <img src={img(p, 900)} alt={p?.alt || `${project.title} demo photo ${i + 1}`} class="w-full h-full object-cover" loading="lazy" />
                 </div>
               ))}
             </div>
@@ -278,7 +278,7 @@ const combinedJsonLd = articleJsonLd ? articleJsonLd : null;
             <div class="magazine-grid">
               {project.designDecisionsPhotos.map((p: any, i: number) => (
                 <div class="rounded-[5px] overflow-hidden bg-gray-200">
-                  <img src={img(p, 1200)} alt={`${project.title} construction photo ${i + 1}`} class="w-full h-full object-cover" loading="lazy" />
+                  <img src={img(p, 1200)} alt={p?.alt || `${project.title} construction photo ${i + 1}`} class="w-full h-full object-cover" loading="lazy" />
                 </div>
               ))}
             </div>
@@ -327,7 +327,7 @@ const combinedJsonLd = articleJsonLd ? articleJsonLd : null;
             <div class={`grid ${gridColsFor(project.beforeAfterPhotos.length)} gap-4 md:gap-5`}>
               {project.beforeAfterPhotos.map((p: any, i: number) => (
                 <div class="aspect-[4/3] rounded-[5px] overflow-hidden bg-gray-200">
-                  <img src={img(p, 900)} alt={`${project.title} finishes photo ${i + 1}`} class="w-full h-full object-cover" loading="lazy" />
+                  <img src={img(p, 900)} alt={p?.alt || `${project.title} finishes photo ${i + 1}`} class="w-full h-full object-cover" loading="lazy" />
                 </div>
               ))}
             </div>
@@ -356,7 +356,7 @@ const combinedJsonLd = articleJsonLd ? articleJsonLd : null;
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {finalGalleryPhotos.map((p: any, i: number) => (
                 <div class="aspect-[4/3] rounded-[5px] overflow-hidden bg-gray-200 shadow-sm hover:shadow-md transition-shadow">
-                  <img src={img(p, 1000)} alt={`${project.title} finished photo ${i + 1}`} class="w-full h-full object-cover" loading="lazy" />
+                  <img src={img(p, 1000)} alt={p?.alt || `${project.title} finished photo ${i + 1}`} class="w-full h-full object-cover" loading="lazy" />
                 </div>
               ))}
             </div>
@@ -396,7 +396,7 @@ const combinedJsonLd = articleJsonLd ? articleJsonLd : null;
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {finalGalleryPhotos.map((p: any, i: number) => (
                 <div class="aspect-[4/3] rounded-[5px] overflow-hidden bg-gray-200">
-                  <img src={img(p, 800, 600)} alt={`${project.title} photo ${i + 1}`} class="w-full h-full object-cover" loading="lazy" width="800" height="600" />
+                  <img src={img(p, 800, 600)} alt={p?.alt || `${project.title} photo ${i + 1}`} class="w-full h-full object-cover" loading="lazy" width="800" height="600" />
                 </div>
               ))}
             </div>
