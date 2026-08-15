@@ -14,6 +14,7 @@ import starIcon from '../assets/badges/star.png';
 
 // ── Sanity ──
 import { getProjects, getReviews, getPageMeta, getDocById } from '../lib/queries';
+import { urlFor } from '../lib/sanity';
 import { transformProjects, transformReviews } from '../lib/transforms';
 
 let projectsData: any[] = [];
@@ -32,6 +33,9 @@ try {
 
 const meta = await getPageMeta('home');
 const homeCopy = await getDocById('copy-home');
+const heroSrc = homeCopy?.heroImage?.asset
+  ? urlFor(homeCopy.heroImage).width(2048).format('webp').quality(82).url()
+  : "/hero-kitchen.webp";
 
 const localBusinessJsonLd = {
   "@context": "https://schema.org",
@@ -103,7 +107,7 @@ const localBusinessJsonLd = {
 <Layout
   title={meta?.metaTitle || "Remodeling a Kitchen in Bellevue? Get a Free In-Home Estimate"}
   description={meta?.metaDescription || "Cabinets, countertops, full renovations across Bellevue and the Eastside. Licensed and insured, 131 five-star reviews. Call (253) 466-8709."}
-  preloadImage="/hero-kitchen.webp"
+  preloadImage={heroSrc}
   jsonLd={localBusinessJsonLd}
 >
   <!-- Hero Section -->
@@ -112,8 +116,8 @@ const localBusinessJsonLd = {
       {/* Raw img (no Astro processing) so the hero photo keeps full quality.
           Mobile shifts the photo up to frame the hood; desktop fills the hero. */}
       <img
-        src="/hero-kitchen.webp"
-        alt="Bright modern kitchen remodel in Bellevue WA by Rain City Kitchen & Bath"
+        src={heroSrc}
+        alt={homeCopy?.heroImage?.alt || "Bright modern kitchen remodel in Bellevue WA by Rain City Kitchen & Bath"}
         width="2048"
         height="1365"
         fetchpriority="high"

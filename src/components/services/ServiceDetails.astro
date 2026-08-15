@@ -4,6 +4,8 @@
 import imgServiceImage from "@/assets/c4e93df24993f176102d516e4e5e7a4fd86822b6.webp";
 import imgServiceImage1 from "@/assets/45b63473772ac5eedb2419a124f3a11b4a82ba56.webp";
 import imgServiceImage2 from "@/assets/2221dd725ae6402fca45a45bd79869231da67ce7.webp";
+import { getDocById } from "@/lib/queries";
+import { urlFor } from "@/lib/sanity";
 
 const services = [
   {
@@ -37,6 +39,18 @@ const services = [
     reverse: false,
   },
 ];
+
+// Card photos are editable in Sanity (Service Page Texts: "Photo on the Our
+// Services page card", falling back to that page's hero photo, then to the
+// built-in file).
+for (const service of services) {
+  const doc = await getDocById(`service-${service.id}`);
+  const pic = doc?.cardImage?.asset ? doc.cardImage : doc?.heroImage?.asset ? doc.heroImage : null;
+  if (pic) {
+    (service as any).image = urlFor(pic).width(926).height(760).fit("crop").format("webp").quality(80).url();
+    (service as any).imageAlt = pic.alt || service.title;
+  }
+}
 ---
 
 <section class="w-full py-16 md:py-20 lg:py-24">
@@ -51,7 +65,7 @@ const services = [
                 href={`/${service.slug}`}
                 class="w-full md:w-[463px] h-[280px] md:h-[380px] rounded-[5px] overflow-hidden shrink-0 relative z-10 hover:opacity-95 transition-opacity"
               >
-                <img src={service.image} alt={service.title} class="w-full h-full object-cover" loading="lazy" width="463" height="380" />
+                <img src={service.image} alt={(service as any).imageAlt || service.title} class="w-full h-full object-cover" loading="lazy" width="463" height="380" />
               </a>
 
               {/* Background card */}

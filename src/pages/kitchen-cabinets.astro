@@ -15,6 +15,7 @@ import imgServiceImage from "../assets/527501f2faa6167ff6095e533f6d5997c54352d6.
 
 // ── Sanity ──
 import { getReviews, getProjects, getFAQs, getPageMeta, getDocById } from '../lib/queries';
+import { urlFor } from '../lib/sanity';
 import { transformReviews, transformProjects } from '../lib/transforms';
 
 let reviewsData: any[] = [];
@@ -36,6 +37,12 @@ try {
 
 const meta = await getPageMeta('kitchen-cabinets');
 const svc = await getDocById('service-kitchen-cabinets');
+const heroSrc = svc?.heroImage?.asset ? urlFor(svc.heroImage).width(1600).format('webp').quality(80).url() : imgServiceImage.src;
+const heroAlt = svc?.heroImage?.alt || undefined;
+const sliderImages = (svc?.sliderPhotos || []).filter((p: any) => p?.asset).map((p: any) => ({
+  src: urlFor(p).width(1000).height(760).fit('crop').format('webp').quality(80).url(),
+  alt: p.alt || (svc?.contentTitle || ''),
+}));
 
 // Fallback FAQs for JSON-LD
 const faqItems = faqsData.length > 0 ? faqsData : [
@@ -82,8 +89,8 @@ const jsonLd = [
     { name: "Services", href: "/our-services" },
     { name: "Kitchen Renovation & Cabinets" },
   ]} />
-  <ServiceLandingHero backgroundImage={imgServiceImage.src} title={svc?.heroTitle || "Kitchen Renovation & Cabinets"} subtitle={svc?.heroSubtitle || "Transform your kitchen with custom and standard cabinet solutions designed to match your unique style and needs."} />
-  <ServiceContentSection title={svc?.contentTitle || "Premium Cabinet Solutions"} paragraphs={svc?.contentParagraphs?.length ? svc.contentParagraphs : ["At Rain City Kitchen & Bath, we specialize in both standard and custom cabinets to meet your unique needs. Our clients can choose from a variety of styles and color schemes, with Shaker and Flat door styles being the most popular.","Whether you're looking for a complete kitchen transformation or updating your existing cabinets, our team works closely with you to design and install cabinets that maximize functionality while enhancing the beauty of your space."]} />
+  <ServiceLandingHero backgroundImage={heroSrc} backgroundAlt={heroAlt} title={svc?.heroTitle || "Kitchen Renovation & Cabinets"} subtitle={svc?.heroSubtitle || "Transform your kitchen with custom and standard cabinet solutions designed to match your unique style and needs."} />
+  <ServiceContentSection images={sliderImages} title={svc?.contentTitle || "Premium Cabinet Solutions"} paragraphs={svc?.contentParagraphs?.length ? svc.contentParagraphs : ["At Rain City Kitchen & Bath, we specialize in both standard and custom cabinets to meet your unique needs. Our clients can choose from a variety of styles and color schemes, with Shaker and Flat door styles being the most popular.","Whether you're looking for a complete kitchen transformation or updating your existing cabinets, our team works closely with you to design and install cabinets that maximize functionality while enhancing the beauty of your space."]} />
   <ReviewsGridSection reviews={reviewsData.length > 0 ? reviewsData : undefined} />
   <ProjectsSection projects={projectsData.length > 0 ? projectsData : undefined} />
   <WhyChooseUsSection />

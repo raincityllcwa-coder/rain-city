@@ -15,6 +15,7 @@ import imgServiceImage from "../assets/2221dd725ae6402fca45a45bd79869231da67ce7.
 
 // ── Sanity ──
 import { getReviews, getProjects, getFAQs, getPageMeta, getDocById } from '../lib/queries';
+import { urlFor } from '../lib/sanity';
 import { transformReviews, transformProjects } from '../lib/transforms';
 
 let reviewsData: any[] = [];
@@ -38,6 +39,12 @@ try {
 // FAQPage JSON-LD, so the structured data always matches the page content.
 const meta = await getPageMeta('bathroom-remodel');
 const svc = await getDocById('service-bathroom-remodel');
+const heroSrc = svc?.heroImage?.asset ? urlFor(svc.heroImage).width(1600).format('webp').quality(80).url() : imgServiceImage.src;
+const heroAlt = svc?.heroImage?.alt || undefined;
+const sliderImages = (svc?.sliderPhotos || []).filter((p: any) => p?.asset).map((p: any) => ({
+  src: urlFor(p).width(1000).height(760).fit('crop').format('webp').quality(80).url(),
+  alt: p.alt || (svc?.contentTitle || ''),
+}));
 
 const faqItems = faqsData.length > 0 ? faqsData : [
   { question: "How long does a bathroom remodel take?", answer: "Most bathroom remodels take 2-4 weeks for a standard bathroom and 4-8 weeks for a full master bathroom renovation, depending on the scope of work, materials, and any layout changes." },
@@ -84,8 +91,8 @@ const jsonLd = [
     { name: "Services", href: "/our-services" },
     { name: "Bathroom Remodel" },
   ]} />
-  <ServiceLandingHero backgroundImage={imgServiceImage.src} title={svc?.heroTitle || "Complete Bathroom Remodeling"} subtitle={svc?.heroSubtitle || "Transform your bathroom into a luxurious retreat with our comprehensive remodeling services."} />
-  <ServiceContentSection title={svc?.contentTitle || "Complete Bathroom Transformation"} paragraphs={svc?.contentParagraphs?.length ? svc.contentParagraphs : ["Transform your bathroom with our high-quality materials, including porcelain tile, natural stone, or glass tile. We offer a wide range of styles and finishes to create the perfect look for your space.","Whether you're looking for a spa-like master bathroom or a functional family bath, our team creates spaces that combine beauty, durability, and practicality."]} />
+  <ServiceLandingHero backgroundImage={heroSrc} backgroundAlt={heroAlt} title={svc?.heroTitle || "Complete Bathroom Remodeling"} subtitle={svc?.heroSubtitle || "Transform your bathroom into a luxurious retreat with our comprehensive remodeling services."} />
+  <ServiceContentSection images={sliderImages} title={svc?.contentTitle || "Complete Bathroom Transformation"} paragraphs={svc?.contentParagraphs?.length ? svc.contentParagraphs : ["Transform your bathroom with our high-quality materials, including porcelain tile, natural stone, or glass tile. We offer a wide range of styles and finishes to create the perfect look for your space.","Whether you're looking for a spa-like master bathroom or a functional family bath, our team creates spaces that combine beauty, durability, and practicality."]} />
   <ReviewsGridSection reviews={reviewsData.length > 0 ? reviewsData : undefined} />
   <ProjectsSection projects={projectsData.length > 0 ? projectsData : undefined} />
   <WhyChooseUsSection />

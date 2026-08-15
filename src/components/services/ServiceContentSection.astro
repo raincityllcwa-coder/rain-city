@@ -4,18 +4,17 @@
 // Vanilla JS replaces the React useState+useEffect from the original tsx.
 import imgCabinets from "@/assets/527501f2faa6167ff6095e533f6d5997c54352d6.webp";
 
+interface Slide { src: string; alt: string }
 interface Props {
   title: string;
   paragraphs: string[];
+  images?: Slide[]; // from Sanity (serviceCopy.sliderPhotos); falls back to the built-in photo
 }
 
-const { title, paragraphs } = Astro.props;
+const { title, paragraphs, images: fromSanity } = Astro.props;
 
-const images = [
-  imgCabinets.src,
-  "https://images.unsplash.com/photo-1668026694348-b73c5eb5e299?crop=entropy&cs=tinysrgb&fit=max&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBraXRjaGVuJTIwY2FiaW5ldHMlMjBpbnRlcmlvcnxlbnwxfHx8fDE3NzUwMjMzMTF8MA&ixlib=rb-4.1.0&q=75&w=640&fm=webp",
-  "https://images.unsplash.com/photo-1772567732969-c1506edf80a0?crop=entropy&cs=tinysrgb&fit=max&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjBraXRjaGVuJTIwcmVub3ZhdGlvbiUyMGNhYmluZXRyeXxlbnwxfHx8fDE3NzUwMjMzMTF8MA&ixlib=rb-4.1.0&q=75&w=640&fm=webp",
-  "https://images.unsplash.com/photo-1686023858213-9653d3248fdc?crop=entropy&cs=tinysrgb&fit=max&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjdXN0b20lMjBraXRjaGVuJTIwY2FiaW5ldHMlMjBpbnN0YWxsYXRpb258ZW58MXx8fHwxNzc1MDIzMzExfDA&ixlib=rb-4.1.0&q=75&w=640&fm=webp",
+const images: Slide[] = fromSanity && fromSanity.length > 0 ? fromSanity : [
+  { src: imgCabinets.src, alt: "Premium cabinet solutions" },
 ];
 ---
 
@@ -34,10 +33,10 @@ const images = [
 
       {/* Fade slider */}
       <div class="scs-slider w-full h-[300px] md:h-[400px] lg:h-[450px] rounded-[5px] overflow-hidden relative">
-        {images.map((src, i) => (
+        {images.map((s, i) => (
           <img
-            src={src}
-            alt="Premium cabinet solutions"
+            src={s.src}
+            alt={s.alt}
             loading={i === 0 ? "eager" : "lazy"}
             class="scs-slide w-full h-full object-cover rounded-[5px] absolute inset-0 transition-opacity duration-1000"
             style={i === 0 ? "opacity:1" : "opacity:0"}

@@ -15,6 +15,7 @@ import imgServiceImage from "../assets/45b63473772ac5eedb2419a124f3a11b4a82ba56.
 
 // ── Sanity ──
 import { getReviews, getProjects, getFAQs, getPageMeta, getDocById } from '../lib/queries';
+import { urlFor } from '../lib/sanity';
 import { transformReviews, transformProjects } from '../lib/transforms';
 
 let reviewsData: any[] = [];
@@ -36,6 +37,12 @@ try {
 
 const meta = await getPageMeta('kitchen-countertops');
 const svc = await getDocById('service-kitchen-countertops');
+const heroSrc = svc?.heroImage?.asset ? urlFor(svc.heroImage).width(1600).format('webp').quality(80).url() : imgServiceImage.src;
+const heroAlt = svc?.heroImage?.alt || undefined;
+const sliderImages = (svc?.sliderPhotos || []).filter((p: any) => p?.asset).map((p: any) => ({
+  src: urlFor(p).width(1000).height(760).fit('crop').format('webp').quality(80).url(),
+  alt: p.alt || (svc?.contentTitle || ''),
+}));
 
 const faqItems = faqsData.length > 0 ? faqsData : [
   { question: "What is the best countertop material for kitchens?", answer: "We specialize in natural stone countertops, including dolomite, granite, marble, quartzite, schist, and soapstone. Granite and quartzite are popular for their durability and heat resistance. Marble and dolomite offer timeless elegance. Soapstone and schist bring a softer, more textured look. The right choice depends on your lifestyle, design preferences, and budget, and we will walk you through the options during your consultation." },
@@ -81,8 +88,8 @@ const jsonLd = [
     { name: "Services", href: "/our-services" },
     { name: "Kitchen Countertops" },
   ]} />
-  <ServiceLandingHero backgroundImage={imgServiceImage.src} title={svc?.heroTitle || "Natural Stone Kitchen Countertops"} subtitle={svc?.heroSubtitle || "Premium kitchen countertops in dolomite, granite, marble, quartzite, schist, and soapstone."} />
-  <ServiceContentSection title={svc?.contentTitle || "Natural Stone Countertop Materials"} paragraphs={svc?.contentParagraphs?.length ? svc.contentParagraphs : ["We offer a wide variety of natural stone countertops, including dolomite, granite, marble, quartzite, schist, and soapstone, available in different styles, colors, and thicknesses to suit your needs.","Each stone has its own character and strengths. Our team will help you choose the right material for your kitchen based on your lifestyle, design preferences, and budget."]} />
+  <ServiceLandingHero backgroundImage={heroSrc} backgroundAlt={heroAlt} title={svc?.heroTitle || "Natural Stone Kitchen Countertops"} subtitle={svc?.heroSubtitle || "Premium kitchen countertops in dolomite, granite, marble, quartzite, schist, and soapstone."} />
+  <ServiceContentSection images={sliderImages} title={svc?.contentTitle || "Natural Stone Countertop Materials"} paragraphs={svc?.contentParagraphs?.length ? svc.contentParagraphs : ["We offer a wide variety of natural stone countertops, including dolomite, granite, marble, quartzite, schist, and soapstone, available in different styles, colors, and thicknesses to suit your needs.","Each stone has its own character and strengths. Our team will help you choose the right material for your kitchen based on your lifestyle, design preferences, and budget."]} />
   <ReviewsGridSection reviews={reviewsData.length > 0 ? reviewsData : undefined} />
   <ProjectsSection projects={projectsData.length > 0 ? projectsData : undefined} />
   <WhyChooseUsSection />
