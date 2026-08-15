@@ -84,10 +84,7 @@ const gridKeys = ['cabinets', 'countertops', 'bathroom'];
 services.forEach((s, i) => {
   if (cards[i]?.title) s.title = cards[i].title;
   if (cards[i]?.text) s.text = cards[i].text;
-  // Transitional fallback: until the photos are migrated into carousel-photos,
-  // keep reading the previous location (serviceCards[i].photos).
-  const uploaded = ((carousel?.[gridKeys[i]]?.length ? carousel[gridKeys[i]] : cards[i]?.photos) || [])
-    .filter((p: any) => p?.asset);
+  const uploaded = (carousel?.[gridKeys[i]] || []).filter((p: any) => p?.asset);
   if (uploaded.length > 0) {
     s.images = uploaded.map((p: any) => ({
       src: urlFor(p).width(926).height(760).fit("crop").format("webp").quality(80).url(),
