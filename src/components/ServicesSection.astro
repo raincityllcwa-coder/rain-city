@@ -76,13 +76,18 @@ const services = [
 
 const shared = await getDocById('copy-shared');
 const cards = shared?.serviceCards || [];
+// Carousel photos live in their own Studio document "Carousel Photos (Homepage)"
+// (id carousel-photos): three photo grids, one per card. If a grid has photos,
+// they replace the built-in local set entirely; an empty grid keeps the local set.
+const carousel = await getDocById('carousel-photos');
+const gridKeys = ['cabinets', 'countertops', 'bathroom'];
 services.forEach((s, i) => {
   if (cards[i]?.title) s.title = cards[i].title;
   if (cards[i]?.text) s.text = cards[i].text;
-  // Carousel photos: if the card has photos uploaded in Sanity, they replace
-  // the built-in local set entirely (upload / delete / reorder in Studio).
-  // With no photos uploaded, the local set stays as-is.
-  const uploaded = (cards[i]?.photos || []).filter((p: any) => p?.asset);
+  // Transitional fallback: until the photos are migrated into carousel-photos,
+  // keep reading the previous location (serviceCards[i].photos).
+  const uploaded = ((carousel?.[gridKeys[i]]?.length ? carousel[gridKeys[i]] : cards[i]?.photos) || [])
+    .filter((p: any) => p?.asset);
   if (uploaded.length > 0) {
     s.images = uploaded.map((p: any) => ({
       src: urlFor(p).width(926).height(760).fit("crop").format("webp").quality(80).url(),
