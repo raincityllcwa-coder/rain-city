@@ -86,7 +86,7 @@ export function getSiteSettings() {
 }
 
 // ─── Editable copy layer (Sanity-managed texts with hardcoded fallbacks) ───
-// Each doc is fetched once per build and cached module-level. Every consumer
+// Each doc is fetched once per build and cached module-level. Ids use hyphens, never dots: a dot in a Sanity _id makes the document private (hidden from unauthenticated reads, which is what the site build uses). Every consumer
 // falls back to the current hardcoded string when a doc or field is missing,
 // so the site renders identically with an empty dataset.
 
@@ -107,9 +107,9 @@ export function getDocById(id: string) {
   return copyCache.get(id);
 }
 
-// Meta title/description override for a static page. Doc ids: meta.<key>
+// Meta title/description override for a static page. Doc ids: meta-<key>
 export async function getPageMeta(key: string) {
-  return getDocById(`meta.${key}`);
+  return getDocById(`meta-${key}`);
 }
 
 // ─── Landing pages (SEO local pages, fully Sanity-managed) ───

@@ -9,7 +9,7 @@ const features = [
   { title: "Customer-Focused", description: "Your satisfaction is our priority, building friendly relationships from day one of your kitchen or bathroom remodel" },
 ];
 
-const shared = await getDocById('copy.shared');
+const shared = await getDocById('copy-shared');
 const feats = shared?.whyFeatures?.length ? shared.whyFeatures : features;
 
 let ownerPhotoUrl = '';

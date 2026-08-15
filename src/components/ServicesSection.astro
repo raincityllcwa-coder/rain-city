@@ -1,6 +1,7 @@
 ---
 import ImageCarousel from "./ui/ImageCarousel.astro";
 import { getDocById } from "../lib/queries";
+import { urlFor } from "../lib/sanity";
 
 // Kitchen Cabinets: 5 photos
 import imgKc01 from "@/assets/kitchen-cabinets/kc-01.webp";
@@ -73,11 +74,21 @@ const services = [
   { images: bathroomRemodelImages, link: "/bathroom-remodel", title: "Bathroom Remodel", color: "#051e2a", bg: "#f7f6f1", text: "Looking for bathroom remodeling services near you? Transform your bathroom with our high-quality materials, including porcelain tile, natural stone, or glass tile. We offer a wide range of styles and finishes to create the perfect look for your space.", reverse: false },
 ];
 
-const shared = await getDocById('copy.shared');
+const shared = await getDocById('copy-shared');
 const cards = shared?.serviceCards || [];
 services.forEach((s, i) => {
   if (cards[i]?.title) s.title = cards[i].title;
   if (cards[i]?.text) s.text = cards[i].text;
+  // Carousel photos: if the card has photos uploaded in Sanity, they replace
+  // the built-in local set entirely (upload / delete / reorder in Studio).
+  // With no photos uploaded, the local set stays as-is.
+  const uploaded = (cards[i]?.photos || []).filter((p: any) => p?.asset);
+  if (uploaded.length > 0) {
+    s.images = uploaded.map((p: any) => ({
+      src: urlFor(p).width(926).height(760).fit("crop").format("webp").quality(80).url(),
+      alt: p.alt || s.title,
+    }));
+  }
 });
 ---
 

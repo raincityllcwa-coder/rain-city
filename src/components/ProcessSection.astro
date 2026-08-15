@@ -21,7 +21,7 @@ const additionalServices = [
   "Garbage Removal: Our team ensures that all waste and debris are properly disposed of, leaving your space clean and ready for the next steps.",
 ];
 
-const shared = await getDocById('copy.shared');
+const shared = await getDocById('copy-shared');
 const mergedSteps = steps.map((s, i) => ({
   ...s,
   title: shared?.processSteps?.[i]?.title || s.title,

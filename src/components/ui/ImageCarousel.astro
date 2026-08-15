@@ -11,7 +11,9 @@ import { Image } from "astro:assets";
 import type { ImageMetadata } from "astro";
 
 interface CarouselSlide {
-  src: ImageMetadata;
+  // ImageMetadata for local assets (rendered via astro:assets <Image>),
+  // or a string URL for Sanity CDN images (already sized, rendered via <img>).
+  src: ImageMetadata | string;
   alt: string;
 }
 
@@ -29,7 +31,18 @@ const { images, link, interval = 4000 } = Astro.props;
   class="ic-root w-full md:w-[463px] h-[280px] md:h-[380px] rounded-[5px] overflow-hidden shrink-0 relative z-10 hover:opacity-95 transition-opacity block"
   data-ic-interval={interval}
 >
-  {images.map((s, i) => (
+  {images.map((s, i) => typeof s.src === "string" ? (
+    <img
+      data-ic-slide
+      src={s.src}
+      alt={s.alt}
+      width={463}
+      height={380}
+      loading="lazy"
+      class="w-full h-full object-cover absolute inset-0 transition-opacity duration-1000"
+      style={`opacity:${i === 0 ? 1 : 0};`}
+    />
+  ) : (
     <Image
       data-ic-slide
       src={s.src}

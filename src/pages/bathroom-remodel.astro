@@ -37,7 +37,7 @@ try {
 // Single FAQ source: the same list feeds both the visible FAQSection and the
 // FAQPage JSON-LD, so the structured data always matches the page content.
 const meta = await getPageMeta('bathroom-remodel');
-const svc = await getDocById('service.bathroom-remodel');
+const svc = await getDocById('service-bathroom-remodel');
 
 const faqItems = faqsData.length > 0 ? faqsData : [
   { question: "How long does a bathroom remodel take?", answer: "Most bathroom remodels take 2-4 weeks for a standard bathroom and 4-8 weeks for a full master bathroom renovation, depending on the scope of work, materials, and any layout changes." },
