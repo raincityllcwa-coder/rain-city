@@ -112,18 +112,27 @@ export async function getPageMeta(key: string) {
   return getDocById(`meta-${key}`);
 }
 
-// ─── Landing pages (SEO local pages, fully Sanity-managed) ───
-
-export async function getLandingPages() {
+// ─── SEO pages: reviews and projects by pool key and/or city ───
+export async function getReviewsFor(key: string | null | undefined, city: string | null | undefined) {
   return sanityClient.fetch(
-    `*[_type == "landingPage" && defined(slug.current)]{
-      _id, _createdAt, _updatedAt,
-      title, "slug": slug.current, service, city,
-      metaTitle, metaDescription,
-      h1, subtitle,
-      sections[]{heading, body, image},
-      faqs[]{question, answer},
-      showReviews, showLeadForm
+    `*[_type == "review" && (
+        (defined($city) && $city != "" && lower(city) == lower($city)) ||
+        (defined($key) && $key in showOn)
+      )] | order(select(defined($city) && lower(city) == lower($city) => 0, 1) asc, order asc) {
+      _id, author, text, photoUrl, photoUpload, avatarUrl, avatarUpload
     }`,
+    { key: key || null, city: city || null },
+  );
+}
+
+export async function getProjectsFor(key: string | null | undefined, city: string | null | undefined) {
+  return sanityClient.fetch(
+    `*[_type == "project" && (
+        (defined($city) && $city != "" && lower(city) match lower($city) + "*") ||
+        (defined($key) && $key in showOn)
+      )] | order(select(defined($city) && lower(city) match lower($city) + "*" => 0, 1) asc, order asc) {
+      _id, title, description, mainImage, gallery, slug, city
+    }`,
+    { key: key || null, city: city || null },
   );
 }

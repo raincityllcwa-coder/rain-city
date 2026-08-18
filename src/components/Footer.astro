@@ -1,5 +1,11 @@
 ---
+import { getNavigation, resolveNavItems } from "@/lib/navigation";
 const year = new Date().getFullYear();
+
+// Footer columns from Sanity (Navigation document), with the built-in lists as fallback.
+const nav = await getNavigation();
+const footerServices = await resolveNavItems(nav?.footerServices);
+const footerCities = await resolveNavItems(nav?.footerCities);
 
 const serviceAreas = [
   "Bellevue, WA",
@@ -77,9 +83,15 @@ const serviceAreas = [
         <h3 class="font-['Montserrat'] font-semibold text-[16px] md:text-[18px] mb-1">
           Services
         </h3>
-        <a href="/kitchen-cabinets" class="font-['Montserrat'] font-normal text-[14px] md:text-[16px] opacity-80 hover:opacity-100 transition-opacity">Kitchen Renovation & Cabinets</a>
-        <a href="/kitchen-countertops" class="font-['Montserrat'] font-normal text-[14px] md:text-[16px] opacity-80 hover:opacity-100 transition-opacity">Kitchen Countertops</a>
-        <a href="/bathroom-remodel" class="font-['Montserrat'] font-normal text-[14px] md:text-[16px] opacity-80 hover:opacity-100 transition-opacity">Bathroom Remodel</a>
+        {footerServices.length > 0 ? footerServices.map((l) => (
+          <a href={l.href} class="font-['Montserrat'] font-normal text-[14px] md:text-[16px] opacity-80 hover:opacity-100 transition-opacity">{l.label}</a>
+        )) : (
+          <>
+            <a href="/kitchen-cabinets" class="font-['Montserrat'] font-normal text-[14px] md:text-[16px] opacity-80 hover:opacity-100 transition-opacity">Kitchen Renovation & Cabinets</a>
+            <a href="/kitchen-countertops" class="font-['Montserrat'] font-normal text-[14px] md:text-[16px] opacity-80 hover:opacity-100 transition-opacity">Kitchen Countertops</a>
+            <a href="/bathroom-remodel" class="font-['Montserrat'] font-normal text-[14px] md:text-[16px] opacity-80 hover:opacity-100 transition-opacity">Bathroom Remodel</a>
+          </>
+        )}
       </div>
 
       <!-- Service Area -->
@@ -88,7 +100,9 @@ const serviceAreas = [
           Service Area
         </h3>
         <div class="flex flex-col gap-0.5 items-center md:items-start">
-          {serviceAreas.map((city) => (
+          {footerCities.length > 0 ? footerCities.map((l) => (
+            <a href={l.href} class="font-['Montserrat'] font-normal text-[13px] opacity-70 hover:opacity-100 transition-opacity whitespace-nowrap">{l.label}</a>
+          )) : serviceAreas.map((city) => (
             <span class="font-['Montserrat'] font-normal text-[13px] opacity-70 whitespace-nowrap">{city}</span>
           ))}
         </div>

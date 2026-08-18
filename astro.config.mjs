@@ -21,6 +21,9 @@ const sanityClient = createClient({
 
 const buildDate = new Date().toISOString();
 const lastmodByUrl = new Map();
+const hiddenUrls = new Set();          // noindex SEO pages: excluded from the sitemap
+const htmlRedirectPaths = new Set();   // paths that get a .html -> clean 301 rule
+const customRedirects = [];            // lines from Sanity redirect documents
 
 try {
   const projects = await sanityClient.fetch(
@@ -31,17 +34,34 @@ try {
       `https://raincityllc.com/our-projects/${p.slug}`,
       p._updatedAt
     );
+    htmlRedirectPaths.add(`/our-projects/${p.slug}`);
   }
   // eslint-disable-next-line no-console
   console.log(`[sitemap] loaded ${projects.length} per-project lastmod values from Sanity`);
-  const landings = await sanityClient.fetch(
-    `*[_type == "landingPage" && defined(slug.current)]{"slug": slug.current, _updatedAt}`
+  // SEO pages (type "page"): resolve URL from the parent chain, remember
+  // hidden (noindex) ones so they stay out of the sitemap, and load redirects.
+  const seoPages = await sanityClient.fetch(
+    `*[_type == "page" && defined(slug.current)]{_id, "slug": slug.current, "parentId": parent._ref, _updatedAt, noindex}`
   );
-  for (const l of landings) {
-    lastmodByUrl.set(`https://raincityllc.com/${l.slug}`, l._updatedAt);
+  const byId = new Map(seoPages.map((p) => [p._id, p]));
+  for (const p of seoPages) {
+    const segs = [p.slug]; let cur = p; const seen = new Set([p._id]);
+    while (cur.parentId && byId.has(cur.parentId) && !seen.has(cur.parentId)) { cur = byId.get(cur.parentId); seen.add(cur._id); segs.unshift(cur.slug); }
+    const url = `https://raincityllc.com/${segs.join('/')}`;
+    if (p.noindex) hiddenUrls.add(url); else lastmodByUrl.set(url, p._updatedAt);
+    // .html duplicate -> clean URL, for every SEO page (hidden or not)
+    htmlRedirectPaths.add(`/${segs.join('/')}`);
   }
   // eslint-disable-next-line no-console
-  console.log(`[sitemap] loaded ${landings.length} landing page lastmod values from Sanity`);
+  console.log(`[sitemap] loaded ${seoPages.length} SEO pages from Sanity (${hiddenUrls.size} hidden)`);
+  const redirectDocs = await sanityClient.fetch(`*[_type == "redirect" && defined(from) && defined(to)]{from, to, permanent}`);
+  for (const r of redirectDocs) {
+    if (typeof r.from === 'string' && r.from.startsWith('/') && typeof r.to === 'string') {
+      customRedirects.push(`${r.from} ${r.to} ${r.permanent === false ? 302 : 301}`);
+    }
+  }
+  // eslint-disable-next-line no-console
+  console.log(`[redirects] loaded ${customRedirects.length} redirects from Sanity`);
 } catch (err) {
   // eslint-disable-next-line no-console
   console.warn('[sitemap] could not fetch project lastmod from Sanity, falling back to build date:', err?.message);
@@ -61,7 +81,7 @@ export default defineConfig({
   },
   integrations: [
     sitemap({
-      filter: (page) => !page.includes('/thanks'),
+      filter: (page) => !page.includes('/thanks') && !hiddenUrls.has(page.replace(/\/$/, '')),
       changefreq: 'weekly',
       priority: 0.7,
       // Global lastmod populates the <lastmod> on sitemap-index.xml so Google
@@ -104,22 +124,13 @@ export default defineConfig({
       name: 'project-html-redirects',
       hooks: {
         'astro:build:done': async ({ dir }) => {
-          const paths = [...lastmodByUrl.keys()].map((u) =>
-            u.replace('https://raincityllc.com', '')
-          );
-          if (paths.length === 0) {
-            console.warn('[redirects] no project slugs loaded, skipping per-project .html rules');
-            return;
-          }
           const fs = await import('node:fs');
-          const lines = paths.map((p) => `${p}.html${' '.repeat(Math.max(1, 39 - p.length - 5))}${p} 301!`);
-          fs.appendFileSync(
-            new URL('_redirects', dir),
-            '\n# Auto-generated at build time: per-project .html duplicates -> clean URLs\n' +
-              lines.join('\n') +
-              '\n'
-          );
-          console.log(`[redirects] appended ${lines.length} per-project .html rules`);
+          const lines = [...htmlRedirectPaths].sort().map((p) => `${p}.html ${p} 301!`);
+          let out = '';
+          if (lines.length > 0) out += '\n# Auto-generated at build time: .html duplicates -> clean URLs\n' + lines.join('\n') + '\n';
+          if (customRedirects.length > 0) out += '\n# Redirects managed in Sanity (Redirects)\n' + customRedirects.join('\n') + '\n';
+          if (out) fs.appendFileSync(new URL('_redirects', dir), out);
+          console.log(`[redirects] appended ${lines.length} .html rules and ${customRedirects.length} Sanity redirects`);
         },
       },
     },

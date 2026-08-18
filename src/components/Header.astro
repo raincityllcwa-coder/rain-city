@@ -1,5 +1,16 @@
 ---
 import imgTelephoneIcon from "@/assets/a7886c55528f6e197789a4b7d647dd63cdc250d2.webp";
+import { getNavigation, resolveNavItems } from "@/lib/navigation";
+
+// Services dropdown groups from Sanity (Navigation document). With no groups
+// configured the header keeps the plain "Our Services" link.
+const nav = await getNavigation();
+const groups: { group: string; items: { label: string; href: string }[] }[] = [];
+for (const g of nav?.servicesMenu || []) {
+  const items = await resolveNavItems(g?.items);
+  if (items.length > 0) groups.push({ group: g.group || "", items });
+}
+const hasDropdown = groups.length > 0;
 ---
 
 <!-- Top Navigation - Desktop Only -->
@@ -25,7 +36,25 @@ import imgTelephoneIcon from "@/assets/a7886c55528f6e197789a4b7d647dd63cdc250d2.
       <!-- Desktop Navigation -->
       <nav class="hidden lg:flex gap-[29px] items-center text-[18px] text-black">
         <a href="/" class="font-['Montserrat'] font-medium hover:text-[#007ec5] transition-colors">Home</a>
-        <a href="/our-services" class="font-['Montserrat'] font-normal hover:text-[#007ec5] transition-colors">Our Services</a>
+        {hasDropdown ? (
+          <div class="relative group">
+            <a href="/our-services" class="font-['Montserrat'] font-normal hover:text-[#007ec5] transition-colors inline-flex items-center gap-1" aria-haspopup="true">Our Services <span aria-hidden="true" class="text-[12px]">▾</span></a>
+            <div class="absolute left-0 top-full pt-3 hidden group-hover:block group-focus-within:block z-50">
+              <div class="bg-white shadow-xl border border-gray-100 rounded-[5px] p-6 flex gap-10 min-w-max">
+                {groups.map((g) => (
+                  <div class="flex flex-col gap-2 min-w-[180px]">
+                    {g.group && <p class="font-['Montserrat'] font-semibold text-[13px] uppercase tracking-wide text-gray-500 mb-1">{g.group}</p>}
+                    {g.items.map((l) => (
+                      <a href={l.href} class="font-['Montserrat'] font-normal text-[15px] text-black hover:text-[#007ec5] transition-colors whitespace-nowrap">{l.label}</a>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <a href="/our-services" class="font-['Montserrat'] font-normal hover:text-[#007ec5] transition-colors">Our Services</a>
+        )}
         <a href="/our-projects" class="font-['Montserrat'] font-normal hover:text-[#007ec5] transition-colors">Projects</a>
         <a href="/about" class="font-['Montserrat'] font-normal hover:text-[#007ec5] transition-colors">About Us</a>
         <a href="/contact" class="font-['Montserrat'] font-normal hover:text-[#007ec5] transition-colors">Contact</a>
@@ -48,6 +77,14 @@ import imgTelephoneIcon from "@/assets/a7886c55528f6e197789a4b7d647dd63cdc250d2.
     <nav id="mobile-nav" class="lg:hidden mt-6 flex-col gap-4 pb-4 border-t pt-4 hidden">
       <a href="/" class="font-['Montserrat'] font-medium text-[16px] text-black hover:text-[#007ec5] transition-colors">Home</a>
       <a href="/our-services" class="font-['Montserrat'] font-normal text-[16px] text-black hover:text-[#007ec5] transition-colors">Our Services</a>
+      {hasDropdown && groups.map((g) => (
+        <div class="pl-4 flex flex-col gap-2">
+          {g.group && <p class="font-['Montserrat'] font-semibold text-[12px] uppercase tracking-wide text-gray-500">{g.group}</p>}
+          {g.items.map((l) => (
+            <a href={l.href} class="font-['Montserrat'] font-normal text-[15px] text-black hover:text-[#007ec5] transition-colors">{l.label}</a>
+          ))}
+        </div>
+      ))}
       <a href="/our-projects" class="font-['Montserrat'] font-normal text-[16px] text-black hover:text-[#007ec5] transition-colors">Projects</a>
       <a href="/about" class="font-['Montserrat'] font-normal text-[16px] text-black hover:text-[#007ec5] transition-colors">About Us</a>
       <a href="/contact" class="font-['Montserrat'] font-normal text-[16px] text-black hover:text-[#007ec5] transition-colors">Contact</a>

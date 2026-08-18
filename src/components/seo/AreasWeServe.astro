@@ -1,0 +1,33 @@
+---
+// "Areas we serve" block: links to all published city pages. Footer cities
+// (navigation.footerCities) come first, then the rest alphabetically. Rendered
+// on service pages so the secondary cities get internal links from every service.
+import { getNavigation, resolveNavItems, getPagesOfType } from "../../lib/navigation";
+
+interface Props { currentPath?: string; title?: string }
+const { currentPath, title } = Astro.props;
+
+const nav = await getNavigation();
+const primary = await resolveNavItems(nav?.footerCities);
+const cities = await getPagesOfType("city");
+const primaryHrefs = new Set(primary.map((l) => l.href));
+const rest = cities
+  .filter((c) => !primaryHrefs.has(c.path))
+  .map((c) => ({ label: c.city || c.heroTitle, href: c.path }))
+  .sort((a, b) => a.label.localeCompare(b.label));
+const links = [...primary, ...rest].filter((l) => l.href !== currentPath);
+const heading = title || nav?.areasBlockTitle || "Areas We Serve";
+---
+
+{links.length > 0 && (
+  <section class="w-full py-10 md:py-14 bg-[#f7f6f1]">
+    <div class="max-w-[1150px] mx-auto px-4 md:px-8">
+      <h2 class="font-['Playfair_Display'] font-bold text-[24px] md:text-[28px] text-black mb-6">{heading}</h2>
+      <ul class="flex flex-wrap gap-x-6 gap-y-3">
+        {links.map((l) => (
+          <li><a href={l.href} class="font-['Montserrat'] text-[16px] text-[#051e2a] hover:text-[#007ec5] underline underline-offset-4 decoration-gray-300 hover:decoration-[#007ec5] transition-colors">{l.label}</a></li>
+        ))}
+      </ul>
+    </div>
+  </section>
+)}

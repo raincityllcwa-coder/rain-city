@@ -1,0 +1,38 @@
+---
+// "Our services" block: links to service pages. Uses the footer services list
+// from Navigation when set (so the built-in pages can be included), otherwise
+// all published top-level service page documents, otherwise the built-in three.
+import { getNavigation, resolveNavItems, getPagesOfType } from "../../lib/navigation";
+
+interface Props { currentPath?: string; title?: string }
+const { currentPath, title } = Astro.props;
+
+const nav = await getNavigation();
+let links = await resolveNavItems(nav?.footerServices);
+if (links.length === 0) {
+  const services = await getPagesOfType("service");
+  links = services.filter((s) => s.chain.length === 0).map((s) => ({ label: s.heroTitle, href: s.path }));
+  if (links.length === 0) {
+    links = [
+      { label: "Kitchen Renovation & Cabinets", href: "/kitchen-cabinets" },
+      { label: "Kitchen Countertops", href: "/kitchen-countertops" },
+      { label: "Bathroom Remodel", href: "/bathroom-remodel" },
+    ];
+  }
+}
+links = links.filter((l) => l.href !== currentPath);
+const heading = title || nav?.servicesBlockTitle || "Our Remodeling Services";
+---
+
+{links.length > 0 && (
+  <section class="w-full py-10 md:py-14">
+    <div class="max-w-[1150px] mx-auto px-4 md:px-8">
+      <h2 class="font-['Playfair_Display'] font-bold text-[24px] md:text-[28px] text-black mb-6">{heading}</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {links.map((l) => (
+          <a href={l.href} class="block border border-gray-200 rounded-[5px] px-5 py-4 font-['Montserrat'] font-semibold text-[16px] text-[#051e2a] hover:border-[#007ec5] hover:text-[#007ec5] transition-colors">{l.label} →</a>
+        ))}
+      </div>
+    </div>
+  </section>
+)}
