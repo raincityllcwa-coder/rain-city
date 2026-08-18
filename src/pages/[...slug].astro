@@ -17,9 +17,18 @@ import { getReviewsFor, getProjectsFor } from '../lib/queries';
 import { transformReviews, transformProjects } from '../lib/transforms';
 import { urlFor } from '../lib/sanity';
 
+// Built-in (static) routes always win. A page document that shares a URL with
+// one of them (e.g. slug "bathroom-remodel" used purely as a parent for
+// nesting) is never emitted by this route, so it can never overwrite the
+// built-in page's output file.
+const STATIC_PATHS = new Set(['/', '/about', '/contact', '/our-services', '/our-projects', '/thanks', '/404',
+  '/kitchen-cabinets', '/kitchen-countertops', '/bathroom-remodel']);
+
 export async function getStaticPaths() {
   const pages = await getAllPages();
-  return pages.map((page) => ({ params: { slug: page.path.replace(/^\//, '') }, props: { page } }));
+  return pages
+    .filter((page) => !STATIC_PATHS.has(page.path) && !page.path.startsWith('/our-projects/'))
+    .map((page) => ({ params: { slug: page.path.replace(/^\//, '') }, props: { page } }));
 }
 
 const { page } = Astro.props as { page: PageDoc };
