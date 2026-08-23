@@ -76,13 +76,23 @@ let reviewsData: any[] = [];
 let projectsData: any[] = [];
 try {
   const [r, p] = await Promise.all([
-    page.showReviews !== false ? (isService ? getReviewsForService(page._id) : getReviewsForCity(page.city)) : [],
-    page.showProjects !== false ? (isService ? getProjectsForService(page._id) : getProjectsForCity(page.city)) : [],
+    page.showReviews !== false ? (isService ? getReviewsForService(page._id) : getReviewsForCity(page.cityId)) : [],
+    page.showProjects !== false ? (isService ? getProjectsForService(page._id) : getProjectsForCity(page.cityId, page.cityName)) : [],
   ]);
   if (r?.length) reviewsData = transformReviews(r);
   if (p?.length) projectsData = transformProjects(p);
 } catch (e) {
   console.warn(`[Sanity] ${page.path} reviews/projects fetch failed:`, e);
+}
+
+// Nearby cities: links only when the city already has a published page.
+let nearbyLinks: { label: string; href: string }[] = [];
+if (!isService && page.nearby?.length) {
+  const all = await getAllPages();
+  const byCityId = new Map(all.filter((p) => p.pageType === 'city' && !p.noindex && p.cityId).map((p) => [p.cityId as string, p]));
+  nearbyLinks = page.nearby
+    .filter((c) => c?._id && byCityId.has(c._id) && byCityId.get(c._id)!.path !== page.path)
+    .map((c) => ({ label: c.name, href: byCityId.get(c._id)!.path }));
 }
 
 // Breadcrumbs from the parent chain (the Our Services hub for top-level services).
@@ -107,7 +117,7 @@ const jsonLd: any[] = [
     "description": pageDescription,
     "url": canonical,
     "provider": provider,
-    "areaServed": page.city ? { "@type": "City", "name": `${page.city}, WA` } : { "@type": "City", "name": "Bellevue, WA" },
+    "areaServed": page.cityName ? { "@type": "City", "name": `${page.cityName}, WA` } : { "@type": "City", "name": "Bellevue, WA" },
     ...(heroSrc ? { "image": heroSrc } : {}),
   },
 ];
@@ -194,6 +204,18 @@ if (faqItems.length > 0) {
       {page.showProjects !== false && projectsData.length > 0 && <ProjectsSection projects={projectsData} />}
       {page.showReviews !== false && reviewsData.length > 0 && <ReviewsGridSection reviews={reviewsData} />}
       {faqItems.length > 0 && <FAQSection faqs={faqItems} />}
+      {nearbyLinks.length > 0 && (
+        <section class="w-full py-10 md:py-14 bg-[#f7f6f1]">
+          <div class="max-w-[1150px] mx-auto px-4 md:px-8">
+            <h2 class="font-['Playfair_Display'] font-bold text-[24px] md:text-[28px] text-black mb-6">Nearby Cities</h2>
+            <ul class="flex flex-wrap gap-x-6 gap-y-3">
+              {nearbyLinks.map((l) => (
+                <li><a href={l.href} class="font-['Montserrat'] text-[16px] text-[#051e2a] hover:text-[#007ec5] underline underline-offset-4 decoration-gray-300 hover:decoration-[#007ec5] transition-colors">{l.label}</a></li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
       {page.showLeadForm !== false && <div id="lead-form"><WideLeadFormSection /></div>}
     </>
   )}

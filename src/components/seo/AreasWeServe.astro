@@ -13,7 +13,7 @@ const cities = await getPagesOfType("city");
 const primaryHrefs = new Set(primary.map((l) => l.href));
 const rest = cities
   .filter((c) => !primaryHrefs.has(c.path))
-  .map((c) => ({ label: c.city || c.title, href: c.path }))
+  .map((c) => ({ label: c.cityName || c.title, href: c.path }))
   .sort((a, b) => a.label.localeCompare(b.label));
 const links = [...primary, ...rest].filter((l) => l.href !== currentPath);
 const heading = title || nav?.areasBlockTitle || "Areas We Serve";

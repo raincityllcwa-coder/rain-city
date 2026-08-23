@@ -65,13 +65,19 @@ export async function getProjectsForService(serviceId: string) {
   );
 }
 
-// City pages: projects from this city first, then the homepage ones.
-export async function getProjectsForCity(city: string | null | undefined) {
+// City pages: projects from this city first (matched by the city reference,
+// falling back to the old free-text field), then the homepage ones.
+export async function getProjectsForCity(cityId: string | null | undefined, cityName: string | null | undefined) {
   return sanityClient.fetch(
     `*[_type == "project" && (
-        (defined($city) && $city != "" && lower(city) match lower($city) + "*") || showOnHomepage == true
-      )] | order(select(defined($city) && lower(city) match lower($city) + "*" => 0, 1) asc, order asc) { ${PROJECT_CARD} }`,
-    { city: city || null },
+        (defined($cityId) && cityRef._ref == $cityId) ||
+        (defined($city) && $city != "" && lower(city) match lower($city) + "*") ||
+        showOnHomepage == true
+      )] | order(select(
+        defined($cityId) && cityRef._ref == $cityId => 0,
+        defined($city) && lower(city) match lower($city) + "*" => 0,
+        1) asc, order asc) { ${PROJECT_CARD} }`,
+    { cityId: cityId || null, city: cityName || null },
   );
 }
 
@@ -124,11 +130,11 @@ export async function getReviewsForService(serviceId: string) {
   );
 }
 
-export async function getReviewsForCity(city: string | null | undefined) {
+export async function getReviewsForCity(cityId: string | null | undefined) {
   return sanityClient.fetch(
     `*[_type == "review" && (
-        (defined($city) && $city != "" && lower(city) == lower($city)) || showOnHomepage == true
-      )] | order(select(defined($city) && lower(city) == lower($city) => 0, 1) asc, order asc) { ${REVIEW_CARD} }`,
-    { city: city || null },
+        (defined($cityId) && cityRef._ref == $cityId) || showOnHomepage == true
+      )] | order(select(defined($cityId) && cityRef._ref == $cityId => 0, 1) asc, order asc) { ${REVIEW_CARD} }`,
+    { cityId: cityId || null },
   );
 }
