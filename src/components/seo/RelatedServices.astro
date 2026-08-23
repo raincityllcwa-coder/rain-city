@@ -11,7 +11,7 @@ const nav = await getNavigation();
 let links = await resolveNavItems(nav?.footerServices);
 if (links.length === 0) {
   const services = await getPagesOfType("service");
-  links = services.filter((s) => s.chain.length === 0).map((s) => ({ label: s.heroTitle, href: s.path }));
+  links = services.filter((s) => s.chain.length === 0).map((s) => ({ label: s.cardTitle || s.title, href: s.path }));
   if (links.length === 0) {
     links = [
       { label: "Kitchen Renovation & Cabinets", href: "/kitchen-cabinets" },

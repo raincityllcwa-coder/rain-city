@@ -1,56 +1,32 @@
 ---
-// Three-up service blocks on /our-services
+// Three-up service blocks on /our-services, built from the published
+// top-level service pages (Card tab: title, short text, photo).
 // Static, no interactivity, no React/JS runtime.
 import imgServiceImage from "@/assets/c4e93df24993f176102d516e4e5e7a4fd86822b6.webp";
 import imgServiceImage1 from "@/assets/45b63473772ac5eedb2419a124f3a11b4a82ba56.webp";
 import imgServiceImage2 from "@/assets/2221dd725ae6402fca45a45bd79869231da67ce7.webp";
-import { getDocById } from "@/lib/queries";
 import { urlFor } from "@/lib/sanity";
+import type { PageDoc } from "@/lib/pages";
 
-const services = [
-  {
-    id: "kitchen-cabinets",
-    slug: "kitchen-cabinets",
-    title: "Kitchen Renovation & Cabinets",
-    image: imgServiceImage.src,
-    bgColor: "#f7f6f1",
-    textColor: "#051e2a",
-    description: "Transform your kitchen with custom cabinets. Choose from Shaker, Flat, or custom door styles in a variety of colors and finishes.",
-    reverse: false,
-  },
-  {
-    id: "kitchen-countertops",
-    slug: "kitchen-countertops",
-    title: "Kitchen Countertops",
-    image: imgServiceImage1.src,
-    bgColor: "#f1f3f7",
-    textColor: "#051e2a",
-    reverse: true,
-    description: "Premium natural stone countertops in dolomite, granite, marble, quartzite, schist, and soapstone. Complete service from templating to installation.",
-  },
-  {
-    id: "bathroom-remodel",
-    slug: "bathroom-remodel",
-    title: "Bathroom Remodel",
-    image: imgServiceImage2.src,
-    bgColor: "#f7f6f1",
-    textColor: "#051e2a",
-    description: "Complete bathroom transformations with premium tile, modern fixtures, and expert craftsmanship.",
-    reverse: false,
-  },
-];
+interface Props { services: PageDoc[] }
+const { services: pages } = Astro.props;
+const localFallbacks = [imgServiceImage.src, imgServiceImage1.src, imgServiceImage2.src];
 
-// Card photos are editable in Sanity (Service Page Texts: "Photo on the Our
-// Services page card", falling back to that page's hero photo, then to the
-// built-in file).
-for (const service of services) {
-  const doc = await getDocById(`service-${service.id}`);
-  const pic = doc?.cardImage?.asset ? doc.cardImage : doc?.heroImage?.asset ? doc.heroImage : null;
-  if (pic) {
-    (service as any).image = urlFor(pic).width(926).height(760).fit("crop").format("webp").quality(80).url();
-    (service as any).imageAlt = pic.alt || service.title;
-  }
-}
+const services = pages.map((p, i) => {
+  const pic = p.cardImage?.asset ? p.cardImage : p.heroImage?.asset ? p.heroImage : null;
+  const title = p.cardTitle || p.title;
+  return {
+    id: p.slug,
+    href: p.path,
+    title,
+    image: pic ? urlFor(pic).width(926).height(760).fit("crop").format("webp").quality(80).url() : localFallbacks[i % localFallbacks.length],
+    imageAlt: pic ? pic.alt || title : title,
+    bgColor: i % 2 === 1 ? "#f1f3f7" : "#f7f6f1",
+    textColor: "#051e2a",
+    description: p.cardShortText || p.subtitle || "",
+    reverse: i % 2 === 1,
+  };
+});
 ---
 
 <section class="w-full py-16 md:py-20 lg:py-24">
@@ -62,10 +38,10 @@ for (const service of services) {
             <div class={`flex flex-col ${service.reverse ? 'md:flex-row-reverse' : 'md:flex-row'} gap-6 md:gap-0 items-center`}>
               {/* Image */}
               <a
-                href={`/${service.slug}`}
+                href={service.href}
                 class="w-full md:w-[463px] h-[280px] md:h-[380px] rounded-[5px] overflow-hidden shrink-0 relative z-10 hover:opacity-95 transition-opacity"
               >
-                <img src={service.image} alt={(service as any).imageAlt || service.title} class="w-full h-full object-cover" loading="lazy" width="463" height="380" />
+                <img src={service.image} alt={service.imageAlt} class="w-full h-full object-cover" loading="lazy" width="463" height="380" />
               </a>
 
               {/* Background card */}
@@ -86,7 +62,7 @@ for (const service of services) {
                   {service.description}
                 </p>
                 <a
-                  href={`/${service.slug}`}
+                  href={service.href}
                   class="inline-flex items-center gap-2 px-7 py-3.5 bg-[#007ec5] text-white font-['Montserrat'] font-bold text-[16px] rounded-[5px] hover:bg-[#006ba8] transition-colors shadow-md hover:shadow-lg"
                 >
                   Learn More

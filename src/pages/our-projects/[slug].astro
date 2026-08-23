@@ -1,4 +1,5 @@
 ---
+import { getSite } from '@/lib/site';
 import Layout from "../../layouts/Layout.astro";
 import Breadcrumbs from "../../components/Breadcrumbs.astro";
 import { getAllProjectSlugs, getProjectBySlug } from "../../lib/queries";
@@ -133,6 +134,7 @@ const breadcrumbItems = [
 ];
 
 const combinedJsonLd = articleJsonLd ? articleJsonLd : null;
+const site = await getSite();
 ---
 
 <Layout
@@ -382,7 +384,7 @@ const combinedJsonLd = articleJsonLd ? articleJsonLd : null;
             </a>
           </div>
           <p class="font-['Montserrat'] text-[13px] text-white/60 mt-8">
-            Licensed and insured · WA Contractor License #BIRIUCL808C6
+            Licensed and insured · WA Contractor License #{site.licenseNumber}
           </p>
         </div>
       </section>

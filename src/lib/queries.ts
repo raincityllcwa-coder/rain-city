@@ -1,13 +1,77 @@
 import { sanityClient } from "./sanity";
 
+// ─── Fixed documents (one per page or site-wide) ────────
+// Each is fetched once per build and cached. Ids use hyphens, never dots: a
+// dot in a Sanity _id makes the document private (hidden from the
+// unauthenticated reads the site build uses).
+
+const docCache = new Map<string, Promise<any>>();
+
+export function getDocById(id: string) {
+  if (!docCache.has(id)) {
+    docCache.set(
+      id,
+      sanityClient
+        .fetch(`*[_id == $id][0]`, { id })
+        .catch((e) => {
+          console.warn(`[Sanity] doc ${id} fetch failed:`, e?.message);
+          return null;
+        }),
+    );
+  }
+  return docCache.get(id);
+}
+
+export const getAboutPage = () => getDocById("aboutPage");
+export const getContactPage = () => getDocById("contactPage");
+export const getHubPage = (key: "services" | "projects") => getDocById(`hub-${key}`);
+
+// Homepage with the featured service cards dereferenced (card fields live on
+// the service pages).
+let homeCache: Promise<any> | null = null;
+export function getHomePage() {
+  if (!homeCache) {
+    homeCache = sanityClient
+      .fetch(
+        `*[_id == "homePage"][0]{
+          ...,
+          featuredServices[]->{
+            _id, title, cardTitle, cardText, cardPhotos, noindex,
+            "slug": slug.current, "parentSlug": parent->slug.current
+          }
+        }`,
+      )
+      .catch((e) => {
+        console.warn("[Sanity] homePage fetch failed:", e?.message);
+        return null;
+      });
+  }
+  return homeCache;
+}
+
 // ─── Projects ───────────────────────────────────────────
 
-export async function getProjects(page: string) {
+const PROJECT_CARD = `_id, title, description, mainImage, gallery, slug, city`;
+
+export async function getHomepageProjects() {
+  return sanityClient.fetch(`*[_type == "project" && showOnHomepage == true] | order(order asc) { ${PROJECT_CARD} }`);
+}
+
+// Projects pointing at a service page (by document id).
+export async function getProjectsForService(serviceId: string) {
   return sanityClient.fetch(
-    `*[_type == "project" && $page in showOn] | order(order asc) {
-      _id, title, description, mainImage, gallery, slug
-    }`,
-    { page },
+    `*[_type == "project" && $id in services[]._ref] | order(order asc) { ${PROJECT_CARD} }`,
+    { id: serviceId },
+  );
+}
+
+// City pages: projects from this city first, then the homepage ones.
+export async function getProjectsForCity(city: string | null | undefined) {
+  return sanityClient.fetch(
+    `*[_type == "project" && (
+        (defined($city) && $city != "" && lower(city) match lower($city) + "*") || showOnHomepage == true
+      )] | order(select(defined($city) && lower(city) match lower($city) + "*" => 0, 1) asc, order asc) { ${PROJECT_CARD} }`,
+    { city: city || null },
   );
 }
 
@@ -47,92 +111,24 @@ export async function getAllProjectSlugs() {
 
 // ─── Reviews ────────────────────────────────────────────
 
-export async function getReviews(page: string) {
+const REVIEW_CARD = `_id, author, text, photoUrl, photoUpload, avatarUrl, avatarUpload`;
+
+export async function getHomepageReviews() {
+  return sanityClient.fetch(`*[_type == "review" && showOnHomepage == true] | order(order asc) { ${REVIEW_CARD} }`);
+}
+
+export async function getReviewsForService(serviceId: string) {
   return sanityClient.fetch(
-    `*[_type == "review" && $page in showOn] | order(order asc) {
-      _id, author, text,
-      photoUrl, photoUpload,
-      avatarUrl, avatarUpload
-    }`,
-    { page },
+    `*[_type == "review" && $id in services[]._ref] | order(order asc) { ${REVIEW_CARD} }`,
+    { id: serviceId },
   );
 }
 
-// ─── FAQ ────────────────────────────────────────────────
-
-export async function getFAQs(page: string) {
-  return sanityClient.fetch(
-    `*[_type == "faq" && $page in showOn] | order(order asc) {
-      _id, question, answer
-    }`,
-    { page },
-  );
-}
-
-// ─── Site settings ──────────────────────────────────────
-// Memoized: the same siteSettings document is needed by AboutSection (homepage)
-// and WhyChooseUsSection (three service pages). One request per build instead
-// of one per component per page.
-
-let siteSettingsPromise: Promise<any> | null = null;
-
-export function getSiteSettings() {
-  if (!siteSettingsPromise) {
-    siteSettingsPromise = sanityClient.fetch(
-      `*[_type == "siteSettings"][0]{ ownerPhoto, aboutPhoto1, aboutPhoto2, aboutPhoto3 }`,
-    );
-  }
-  return siteSettingsPromise;
-}
-
-// ─── Editable copy layer (Sanity-managed texts with hardcoded fallbacks) ───
-// Each doc is fetched once per build and cached module-level. Ids use hyphens, never dots: a dot in a Sanity _id makes the document private (hidden from unauthenticated reads, which is what the site build uses). Every consumer
-// falls back to the current hardcoded string when a doc or field is missing,
-// so the site renders identically with an empty dataset.
-
-const copyCache = new Map<string, Promise<any>>();
-
-export function getDocById(id: string) {
-  if (!copyCache.has(id)) {
-    copyCache.set(
-      id,
-      sanityClient
-        .fetch(`*[_id == $id][0]`, { id })
-        .catch((e) => {
-          console.warn(`[Sanity] copy doc ${id} fetch failed:`, e?.message);
-          return null;
-        }),
-    );
-  }
-  return copyCache.get(id);
-}
-
-// Meta title/description override for a static page. Doc ids: meta-<key>
-export async function getPageMeta(key: string) {
-  return getDocById(`meta-${key}`);
-}
-
-// ─── SEO pages: reviews and projects by pool key and/or city ───
-export async function getReviewsFor(key: string | null | undefined, city: string | null | undefined) {
+export async function getReviewsForCity(city: string | null | undefined) {
   return sanityClient.fetch(
     `*[_type == "review" && (
-        (defined($city) && $city != "" && lower(city) == lower($city)) ||
-        (defined($key) && $key in showOn)
-      )] | order(select(defined($city) && lower(city) == lower($city) => 0, 1) asc, order asc) {
-      _id, author, text, photoUrl, photoUpload, avatarUrl, avatarUpload
-    }`,
-    { key: key || null, city: city || null },
-  );
-}
-
-export async function getProjectsFor(key: string | null | undefined, city: string | null | undefined) {
-  return sanityClient.fetch(
-    `*[_type == "project" && (
-        (defined($city) && $city != "" && lower(city) match lower($city) + "*") ||
-        (defined($key) && $key in showOn)
-      )] | order(select(defined($city) && lower(city) match lower($city) + "*" => 0, 1) asc, order asc) {
-      _id, title, description, mainImage, gallery, slug, city
-    }`,
-    { key: key || null, city: city || null },
+        (defined($city) && $city != "" && lower(city) == lower($city)) || showOnHomepage == true
+      )] | order(select(defined($city) && lower(city) == lower($city) => 0, 1) asc, order asc) { ${REVIEW_CARD} }`,
+    { city: city || null },
   );
 }

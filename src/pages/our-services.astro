@@ -1,6 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { getPageMeta } from '../lib/queries';
+import { getHubPage, getHomePage } from '../lib/queries';
+import { getTopLevelServices } from '../lib/pages';
 import ServiceHero from '../components/services/ServiceHero.astro';
 import ServiceDetails from '../components/services/ServiceDetails.astro';
 import ServiceBenefits from '../components/services/ServiceBenefits.astro';
@@ -8,57 +9,44 @@ import ServiceCTA from '../components/services/ServiceCTA.astro';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
 import MobileCallButton from '../components/MobileCallButton.astro';
 
+// Cards and the JSON-LD list come from the published top-level service pages.
+const hub = await getHubPage('services');
+// Order follows Home > Featured services; anything not featured goes after.
+const home = await getHomePage();
+const featuredOrder = (home?.featuredServices || []).map((f: any) => f?._id);
+const services = [...(await getTopLevelServices())].sort((x, y) => {
+  const ix = featuredOrder.indexOf(x._id);
+  const iy = featuredOrder.indexOf(y._id);
+  return (ix === -1 ? 999 : ix) - (iy === -1 ? 999 : iy) || x.path.localeCompare(y.path);
+});
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "ItemList",
   "name": "Kitchen & Bathroom Remodeling Services",
-  "itemListElement": [
-    {
-      "@type": "ListItem",
-      "position": 1,
-      "item": {
-        "@type": "Service",
-        "name": "Kitchen Renovation & Cabinets",
-        "url": "https://raincityllc.com/kitchen-cabinets",
-        "description": "Custom and standard kitchen cabinet design and installation. Shaker and Flat door styles."
-      }
+  "itemListElement": services.map((s, i) => ({
+    "@type": "ListItem",
+    "position": i + 1,
+    "item": {
+      "@type": "Service",
+      "name": s.cardTitle || s.title,
+      "url": `https://raincityllc.com${s.path}`,
+      "description": s.cardShortText || s.subtitle || "",
     },
-    {
-      "@type": "ListItem",
-      "position": 2,
-      "item": {
-        "@type": "Service",
-        "name": "Kitchen Countertops",
-        "url": "https://raincityllc.com/kitchen-countertops",
-        "description": "Natural stone countertop fabrication and installation: dolomite, granite, marble, quartzite, schist, and soapstone."
-      }
-    },
-    {
-      "@type": "ListItem",
-      "position": 3,
-      "item": {
-        "@type": "Service",
-        "name": "Bathroom Remodel",
-        "url": "https://raincityllc.com/bathroom-remodel",
-        "description": "Complete bathroom remodeling with porcelain, natural stone, and glass tile."
-      }
-    }
-  ]
+  })),
 };
-const meta = await getPageMeta('our-services');
 ---
 
 <Layout
-  title={meta?.metaTitle || "Our Services - Kitchen Renovation & Cabinets, Countertops, Bathroom | Rain City"}
-  description={meta?.metaDescription || "Kitchen cabinets, countertop installation, and bathroom remodeling services in Bellevue, Seattle & surrounding areas. Licensed contractors. Free estimates."}
+  title={hub?.metaTitle || "Our Services - Kitchen Renovation & Cabinets, Countertops, Bathroom | Rain City"}
+  description={hub?.metaDescription || "Kitchen cabinets, countertop installation, and bathroom remodeling services in Bellevue, Seattle & surrounding areas. Licensed contractors. Free estimates."}
   jsonLd={jsonLd}
 >
   <Breadcrumbs items={[
     { name: "Home", href: "/" },
     { name: "Our Services" },
   ]} />
-  <ServiceHero />
-  <ServiceDetails />
+  <ServiceHero title={hub?.title} subtitle={hub?.subtitle} />
+  <ServiceDetails services={services} />
   <ServiceBenefits />
   <ServiceCTA />
   <MobileCallButton />

@@ -1,6 +1,6 @@
 ---
 import ImageCarousel from "./ui/ImageCarousel.astro";
-import { getDocById } from "../lib/queries";
+import { getHomePage } from "../lib/queries";
 import { urlFor } from "../lib/sanity";
 
 // Kitchen Cabinets: 5 photos
@@ -74,29 +74,37 @@ const services = [
   { images: bathroomRemodelImages, link: "/bathroom-remodel", title: "Bathroom Remodel", color: "#051e2a", bg: "#f7f6f1", text: "Looking for bathroom remodeling services near you? Transform your bathroom with our high-quality materials, including porcelain tile, natural stone, or glass tile. We offer a wide range of styles and finishes to create the perfect look for your space.", reverse: false },
 ];
 
-const shared = await getDocById('copy-shared');
-const cards = shared?.serviceCards || [];
-// Carousel photos live in their own Studio document "Carousel Photos (Homepage)"
-// (id carousel-photos): three photo grids, one per card. If a grid has photos,
-// they replace the built-in local set entirely; an empty grid keeps the local set.
-const carousel = await getDocById('carousel-photos');
-const gridKeys = ['cabinets', 'countertops', 'bathroom'];
-services.forEach((s, i) => {
-  if (cards[i]?.title) s.title = cards[i].title;
-  if (cards[i]?.text) s.text = cards[i].text;
-  const uploaded = (carousel?.[gridKeys[i]] || []).filter((p: any) => p?.asset);
-  if (uploaded.length > 0) {
-    s.images = uploaded.map((p: any) => ({
-      src: urlFor(p).width(926).height(760).fit("crop").format("webp").quality(80).url(),
-      alt: p.alt || s.title,
-    }));
-  }
-});
+// Cards come from the homepage document: Featured services (order) and, on
+// each service page, the Card tab (title, text, carousel photos). An empty
+// carousel keeps the built-in local photo set for that position.
+const home = await getHomePage();
+const featured = (home?.featuredServices || []).filter((f: any) => f?.slug && !f.noindex);
+if (featured.length > 0) {
+  featured.forEach((f: any, i: number) => {
+    const base = services[i] || { images: [], color: "#051e2a", bg: i % 2 ? "#f1f3f7" : "#f7f6f1", reverse: i % 2 === 1 };
+    const link = "/" + (f.parentSlug ? f.parentSlug + "/" : "") + f.slug;
+    const title = f.cardTitle || f.title || base.title;
+    const uploaded = (f.cardPhotos || []).filter((p: any) => p?.asset);
+    services[i] = {
+      ...base,
+      link,
+      title,
+      text: f.cardText || (base as any).text || "",
+      images: uploaded.length > 0
+        ? uploaded.map((p: any) => ({
+            src: urlFor(p).width(926).height(760).fit("crop").format("webp").quality(80).url(),
+            alt: p.alt || title,
+          }))
+        : base.images,
+    };
+  });
+  services.length = featured.length;
+}
 ---
 
 <section id="services" class="w-full py-12 md:py-16 lg:py-20">
   <div class="max-w-[1150px] mx-auto px-4 md:px-8">
-    <h2 class="font-['Playfair_Display'] font-bold text-[28px] md:text-[32px] text-black mb-8 md:mb-11">{shared?.servicesHeading || "Kitchen Remodeling & Bathroom Renovation Services"}</h2>
+    <h2 class="font-['Playfair_Display'] font-bold text-[28px] md:text-[32px] text-black mb-8 md:mb-11">{home?.servicesHeading || "Kitchen Remodeling & Bathroom Renovation Services"}</h2>
     <div class="flex flex-col gap-12 md:gap-[68px]">
       {services.map((s) => (
         <div class="relative">

@@ -1,27 +1,41 @@
-// SEO page documents (type "page" in Sanity): services, sub-services, city
-// pages, hubs. This module resolves their URLs from the parent chain, builds
-// breadcrumbs, and renders Portable Text to HTML. One fetch per build, cached.
+// Service pages and city pages from Sanity (types servicePage and cityPage).
+// This module resolves their URLs from the parent chain, builds breadcrumbs,
+// and renders Portable Text to HTML. One fetch per build, cached.
 import { sanityClient, urlFor } from "./sanity";
 import { toHTML } from "@portabletext/to-html";
 
+export type PageType = "service" | "city";
+
+export interface FaqItem { question: string; answer: string }
+
 export interface PageDoc {
   _id: string;
+  _type: "servicePage" | "cityPage";
   _createdAt: string;
   _updatedAt: string;
   title: string;
-  pageType: "service" | "city" | "hub";
-  parentId?: string | null;
-  slug: string;
-  city?: string | null;
-  contentKey?: string | null;
-  heroTitle: string;
-  heroSubtitle?: string | null;
+  subtitle?: string | null;
   heroImage?: any;
+  introTitle?: string | null;
+  introParagraphs?: string[] | null;
+  sliderPhotos?: any[] | null;
   body?: any[];
   gallery?: any[];
-  faqs?: { question: string; answer: string }[];
+  cardTitle?: string | null;
+  cardText?: string | null;
+  cardShortText?: string | null;
+  cardImage?: any;
+  cardPhotos?: any[] | null;
+  faqs?: FaqItem[];
+  serviceIds?: string[] | null;
+  city?: string | null;
+  parentId?: string | null;
+  slug: string;
   showReviews?: boolean;
   showProjects?: boolean;
+  showWhyChooseUs?: boolean;
+  showProcess?: boolean;
+  showServiceArea?: boolean;
   showAreas?: boolean;
   showRelatedServices?: boolean;
   showLeadForm?: boolean;
@@ -31,22 +45,31 @@ export interface PageDoc {
   canonicalUrl?: string | null;
   noindex?: boolean;
   // resolved
+  pageType: PageType;
   path: string;
   chain: PageDoc[]; // ancestors, root first
 }
 
 let cache: Promise<PageDoc[]> | null = null;
 
+// Service pages and city pages. Shared FAQ entries are dereferenced, page-only
+// questions are inline; both come back as plain {question, answer}.
 export function getAllPages(): Promise<PageDoc[]> {
   if (!cache) {
     cache = sanityClient
       .fetch(
-        `*[_type == "page" && defined(slug.current)]{
-          _id, _createdAt, _updatedAt, title, pageType,
-          "parentId": parent._ref, "slug": slug.current, city, contentKey,
-          heroTitle, heroSubtitle, heroImage,
+        `*[_type in ["servicePage", "cityPage"] && defined(slug.current)]{
+          _id, _type, _createdAt, _updatedAt, title, subtitle, heroImage,
+          introTitle, introParagraphs, sliderPhotos,
           body[]{..., markDefs[]{...}, asset},
-          gallery, faqs, showReviews, showProjects, showAreas, showRelatedServices, showLeadForm,
+          gallery, cardTitle, cardText, cardShortText, cardImage, cardPhotos,
+          "faqs": faqs[]{
+            _type == "reference" => @->{question, answer},
+            _type != "reference" => {question, answer}
+          },
+          "serviceIds": services[]._ref, city,
+          "parentId": parent._ref, "slug": slug.current,
+          showReviews, showProjects, showWhyChooseUs, showProcess, showServiceArea, showAreas, showRelatedServices, showLeadForm,
           metaTitle, metaDescription, ogImage, canonicalUrl, noindex
         }`,
       )
@@ -72,10 +95,16 @@ function resolvePaths(docs: any[]): PageDoc[] {
       chain.unshift(cur);
     }
     const path = "/" + [...chain, d].map((x) => x.slug).join("/");
-    out.push({ ...d, path, chain });
+    const pageType: PageType = d._type === "cityPage" ? "city" : "service";
+    out.push({ ...d, faqs: (d.faqs || []).filter((f: any) => f?.question && f?.answer), pageType, path, chain });
   }
-  // stable order: services, hubs, then cities, alphabetical inside
   return out.sort((a, b) => a.path.localeCompare(b.path));
+}
+
+// Top-level, published, indexable service pages, for cards and link blocks.
+export async function getTopLevelServices(): Promise<PageDoc[]> {
+  const pages = await getAllPages();
+  return pages.filter((p) => p.pageType === "service" && p.chain.length === 0 && !p.noindex);
 }
 
 export function pageUrl(p: PageDoc) {

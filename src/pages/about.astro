@@ -1,6 +1,8 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { getPageMeta } from '../lib/queries';
+import { getAboutPage } from '../lib/queries';
+import { getSite } from '../lib/site';
+const site = await getSite();
 import AboutPageContent from '../components/AboutPageContent.astro';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
 import MobileCallButton from '../components/MobileCallButton.astro';
@@ -8,9 +10,9 @@ import MobileCallButton from '../components/MobileCallButton.astro';
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "Organization",
-  "name": "Rain City Kitchen & Bath",
+  "name": site.companyName,
   "url": "https://raincityllc.com",
-  "telephone": "(253) 466-8709",
+  "telephone": site.phone,
   "address": {
     "@type": "PostalAddress",
     "addressLocality": "Bellevue",
@@ -26,7 +28,7 @@ const jsonLd = {
   "identifier": {
     "@type": "PropertyValue",
     "propertyID": "WA-Contractor-License",
-    "value": "BIRIUCL808C6"
+    "value": site.licenseNumber
   },
   "knowsAbout": ["Kitchen Remodeling", "Bathroom Remodeling", "Cabinet Installation", "Countertop Installation"],
   "areaServed": {
@@ -34,18 +36,18 @@ const jsonLd = {
     "name": "Washington"
   }
 };
-const meta = await getPageMeta('about');
+const aboutPage = await getAboutPage();
 ---
 
 <Layout
-  title={meta?.metaTitle || "About Us - Rain City Kitchen & Bath | Licensed Contractors in Bellevue, WA"}
-  description={meta?.metaDescription || "Meet Alex, owner of Rain City Kitchen & Bath. Licensed general contractors with expertise in kitchen and bathroom remodeling across Bellevue, Seattle, Kirkland & Redmond. 5-star rated."}
+  title={aboutPage?.metaTitle || "About Us - Rain City Kitchen & Bath | Licensed Contractors in Bellevue, WA"}
+  description={aboutPage?.metaDescription || "Meet Alex, owner of Rain City Kitchen & Bath. Licensed general contractors with expertise in kitchen and bathroom remodeling across Bellevue, Seattle, Kirkland & Redmond. 5-star rated."}
   jsonLd={jsonLd}
 >
   <Breadcrumbs items={[
     { name: "Home", href: "/" },
     { name: "About Us" },
   ]} />
-  <AboutPageContent />
+  <AboutPageContent about={aboutPage} />
   <MobileCallButton />
 </Layout>

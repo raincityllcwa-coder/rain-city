@@ -16,9 +16,8 @@
 # (/our-projects/*.html never matches). Per-project .html rules are
 # generated from Sanity slugs and appended to dist/_redirects at build
 # time by the project-html-redirects hook in astro.config.mjs.
-/kitchen-cabinets.html                 /kitchen-cabinets                301!
-/kitchen-countertops.html              /kitchen-countertops             301!
-/bathroom-remodel.html                 /bathroom-remodel                301!
+# The three top-level service pages moved to Sanity (servicePage documents);
+# their .html rules are generated from Sanity slugs at build time too.
 /thanks.html                           /thanks                          301!
 
 # ─── SEO: serve sitemap at the standard /sitemap.xml path ───

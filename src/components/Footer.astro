@@ -1,4 +1,5 @@
 ---
+import { getSite } from '@/lib/site';
 import { getNavigation, resolveNavItems } from "@/lib/navigation";
 const year = new Date().getFullYear();
 
@@ -20,6 +21,7 @@ const serviceAreas = [
   "Yarrow Point, WA",
   "Medina, WA",
 ];
+const site = await getSite();
 ---
 
 <footer class="w-full py-8 md:py-12 bg-[#051e2a] text-white">
@@ -41,12 +43,12 @@ const serviceAreas = [
           <p class="font-['Montserrat'] font-normal text-[13px] md:text-[14px] text-white opacity-80">
             Bellevue, WA 98004
           </p>
-          <a href="tel:2534668709" class="font-['Montserrat'] font-medium text-[14px] md:text-[15px] text-white opacity-90 hover:opacity-100 transition-opacity mt-2 inline-block">
-            (253) 466-8709
+          <a href={site.phoneHref} class="font-['Montserrat'] font-medium text-[14px] md:text-[15px] text-white opacity-90 hover:opacity-100 transition-opacity mt-2 inline-block">
+            {site.phone}
           </a>
           <p class="font-['Montserrat'] font-normal text-[12px] md:text-[13px] text-white opacity-70 mt-2">
             Licensed, Bonded and Insured Washington State General Contractor.<br />
-            License #BIRIUCL808C6
+            License #{site.licenseNumber}
           </p>
           <div class="mt-4 flex justify-center md:justify-start">
             <a

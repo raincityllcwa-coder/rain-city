@@ -1,4 +1,5 @@
 ---
+import { getSite } from '@/lib/site';
 import { Image } from "astro:assets";
 import googleG from "@/assets/badges/google-g.png";
 import starIcon from "@/assets/badges/star.png";
@@ -10,6 +11,7 @@ interface Props {
   subtitle: string;
 }
 const { backgroundImage, backgroundAlt, title, subtitle } = Astro.props;
+const site = await getSite();
 ---
 
 <section class="relative w-full min-h-[500px] md:min-h-[630px] flex items-center">
@@ -29,7 +31,7 @@ const { backgroundImage, backgroundAlt, title, subtitle } = Astro.props;
           <Image src={starIcon} alt="" width={19} height={19} loading="eager" decoding="async" class="w-[19px] h-[19px]" />
           <Image src={starIcon} alt="" width={19} height={19} loading="eager" decoding="async" class="w-[19px] h-[19px]" />
           <Image src={starIcon} alt="" width={19} height={19} loading="eager" decoding="async" class="w-[19px] h-[19px]" />
-          <span class="font-['Montserrat'] font-medium text-[16px] text-white/90 ml-2">5.0 (131 reviews)</span>
+          <span class="font-['Montserrat'] font-medium text-[16px] text-white/90 ml-2">{site.rating} ({site.reviewCount} reviews)</span>
         </div>
       </div>
 

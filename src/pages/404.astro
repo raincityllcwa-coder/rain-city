@@ -1,8 +1,10 @@
 ---
+import { getSite } from '@/lib/site';
 // Custom 404. Netlify automatically serves /404.html from the publish
 // directory for any path that matches nothing, replacing its generic
 // "Page not found" screen with a branded page that keeps visitors on site.
 import Layout from '../layouts/Layout.astro';
+const site = await getSite();
 ---
 
 <Layout
@@ -28,7 +30,7 @@ import Layout from '../layouts/Layout.astro';
         </a>
       </div>
       <p class="font-['Montserrat'] text-[15px] text-gray-600 mt-10">
-        Or call us: <a href="tel:2534668709" class="text-[#007ec5] font-semibold hover:underline">(253) 466-8709</a>
+        Or call us: <a href={site.phoneHref} class="text-[#007ec5] font-semibold hover:underline">{site.phone}</a>
       </p>
     </div>
   </section>

@@ -1,6 +1,7 @@
 ---
 import { urlFor } from '../lib/sanity';
-import { getSiteSettings, getDocById } from '../lib/queries';
+import { getDocById } from '../lib/queries';
+import { getSite } from '../lib/site';
 
 const features = [
   { title: "Licensed & Experienced", description: "Fully licensed general contractors with expertise in kitchen remodel and bathroom renovation projects of any scale and complexity" },
@@ -14,15 +15,10 @@ const feats = shared?.whyFeatures?.length ? shared.whyFeatures : features;
 
 let ownerPhotoUrl = '';
 let ownerPhotoAlt = 'Alex - Owner of Rain City Kitchen & Bath, kitchen remodeling company in Bellevue';
-
-try {
-  const settings = await getSiteSettings();
-  if (settings?.ownerPhoto) {
-    ownerPhotoUrl = urlFor(settings.ownerPhoto).width(800).format('webp').url();
-    if (settings.ownerPhoto.alt) ownerPhotoAlt = settings.ownerPhoto.alt;
-  }
-} catch (e) {
-  console.warn('[Sanity] siteSettings fetch failed:', e);
+const site = await getSite();
+if (site.ownerPhoto) {
+  ownerPhotoUrl = urlFor(site.ownerPhoto).width(800).format('webp').url();
+  if (site.ownerPhoto.alt) ownerPhotoAlt = site.ownerPhoto.alt;
 }
 ---
 

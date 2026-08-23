@@ -13,7 +13,8 @@ import googleG from '../assets/badges/google-g.png';
 import starIcon from '../assets/badges/star.png';
 
 // ── Sanity ──
-import { getProjects, getReviews, getPageMeta, getDocById } from '../lib/queries';
+import { getHomepageProjects, getHomepageReviews, getHomePage } from '../lib/queries';
+import { getSite, postalAddress, openingHours } from '../lib/site';
 import { urlFor } from '../lib/sanity';
 import { transformProjects, transformReviews } from '../lib/transforms';
 
@@ -22,8 +23,8 @@ let reviewsData: any[] = [];
 
 try {
   const [p, r] = await Promise.all([
-    getProjects('homepage'),
-    getReviews('homepage'),
+    getHomepageProjects(),
+    getHomepageReviews(),
   ]);
   if (p?.length) projectsData = transformProjects(p);
   if (r?.length) reviewsData = transformReviews(r);
@@ -31,30 +32,23 @@ try {
   console.warn('[Sanity] Homepage fetch failed:', e);
 }
 
-const meta = await getPageMeta('home');
-const homeCopy = await getDocById('copy-home');
-const heroSrc = homeCopy?.heroImage?.asset
-  ? urlFor(homeCopy.heroImage).width(2048).format('webp').quality(82).url()
+const home = await getHomePage();
+const site = await getSite();
+const heroSrc = home?.heroImage?.asset
+  ? urlFor(home.heroImage).width(2048).format('webp').quality(82).url()
   : "/hero-kitchen.webp";
 
 const localBusinessJsonLd = {
   "@context": "https://schema.org",
   "@type": "LocalBusiness",
-  "name": "Rain City Kitchen & Bath",
+  "name": site.companyName,
   "image": "https://raincityllc.com/og-default.jpg",
-  "telephone": "(253) 466-8709",
+  "telephone": site.phone,
   "url": "https://raincityllc.com",
   "sameAs": [
-    "https://www.instagram.com/alex_biriuk/"
+    site.instagramUrl
   ],
-  "address": {
-    "@type": "PostalAddress",
-    "streetAddress": "10900 NE 4th St Unit 2300",
-    "addressLocality": "Bellevue",
-    "addressRegion": "WA",
-    "postalCode": "98004",
-    "addressCountry": "US"
-  },
+  "address": postalAddress(site),
   "geo": {
     "@type": "GeoCoordinates",
     "latitude": 47.6101,
@@ -68,29 +62,16 @@ const localBusinessJsonLd = {
   "identifier": {
     "@type": "PropertyValue",
     "propertyID": "WA-Contractor-License",
-    "value": "BIRIUCL808C6"
+    "value": site.licenseNumber
   },
   "aggregateRating": {
     "@type": "AggregateRating",
-    "ratingValue": "5.0",
-    "reviewCount": "131",
+    "ratingValue": site.rating,
+    "reviewCount": String(site.reviewCount),
     "bestRating": "5",
     "worstRating": "1"
   },
-  "openingHoursSpecification": [
-    {
-      "@type": "OpeningHoursSpecification",
-      "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
-      "opens": "08:00",
-      "closes": "18:00"
-    },
-    {
-      "@type": "OpeningHoursSpecification",
-      "dayOfWeek": ["Saturday"],
-      "opens": "09:00",
-      "closes": "16:00"
-    }
-  ],
+  "openingHoursSpecification": openingHours(site),
   "hasOfferCatalog": {
     "@type": "OfferCatalog",
     "name": "Kitchen & Bath Remodeling Services",
@@ -105,8 +86,8 @@ const localBusinessJsonLd = {
 ---
 
 <Layout
-  title={meta?.metaTitle || "Remodeling a Kitchen in Bellevue? Get a Free In-Home Estimate"}
-  description={meta?.metaDescription || "Cabinets, countertops, full renovations across Bellevue and the Eastside. Licensed and insured, 131 five-star reviews. Call (253) 466-8709."}
+  title={home?.metaTitle || "Remodeling a Kitchen in Bellevue? Get a Free In-Home Estimate"}
+  description={home?.metaDescription || "Cabinets, countertops, full renovations across Bellevue and the Eastside. Licensed and insured, 131 five-star reviews. Call (253) 466-8709."}
   preloadImage={heroSrc}
   jsonLd={localBusinessJsonLd}
 >
@@ -117,7 +98,7 @@ const localBusinessJsonLd = {
           Mobile shifts the photo up to frame the hood; desktop fills the hero. */}
       <img
         src={heroSrc}
-        alt={homeCopy?.heroImage?.alt || "Bright modern kitchen remodel in Bellevue WA by Rain City Kitchen & Bath"}
+        alt={home?.heroImage?.alt || "Bright modern kitchen remodel in Bellevue WA by Rain City Kitchen & Bath"}
         width="2048"
         height="1365"
         fetchpriority="high"
@@ -138,11 +119,11 @@ const localBusinessJsonLd = {
       </div>
       {/* Headline + rating: above the form on mobile, bottom-left on desktop */}
       <div class="order-1 flex flex-col gap-[10px] items-start max-w-full lg:max-w-[620px]">
-        <h1 class="font-['Playfair_Display'] font-semibold text-[26px] md:text-[30px] lg:text-[32px] text-white leading-tight" style="text-shadow: 0 1px 4px rgba(0,0,0,0.35);">{homeCopy?.heroTitle || "Premium Kitchen & Bath Remodeling Company in Bellevue, WA"}</h1>
-        <p class="font-['Montserrat'] font-medium text-[16px] md:text-[18px] text-white leading-snug" style="text-shadow: 0 1px 4px rgba(0,0,0,0.35);">{homeCopy?.heroSubtitle || "Trusted kitchen remodeling company serving Seattle, Kirkland, Redmond & the Eastside."}<span class="hidden lg:inline"> {homeCopy?.heroSubtitleExtra || "We provide expert craftsmanship and personalized service for your dream kitchen or bathroom renovation."}</span></p>
+        <h1 class="font-['Playfair_Display'] font-semibold text-[26px] md:text-[30px] lg:text-[32px] text-white leading-tight" style="text-shadow: 0 1px 4px rgba(0,0,0,0.35);">{home?.heroTitle || "Premium Kitchen & Bath Remodeling Company in Bellevue, WA"}</h1>
+        <p class="font-['Montserrat'] font-medium text-[16px] md:text-[18px] text-white leading-snug" style="text-shadow: 0 1px 4px rgba(0,0,0,0.35);">{home?.heroSubtitle || "Trusted kitchen remodeling company serving Seattle, Kirkland, Redmond & the Eastside."}<span class="hidden lg:inline"> {home?.heroSubtitleExtra || "We provide expert craftsmanship and personalized service for your dream kitchen or bathroom renovation."}</span></p>
         <div class="flex flex-wrap items-center gap-x-3 gap-y-2 mt-1">
           <Image src={googleG} alt="Google" width={19} height={19} loading="eager" decoding="async" class="w-[22px] h-[22px]" />
-          <span class="font-['Montserrat'] font-medium text-[16px] text-white" style="text-shadow: 0 1px 3px rgba(0,0,0,0.4);">5.0 (131 Google Reviews)</span>
+          <span class="font-['Montserrat'] font-medium text-[16px] text-white" style="text-shadow: 0 1px 3px rgba(0,0,0,0.4);">{site.rating} ({site.reviewCount} Google Reviews)</span>
           <div class="flex gap-[3px]">
             <Image src={starIcon} alt="5 star rating" width={17} height={17} loading="eager" decoding="async" class="w-[17px] h-[17px] [filter:brightness(0)_invert(1)]" />
             <Image src={starIcon} alt="" width={17} height={17} loading="eager" decoding="async" class="w-[17px] h-[17px] [filter:brightness(0)_invert(1)]" />

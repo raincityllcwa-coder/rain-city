@@ -1,6 +1,6 @@
 // Navigation document (id "navigation") + helpers to turn nav items into links.
-// Every item is either a reference to an SEO page (URL resolved from the page
-// chain) or a plain href for the built-in pages.
+// Every item is either a reference to a service or city page (URL resolved
+// from the page chain) or a plain href for the fixed pages.
 import { getDocById } from "./queries";
 import { getAllPages, type PageDoc } from "./pages";
 
@@ -30,7 +30,7 @@ export async function resolveNavItems(items: any[] | undefined | null): Promise<
 }
 
 // Published, indexable pages of a given type, for auto blocks.
-export async function getPagesOfType(type: "service" | "city" | "hub"): Promise<PageDoc[]> {
+export async function getPagesOfType(type: "service" | "city"): Promise<PageDoc[]> {
   const pages = await getAllPages();
   return pages.filter((p) => p.pageType === type && !p.noindex);
 }

@@ -1,11 +1,13 @@
 ---
+import { getSite } from '@/lib/site';
 // Mobile-only floating call button
+const site = await getSite();
 ---
 
 <!-- Mobile: Call Button -->
 <a
   id="call-btn"
-  href="tel:2534668709"
+  href={site.phoneHref}
   class="md:hidden fixed bottom-8 right-8 bg-[#007ec5] text-white size-14 rounded-full shadow-lg items-center justify-center transition-all duration-300 z-50 hidden"
   aria-label="Call us"
 >

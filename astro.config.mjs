@@ -38,10 +38,10 @@ try {
   }
   // eslint-disable-next-line no-console
   console.log(`[sitemap] loaded ${projects.length} per-project lastmod values from Sanity`);
-  // SEO pages (type "page"): resolve URL from the parent chain, remember
-  // hidden (noindex) ones so they stay out of the sitemap, and load redirects.
+  // Sanity pages (servicePage, cityPage): resolve URL from the parent chain,
+  // remember hidden (noindex) ones so they stay out of the sitemap, and load redirects.
   const seoPages = await sanityClient.fetch(
-    `*[_type == "page" && defined(slug.current)]{_id, "slug": slug.current, "parentId": parent._ref, _updatedAt, noindex}`
+    `*[_type in ["servicePage", "cityPage"] && defined(slug.current)]{_id, "slug": slug.current, "parentId": parent._ref, _updatedAt, noindex}`
   );
   const byId = new Map(seoPages.map((p) => [p._id, p]));
   for (const p of seoPages) {
@@ -53,7 +53,7 @@ try {
     htmlRedirectPaths.add(`/${segs.join('/')}`);
   }
   // eslint-disable-next-line no-console
-  console.log(`[sitemap] loaded ${seoPages.length} SEO pages from Sanity (${hiddenUrls.size} hidden)`);
+  console.log(`[sitemap] loaded ${seoPages.length} Sanity pages (${hiddenUrls.size} hidden)`);
   const redirectDocs = await sanityClient.fetch(`*[_type == "redirect" && defined(from) && defined(to)]{from, to, permanent}`);
   for (const r of redirectDocs) {
     if (typeof r.from === 'string' && r.from.startsWith('/') && typeof r.to === 'string') {

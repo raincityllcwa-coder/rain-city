@@ -1,31 +1,34 @@
 ---
-// Universal SEO page route (type "page" in Sanity): services, sub-services,
-// city pages and hubs at any depth. Static routes always win over this one, so
-// a page document with the same URL as a built-in page only acts as a parent
-// for nesting until the built-in page is retired.
+// Service pages and city pages from Sanity (types servicePage and cityPage),
+// at any depth. Service pages use the full service template (hero with form,
+// intro slider, reviews grid, projects, why choose us, process, FAQ, service
+// area, lead form). City pages use the simpler template until the Kirkland
+// prototype lands. Fixed pages (/, /about, /contact, /our-services,
+// /our-projects) always win over a page document with the same URL.
 import Layout from '../layouts/Layout.astro';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
+import ServiceLandingHero from '../components/services/ServiceLandingHero.astro';
+import ServiceContentSection from '../components/services/ServiceContentSection.astro';
 import ReviewsGridSection from '../components/services/ReviewsGridSection.astro';
 import ProjectsSection from '../components/ProjectsSection.astro';
+import WhyChooseUsSection from '../components/WhyChooseUsSection.astro';
+import OurProcessSection from '../components/OurProcessSection.astro';
 import FAQSection from '../components/FAQSection.astro';
+import ServiceAreaSection from '../components/ServiceAreaSection.astro';
 import WideLeadFormSection from '../components/WideLeadFormSection.astro';
 import MobileCallButton from '../components/MobileCallButton.astro';
 import AreasWeServe from '../components/seo/AreasWeServe.astro';
 import RelatedServices from '../components/seo/RelatedServices.astro';
+import imgServiceHero from '../assets/c4e93df24993f176102d516e4e5e7a4fd86822b6.webp';
 import { getAllPages, bodyToHtml, bodyPlainText, type PageDoc } from '../lib/pages';
-import { getReviewsFor, getProjectsFor } from '../lib/queries';
+import { getReviewsForService, getProjectsForService, getReviewsForCity, getProjectsForCity } from '../lib/queries';
+import { getSite, postalAddress } from '../lib/site';
 import { transformReviews, transformProjects } from '../lib/transforms';
 import { urlFor } from '../lib/sanity';
 
-// Built-in (static) routes always win. A page document that shares a URL with
-// one of them (e.g. slug "bathroom-remodel" used purely as a parent for
-// nesting) is never emitted by this route, so it can never overwrite the
-// built-in page's output file.
 export async function getStaticPaths() {
-  // Declared inside: Astro runs getStaticPaths in isolation, without access to
-  // the rest of the frontmatter scope.
-  const STATIC_PATHS = new Set(['/', '/about', '/contact', '/our-services', '/our-projects', '/thanks', '/404',
-    '/kitchen-cabinets', '/kitchen-countertops', '/bathroom-remodel']);
+  // Declared inside: Astro runs getStaticPaths in isolation.
+  const STATIC_PATHS = new Set(['/', '/about', '/contact', '/our-services', '/our-projects', '/thanks', '/404']);
   const pages = await getAllPages();
   return pages
     .filter((page) => !STATIC_PATHS.has(page.path) && !page.path.startsWith('/our-projects/'))
@@ -33,6 +36,8 @@ export async function getStaticPaths() {
 }
 
 const { page } = Astro.props as { page: PageDoc };
+const site = await getSite();
+const isService = page.pageType === 'service';
 
 function trimDesc(text: string, max = 155): string {
   if (text.length <= max) return text;
@@ -41,8 +46,9 @@ function trimDesc(text: string, max = 155): string {
   return (lastSpace > 80 ? slice.slice(0, lastSpace) : slice).trimEnd();
 }
 
-const pageTitle = page.metaTitle || page.heroTitle || page.title;
-const pageDescription = trimDesc(page.metaDescription || page.heroSubtitle || bodyPlainText(page.body) || '');
+const pageTitle = page.metaTitle || page.title;
+// An explicit meta description is used verbatim; only auto-fallbacks are trimmed.
+const pageDescription = page.metaDescription || trimDesc(page.subtitle || bodyPlainText(page.body) || '');
 const canonical = page.canonicalUrl || `https://raincityllc.com${page.path}`;
 const ogImage = page.ogImage?.asset
   ? urlFor(page.ogImage).width(1200).height(630).fit('crop').format('jpg').url()
@@ -51,56 +57,65 @@ const ogImage = page.ogImage?.asset
     : undefined;
 
 const heroSrc = page.heroImage?.asset ? urlFor(page.heroImage).width(1600).format('webp').quality(80).url() : null;
+const heroAlt = page.heroImage?.alt || undefined;
 const bodyHtml = bodyToHtml(page.body);
 const gallery = (page.gallery || []).filter((p: any) => p?.asset);
-const faqItems = (page.faqs || []).filter((f) => f?.question && f?.answer);
+const faqItems = page.faqs || [];
+const cardName = page.cardTitle || page.title;
 
-// Reviews and projects: city pages pull their own city first, then the pool.
+// Intro block with the photo slider (service pages).
+const sliderImages = (page.sliderPhotos || []).filter((p: any) => p?.asset).map((p: any) => ({
+  src: urlFor(p).width(1000).height(760).fit('crop').format('webp').quality(80).url(),
+  alt: p.alt || (page.introTitle || ''),
+}));
+const hasIntro = Boolean(page.introTitle || (page.introParagraphs && page.introParagraphs.length) || sliderImages.length);
+
+// Reviews and projects: service pages show the ones pointing at this page,
+// city pages show their own city first, then the homepage set.
 let reviewsData: any[] = [];
 let projectsData: any[] = [];
-if (page.showReviews !== false || page.showProjects !== false) {
+try {
   const [r, p] = await Promise.all([
-    page.showReviews !== false ? getReviewsFor(page.contentKey || 'homepage', page.city).catch(() => []) : [],
-    page.showProjects !== false ? getProjectsFor(page.contentKey || 'homepage', page.city).catch(() => []) : [],
+    page.showReviews !== false ? (isService ? getReviewsForService(page._id) : getReviewsForCity(page.city)) : [],
+    page.showProjects !== false ? (isService ? getProjectsForService(page._id) : getProjectsForCity(page.city)) : [],
   ]);
   if (r?.length) reviewsData = transformReviews(r);
   if (p?.length) projectsData = transformProjects(p);
+} catch (e) {
+  console.warn(`[Sanity] ${page.path} reviews/projects fetch failed:`, e);
 }
 
-// Breadcrumbs from the parent chain (static hub /our-services for top-level services).
+// Breadcrumbs from the parent chain (the Our Services hub for top-level services).
 const crumbs: { name: string; href?: string }[] = [{ name: 'Home', href: '/' }];
-if (page.chain.length === 0 && page.pageType === 'service') crumbs.push({ name: 'Services', href: '/our-services' });
-for (const a of page.chain) crumbs.push({ name: a.heroTitle || a.title, href: a.path });
-crumbs.push({ name: page.heroTitle || page.title });
+if (page.chain.length === 0 && isService) crumbs.push({ name: 'Services', href: '/our-services' });
+for (const a of page.chain) crumbs.push({ name: a.cardTitle || a.title, href: a.path });
+crumbs.push({ name: cardName });
 
-// JSON-LD: Service (or hub as CollectionPage), FAQPage when there are FAQs.
+// JSON-LD: Service plus FAQPage when there are questions.
 const provider = {
   "@type": "LocalBusiness",
-  "name": "Rain City Kitchen & Bath",
-  "telephone": "(253) 466-8709",
+  "name": site.companyName,
+  "telephone": site.phone,
   "url": "https://raincityllc.com",
-  "address": { "@type": "PostalAddress", "streetAddress": "10900 NE 4th St Unit 2300", "addressLocality": "Bellevue", "addressRegion": "WA", "postalCode": "98004", "addressCountry": "US" }
+  "address": postalAddress(site),
 };
-const jsonLd: any[] = [];
-if (page.pageType === 'hub') {
-  jsonLd.push({ "@context": "https://schema.org", "@type": "CollectionPage", "name": page.heroTitle, "description": pageDescription, "url": canonical });
-} else {
-  jsonLd.push({
+const jsonLd: any[] = [
+  {
     "@context": "https://schema.org",
     "@type": "Service",
-    "name": page.heroTitle,
+    "name": cardName,
     "description": pageDescription,
     "url": canonical,
     "provider": provider,
     "areaServed": page.city ? { "@type": "City", "name": `${page.city}, WA` } : { "@type": "City", "name": "Bellevue, WA" },
     ...(heroSrc ? { "image": heroSrc } : {}),
-  });
-}
+  },
+];
 if (faqItems.length > 0) {
   jsonLd.push({
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    "mainEntity": faqItems.map((faq) => ({ "@type": "Question", "name": faq.question, "acceptedAnswer": { "@type": "Answer", "text": faq.answer } }))
+    "mainEntity": faqItems.map((faq) => ({ "@type": "Question", "name": faq.question, "acceptedAnswer": { "@type": "Answer", "text": faq.answer } })),
   });
 }
 ---
@@ -116,23 +131,28 @@ if (faqItems.length > 0) {
 >
   <Breadcrumbs items={crumbs} />
 
-  {heroSrc ? (
+  {isService ? (
+    <>
+      <ServiceLandingHero backgroundImage={heroSrc || imgServiceHero.src} backgroundAlt={heroAlt} title={page.title} subtitle={page.subtitle || ''} />
+      {hasIntro && <ServiceContentSection images={sliderImages} title={page.introTitle || ''} paragraphs={page.introParagraphs || []} />}
+    </>
+  ) : heroSrc ? (
     <section class="relative w-full min-h-[420px] md:min-h-[520px] flex items-center">
       <div class="absolute inset-0">
-        <img src={heroSrc} alt={page.heroImage?.alt || page.heroTitle} class="w-full h-full object-cover" loading="eager" fetchpriority="high" decoding="async" />
+        <img src={heroSrc} alt={page.heroImage?.alt || page.title} class="w-full h-full object-cover" loading="eager" fetchpriority="high" decoding="async" />
         <div class="absolute inset-0 bg-black/55"></div>
       </div>
       <div class="relative max-w-[1150px] mx-auto px-4 md:px-8 py-16 w-full">
-        <h1 class="font-['Playfair_Display'] font-bold text-[30px] md:text-[42px] text-white leading-tight mb-4 max-w-[860px]" style="text-shadow: 0 1px 4px rgba(0,0,0,0.35);">{page.heroTitle}</h1>
-        {page.heroSubtitle && <p class="font-['Montserrat'] text-[17px] md:text-[19px] text-white/95 max-w-[760px]">{page.heroSubtitle}</p>}
+        <h1 class="font-['Playfair_Display'] font-bold text-[30px] md:text-[42px] text-white leading-tight mb-4 max-w-[860px]" style="text-shadow: 0 1px 4px rgba(0,0,0,0.35);">{page.title}</h1>
+        {page.subtitle && <p class="font-['Montserrat'] text-[17px] md:text-[19px] text-white/95 max-w-[760px]">{page.subtitle}</p>}
         <a href="#lead-form" class="inline-block mt-8 bg-[#007ec5] hover:bg-[#006ba8] text-white font-['Montserrat'] font-bold text-[16px] px-8 py-4 rounded-[5px] transition-colors">Get Your Free Estimate</a>
       </div>
     </section>
   ) : (
     <section class="w-full bg-[#f7f6f1] py-12 md:py-16">
       <div class="max-w-[1150px] mx-auto px-4 md:px-8">
-        <h1 class="font-['Playfair_Display'] font-bold text-[28px] md:text-[38px] text-[#051e2a] mb-4">{page.heroTitle}</h1>
-        {page.heroSubtitle && <p class="font-['Montserrat'] text-[16px] md:text-[18px] text-gray-700 max-w-[820px]">{page.heroSubtitle}</p>}
+        <h1 class="font-['Playfair_Display'] font-bold text-[28px] md:text-[38px] text-[#051e2a] mb-4">{page.title}</h1>
+        {page.subtitle && <p class="font-['Montserrat'] text-[16px] md:text-[18px] text-gray-700 max-w-[820px]">{page.subtitle}</p>}
       </div>
     </section>
   )}
@@ -150,18 +170,32 @@ if (faqItems.length > 0) {
       <div class="max-w-[1150px] mx-auto px-4 md:px-8">
         <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
           {gallery.map((g: any) => (
-            <img src={urlFor(g).width(800).height(600).fit('crop').format('webp').quality(80).url()} alt={g.alt || page.heroTitle} loading="lazy" class="w-full h-auto rounded-[5px] object-cover" />
+            <img src={urlFor(g).width(800).height(600).fit('crop').format('webp').quality(80).url()} alt={g.alt || page.title} loading="lazy" class="w-full h-auto rounded-[5px] object-cover" />
           ))}
         </div>
       </div>
     </section>
   )}
 
-  {page.showRelatedServices !== false && page.pageType !== 'service' && <RelatedServices currentPath={page.path} />}
-  {page.showProjects !== false && projectsData.length > 0 && <ProjectsSection projects={projectsData} />}
-  {page.showReviews !== false && reviewsData.length > 0 && <ReviewsGridSection reviews={reviewsData} />}
-  {faqItems.length > 0 && <FAQSection faqs={faqItems} />}
-  {page.showAreas !== false && page.pageType !== 'city' && <AreasWeServe currentPath={page.path} />}
-  {page.showLeadForm !== false && <div id="lead-form"><WideLeadFormSection /></div>}
+  {isService ? (
+    <>
+      {page.showReviews !== false && <ReviewsGridSection reviews={reviewsData.length > 0 ? reviewsData : undefined} />}
+      {page.showProjects !== false && <ProjectsSection projects={projectsData.length > 0 ? projectsData : undefined} />}
+      {page.showWhyChooseUs !== false && <WhyChooseUsSection />}
+      {page.showProcess !== false && <OurProcessSection />}
+      {faqItems.length > 0 && <FAQSection faqs={faqItems} />}
+      {page.showServiceArea !== false && <ServiceAreaSection />}
+      {page.showAreas !== false && <AreasWeServe currentPath={page.path} />}
+      {page.showLeadForm !== false && <WideLeadFormSection />}
+    </>
+  ) : (
+    <>
+      {page.showRelatedServices !== false && <RelatedServices currentPath={page.path} />}
+      {page.showProjects !== false && projectsData.length > 0 && <ProjectsSection projects={projectsData} />}
+      {page.showReviews !== false && reviewsData.length > 0 && <ReviewsGridSection reviews={reviewsData} />}
+      {faqItems.length > 0 && <FAQSection faqs={faqItems} />}
+      {page.showLeadForm !== false && <div id="lead-form"><WideLeadFormSection /></div>}
+    </>
+  )}
   <MobileCallButton />
 </Layout>

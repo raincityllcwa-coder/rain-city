@@ -1,44 +1,36 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { getPageMeta } from '../lib/queries';
+import { getContactPage } from '../lib/queries';
+import { getSite, postalAddress, openingHours } from '../lib/site';
+const site = await getSite();
 import Breadcrumbs from '../components/Breadcrumbs.astro';
 import MobileCallButton from '../components/MobileCallButton.astro';
 
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "LocalBusiness",
-  "name": "Rain City Kitchen & Bath",
-  "telephone": "(253) 466-8709",
+  "name": site.companyName,
+  "telephone": site.phone,
   "url": "https://raincityllc.com",
-  "address": {
-    "@type": "PostalAddress",
-    "streetAddress": "10900 NE 4th St Unit 2300",
-    "addressLocality": "Bellevue",
-    "addressRegion": "WA",
-    "postalCode": "98004",
-    "addressCountry": "US"
-  },
+  "address": postalAddress(site),
   "contactPoint": {
     "@type": "ContactPoint",
-    "telephone": "(253) 466-8709",
+    "telephone": site.phone,
     "contactType": "customer service"
   },
   "identifier": {
     "@type": "PropertyValue",
     "propertyID": "WA-Contractor-License",
-    "value": "BIRIUCL808C6"
+    "value": site.licenseNumber
   },
-  "openingHoursSpecification": [
-    { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday"], "opens": "08:00", "closes": "18:00" },
-    { "@type": "OpeningHoursSpecification", "dayOfWeek": "Saturday", "opens": "09:00", "closes": "16:00" }
-  ]
+  "openingHoursSpecification": openingHours(site)
 };
-const meta = await getPageMeta('contact');
+const contactPage = await getContactPage();
 ---
 
 <Layout
-  title={meta?.metaTitle || "Contact Us - Free Estimate | Rain City Kitchen & Bath | Bellevue, WA"}
-  description={meta?.metaDescription || "Get a free consultation and estimate for your kitchen or bathroom remodel. Call (253) 466-8709. Located at 10900 NE 4th St, Bellevue, WA. Mon-Fri 8-6, Sat 9-4."}
+  title={contactPage?.metaTitle || "Contact Us - Free Estimate | Rain City Kitchen & Bath | Bellevue, WA"}
+  description={contactPage?.metaDescription || "Get a free consultation and estimate for your kitchen or bathroom remodel. Call (253) 466-8709. Located at 10900 NE 4th St, Bellevue, WA. Mon-Fri 8-6, Sat 9-4."}
   jsonLd={jsonLd}
 >
   <Breadcrumbs items={[
@@ -50,10 +42,10 @@ const meta = await getPageMeta('contact');
       <div class="max-w-[1150px] mx-auto px-4 md:px-8">
         <div class="text-center mb-8 md:mb-12">
           <h1 class="font-['Playfair_Display'] font-bold text-[28px] md:text-[42px] text-black mb-4">
-            Contact Us
+            {contactPage?.title || "Contact Us"}
           </h1>
           <p class="font-['Montserrat'] text-[16px] md:text-[18px] text-gray-700 max-w-[700px] mx-auto">
-            Get in touch with us for a free consultation and estimate on your kitchen or bathroom project.
+            {contactPage?.intro || "Get in touch with us for a free consultation and estimate on your kitchen or bathroom project."}
           </p>
         </div>
 
@@ -68,7 +60,7 @@ const meta = await getPageMeta('contact');
                 </div>
                 <div>
                   <h3 class="font-['Montserrat'] font-semibold text-[18px] text-black mb-2">Phone</h3>
-                  <a href="tel:2534668709" class="font-['Montserrat'] text-[16px] text-[#007ec5] hover:underline">(253) 466-8709</a>
+                  <a href={site.phoneHref} class="font-['Montserrat'] text-[16px] text-[#007ec5] hover:underline">{site.phone}</a>
                 </div>
               </div>
             </div>
@@ -84,8 +76,8 @@ const meta = await getPageMeta('contact');
                 <div>
                   <h3 class="font-['Montserrat'] font-semibold text-[18px] text-black mb-2">Address</h3>
                   <p class="font-['Montserrat'] text-[16px] text-gray-700">
-                    10900 NE 4th St Unit 2300<br />
-                    Bellevue, WA 98004
+                    {site.address.street}<br />
+                    {site.address.city}, {site.address.state} {site.address.zip}
                   </p>
                 </div>
               </div>
@@ -101,9 +93,9 @@ const meta = await getPageMeta('contact');
                 <div>
                   <h3 class="font-['Montserrat'] font-semibold text-[18px] text-black mb-2">Business Hours</h3>
                   <p class="font-['Montserrat'] text-[16px] text-gray-700">
-                    Monday - Friday: 8:00 AM - 6:00 PM<br />
-                    Saturday: 9:00 AM - 4:00 PM<br />
-                    Sunday: Closed
+                    {site.hours.weekdaysLabel}<br />
+                    {site.hours.saturdayLabel}<br />
+                    {site.hours.sundayLabel}
                   </p>
                 </div>
               </div>
@@ -120,7 +112,7 @@ const meta = await getPageMeta('contact');
                   <h3 class="font-['Montserrat'] font-semibold text-[18px] text-black mb-2">Licensed &amp; Insured</h3>
                   <p class="font-['Montserrat'] text-[16px] text-gray-700">
                     Washington State Contractor License<br />
-                    <span class="font-semibold text-black">#BIRIUCL808C6</span>
+                    <span class="font-semibold text-black">#{site.licenseNumber}</span>
                   </p>
                 </div>
               </div>
