@@ -112,7 +112,7 @@ const showWorking = page.showWorking !== false && (localNotes.length > 0 || owne
 
 // The rail: content column width under the docked 410px form + 56px gap.
 const rail = 'max-w-[1150px] mx-auto px-4 md:px-8 lg:pr-[498px]';
-const h2 = "font-['Playfair_Display'] font-bold text-[26px] md:text-[32px] text-[#051e2a]";
+const h2 = "font-['Playfair_Display'] font-bold text-[28px] md:text-[32px] text-black";
 const lead = "font-['Montserrat'] text-[16px] md:text-[17px] text-[#404040] mt-3";
 ---
 
@@ -125,7 +125,7 @@ const lead = "font-['Montserrat'] text-[16px] md:text-[17px] text-[#404040] mt-3
   <div class="relative max-w-[1150px] mx-auto px-4 md:px-8 py-12 lg:py-14 flex flex-col lg:flex-row gap-10 lg:gap-14 lg:items-center">
     <div class="flex-1 min-w-0">
       <h1 class="font-['Playfair_Display'] font-semibold text-[30px] md:text-[42px] leading-[1.2] text-white max-w-[620px]" style="text-shadow: 0 1px 4px rgba(0,0,0,0.35);">{page.title}</h1>
-      {page.subtitle && <p class="font-['Montserrat'] text-[16.5px] md:text-[18px] text-[#f2f5f7] mt-4 max-w-[560px] leading-relaxed">{page.subtitle}</p>}
+      {page.subtitle && <p class="font-['Montserrat'] text-[16.5px] md:text-[18px] text-white/95 mt-4 max-w-[560px] leading-relaxed">{page.subtitle}</p>}
       <ul class="mt-6 flex flex-col gap-3">
         {heroChecks.map((line) => (
           <li class="flex items-start gap-3">

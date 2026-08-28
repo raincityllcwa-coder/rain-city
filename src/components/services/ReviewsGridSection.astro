@@ -72,7 +72,7 @@ const googleSVG = `<svg class="size-6 shrink-0" viewBox="0 0 24 24" xmlns="http:
     <h2 class="font-['Playfair_Display'] font-bold text-[28px] md:text-[32px] text-black mb-3">
       Our Happy Customers Say
     </h2>
-    <p class="font-['Montserrat'] font-medium text-[16px] md:text-[18px] text-gray-700 mb-8 md:mb-12">
+    <p class="font-['Montserrat'] font-medium text-[16px] md:text-[18px] text-[#404040] mb-8 md:mb-12">
       Rated 5 stars on Google by 100+ homeowners across Seattle, Bellevue, Kirkland, Redmond and Sammamish
     </p>
 
@@ -111,7 +111,7 @@ const googleSVG = `<svg class="size-6 shrink-0" viewBox="0 0 24 24" xmlns="http:
       <button
         id="rgs-modal-open"
         type="button"
-        class="bg-[#007ec5] hover:bg-[#006ba8] text-white font-['Montserrat'] font-semibold text-[16px] md:text-[18px] px-8 py-3 rounded-[5px] transition-colors"
+        class="bg-[#007ec5] hover:bg-[#006ba8] text-white font-['Montserrat'] font-bold text-[16px] px-8 py-3.5 rounded-[5px] transition-colors"
       >
         Read More Reviews
       </button>
@@ -121,7 +121,7 @@ const googleSVG = `<svg class="size-6 shrink-0" viewBox="0 0 24 24" xmlns="http:
 
 {/* Full reviews modal */}
 <div id="rgs-modal" class="fixed inset-0 bg-black/60 z-50 hidden items-center justify-center p-4" role="dialog" aria-modal="true" aria-label="All customer reviews">
-  <div id="rgs-modal-inner" class="bg-white rounded-[10px] w-full max-w-[900px] max-h-[85vh] overflow-hidden flex flex-col">
+  <div id="rgs-modal-inner" class="bg-white rounded-[5px] w-full max-w-[900px] max-h-[85vh] overflow-hidden flex flex-col">
     <div class="flex items-center justify-between p-6 border-b border-gray-200">
       <h2 class="font-['Playfair_Display'] font-bold text-[24px] md:text-[28px] text-black">All Customer Reviews</h2>
       <button

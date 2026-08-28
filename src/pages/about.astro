@@ -6,6 +6,7 @@ const site = await getSite();
 import AboutPageContent from '../components/AboutPageContent.astro';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
 import MobileCallButton from '../components/MobileCallButton.astro';
+import WideLeadFormSection from '../components/WideLeadFormSection.astro';
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -49,5 +50,6 @@ const aboutPage = await getAboutPage();
     { name: "About Us" },
   ]} />
   <AboutPageContent about={aboutPage} />
+  <div id="lead-form"><WideLeadFormSection /></div>
   <MobileCallButton />
 </Layout>
