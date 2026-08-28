@@ -12,6 +12,14 @@ for (const g of nav?.servicesMenu || []) {
   if (items.length > 0) groups.push({ group: g.group || "", items });
 }
 const hasDropdown = groups.length > 0;
+
+// Service Areas dropdown: one flat list of city pages from Sanity. Empty list
+// means no menu item. Splits into up to three columns of eight as cities grow.
+const cities = await resolveNavItems(nav?.citiesMenu);
+const hasCities = cities.length > 0;
+const colCount = Math.min(3, Math.max(1, Math.ceil(cities.length / 8)));
+const perCol = Math.ceil(cities.length / colCount) || 1;
+const cityCols = Array.from({ length: colCount }, (_, i) => cities.slice(i * perCol, (i + 1) * perCol)).filter((c) => c.length > 0);
 const site = await getSite();
 ---
 
@@ -57,6 +65,22 @@ const site = await getSite();
         ) : (
           <a href="/our-services" class="font-['Montserrat'] font-normal hover:text-[#007ec5] transition-colors">Our Services</a>
         )}
+        {hasCities && (
+          <div class="relative group">
+            <button type="button" class="font-['Montserrat'] font-normal hover:text-[#007ec5] transition-colors inline-flex items-center gap-1" aria-haspopup="true">Service Areas <span aria-hidden="true" class="text-[12px]">▾</span></button>
+            <div class="absolute left-0 top-full pt-3 hidden group-hover:block group-focus-within:block z-50">
+              <div class="bg-white shadow-xl border border-gray-100 rounded-[5px] p-6 flex gap-10 min-w-max">
+                {cityCols.map((col) => (
+                  <div class="flex flex-col gap-2 min-w-[180px]">
+                    {col.map((l) => (
+                      <a href={l.href} class="font-['Montserrat'] font-normal text-[15px] text-black hover:text-[#007ec5] transition-colors whitespace-nowrap">{l.label}</a>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
         <a href="/our-projects" class="font-['Montserrat'] font-normal hover:text-[#007ec5] transition-colors">Projects</a>
         <a href="/about" class="font-['Montserrat'] font-normal hover:text-[#007ec5] transition-colors">About Us</a>
         <a href="/contact" class="font-['Montserrat'] font-normal hover:text-[#007ec5] transition-colors">Contact</a>
@@ -87,6 +111,16 @@ const site = await getSite();
           ))}
         </div>
       ))}
+      {hasCities && (
+        <>
+          <p class="font-['Montserrat'] font-normal text-[16px] text-black">Service Areas</p>
+          <div class="pl-4 flex flex-col gap-2">
+            {cities.map((l) => (
+              <a href={l.href} class="font-['Montserrat'] font-normal text-[15px] text-black hover:text-[#007ec5] transition-colors">{l.label}</a>
+            ))}
+          </div>
+        </>
+      )}
       <a href="/our-projects" class="font-['Montserrat'] font-normal text-[16px] text-black hover:text-[#007ec5] transition-colors">Projects</a>
       <a href="/about" class="font-['Montserrat'] font-normal text-[16px] text-black hover:text-[#007ec5] transition-colors">About Us</a>
       <a href="/contact" class="font-['Montserrat'] font-normal text-[16px] text-black hover:text-[#007ec5] transition-colors">Contact</a>
