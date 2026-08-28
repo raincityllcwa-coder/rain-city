@@ -129,15 +129,15 @@ export function bodyToHtml(blocks: any[] | undefined | null): string {
   return toHTML(blocks, {
     components: {
       block: {
-        normal: ({ children }) => `<p class="font-['Montserrat'] text-[16px] md:text-[17px] text-gray-800 leading-relaxed mb-4">${children}</p>`,
+        normal: ({ children }) => `<p class="font-['Montserrat'] text-[16px] md:text-[17px] text-[#404040] leading-relaxed mb-4">${children}</p>`,
         h2: ({ children }) => `<h2 class="font-['Playfair_Display'] font-bold text-[24px] md:text-[28px] text-black mt-10 mb-4">${children}</h2>`,
         h3: ({ children }) => `<h3 class="font-['Playfair_Display'] font-bold text-[20px] md:text-[22px] text-[#051e2a] mt-8 mb-3">${children}</h3>`,
         h4: ({ children }) => `<h4 class="font-['Montserrat'] font-semibold text-[17px] text-[#051e2a] mt-6 mb-2">${children}</h4>`,
-        blockquote: ({ children }) => `<blockquote class="border-l-4 border-[#007ec5] pl-4 italic text-gray-700 my-6">${children}</blockquote>`,
+        blockquote: ({ children }) => `<blockquote class="border-l-4 border-[#007ec5] pl-4 italic text-[#404040] my-6">${children}</blockquote>`,
       },
       list: {
-        bullet: ({ children }) => `<ul class="list-disc pl-6 mb-4 space-y-1 font-['Montserrat'] text-[16px] text-gray-800">${children}</ul>`,
-        number: ({ children }) => `<ol class="list-decimal pl-6 mb-4 space-y-1 font-['Montserrat'] text-[16px] text-gray-800">${children}</ol>`,
+        bullet: ({ children }) => `<ul class="list-disc pl-6 mb-4 space-y-1 font-['Montserrat'] text-[16px] text-[#404040]">${children}</ul>`,
+        number: ({ children }) => `<ol class="list-decimal pl-6 mb-4 space-y-1 font-['Montserrat'] text-[16px] text-[#404040]">${children}</ol>`,
       },
       listItem: {
         bullet: ({ children }) => `<li>${children}</li>`,
@@ -158,7 +158,7 @@ export function bodyToHtml(blocks: any[] | undefined | null): string {
           if (!value?.asset) return "";
           const src = urlFor(value).width(1200).format("webp").quality(80).url();
           const alt = escapeHtml(value.alt || "");
-          const cap = value.caption ? `<figcaption class="text-[14px] text-gray-500 mt-2">${escapeHtml(value.caption)}</figcaption>` : "";
+          const cap = value.caption ? `<figcaption class="text-[14px] text-[#898989] mt-2">${escapeHtml(value.caption)}</figcaption>` : "";
           return `<figure class="my-8"><img src="${src}" alt="${alt}" loading="lazy" class="w-full h-auto rounded-[5px]" />${cap}</figure>`;
         },
       },

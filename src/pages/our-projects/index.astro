@@ -40,7 +40,7 @@ const hub = await getHubPage('projects');
   <!-- Page Header + Intro -->
   <section class="w-full">
     <div class="max-w-[1150px] mx-auto px-4 md:px-8 pt-12 md:pt-16 pb-8 md:pb-12">
-      <h1 class="font-['Playfair_Display'] font-bold text-[32px] md:text-[42px] text-black leading-tight mb-5 max-w-[820px]">
+      <h1 class="font-['Playfair_Display'] font-bold text-[30px] md:text-[42px] text-black leading-tight mb-5 max-w-[820px]">
         {hub?.title || "Our Recent Kitchen and Bathroom Remodeling Projects"}
       </h1>
       <p class="font-['Montserrat'] text-[17px] md:text-[18px] text-[#404040] leading-relaxed max-w-[820px]">
@@ -64,7 +64,7 @@ const hub = await getHubPage('projects');
               : "";
             return (
               <a href={`/our-projects/${slug}`} class="group block">
-                <div class="aspect-[4/3] rounded-[5px] overflow-hidden bg-gray-200 mb-4">
+                <div class="aspect-[4/3] rounded-[5px] overflow-hidden bg-[#e6e6e6] mb-4">
                   {imgUrl && (
                     <img
                       src={imgUrl}
@@ -80,7 +80,7 @@ const hub = await getHubPage('projects');
                   {p.title}
                 </h2>
                 {(p.city || p.completedYear) && (
-                  <p class="font-['Montserrat'] text-[13px] text-gray-500">
+                  <p class="font-['Montserrat'] text-[13px] text-[#898989]">
                     {p.city}{p.city && p.completedYear ? " · " : ""}{p.completedYear}
                   </p>
                 )}

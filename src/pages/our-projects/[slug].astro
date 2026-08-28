@@ -150,7 +150,7 @@ const site = await getSite();
   {heroPhoto && (
     <section class="w-full">
       <div class="max-w-[1150px] mx-auto px-4 md:px-8 pt-8 md:pt-12">
-        <div class="w-full aspect-[16/9] rounded-[5px] overflow-hidden bg-gray-200">
+        <div class="w-full aspect-[16/9] rounded-[5px] overflow-hidden bg-[#e6e6e6]">
           <img
             src={img(heroPhoto, 1600)}
             alt={project.mainImage?.alt || project.title}
@@ -170,7 +170,7 @@ const site = await getSite();
       {hasCaseStudy && (
         <p class="font-['Montserrat'] text-[14px] text-[#007ec5] font-semibold uppercase tracking-wider mb-4">Featured Project</p>
       )}
-      <h1 class="font-['Playfair_Display'] font-bold text-[32px] md:text-[42px] text-black leading-tight mb-6">
+      <h1 class="font-['Playfair_Display'] font-bold text-[30px] md:text-[42px] text-black leading-tight mb-6">
         {project.title}
       </h1>
       {project.description && (
@@ -180,20 +180,20 @@ const site = await getSite();
       )}
 
       {(project.city || project.completedYear) && (
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-6 md:gap-8 py-6 border-t border-b border-gray-200">
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-6 md:gap-8 py-6 border-t border-b border-[#e6e6e6]">
           {project.city && (
             <div>
-              <p class="font-['Montserrat'] text-[12px] text-gray-500 uppercase tracking-wider mb-1">Location</p>
+              <p class="font-['Montserrat'] text-[12px] text-[#898989] uppercase tracking-wider mb-1">Location</p>
               <p class="font-['Montserrat'] font-semibold text-[15px] text-black">{project.city}</p>
             </div>
           )}
           <div>
-            <p class="font-['Montserrat'] text-[12px] text-gray-500 uppercase tracking-wider mb-1">Project Type</p>
+            <p class="font-['Montserrat'] text-[12px] text-[#898989] uppercase tracking-wider mb-1">Project Type</p>
             <p class="font-['Montserrat'] font-semibold text-[15px] text-black">{hasCaseStudy ? "Full Remodel" : "Project"}</p>
           </div>
           {project.completedYear && (
             <div>
-              <p class="font-['Montserrat'] text-[12px] text-gray-500 uppercase tracking-wider mb-1">Completed</p>
+              <p class="font-['Montserrat'] text-[12px] text-[#898989] uppercase tracking-wider mb-1">Completed</p>
               <p class="font-['Montserrat'] font-semibold text-[15px] text-black">{project.completedYear}</p>
             </div>
           )}
@@ -219,7 +219,7 @@ const site = await getSite();
           <div class="max-w-[1150px] mx-auto px-4 md:px-8">
             <div class={`grid ${gridColsFor(project.introPhotos.length)} gap-4 md:gap-5`}>
               {project.introPhotos.map((p: any, i: number) => (
-                <div class="aspect-[4/3] rounded-[5px] overflow-hidden bg-gray-200">
+                <div class="aspect-[4/3] rounded-[5px] overflow-hidden bg-[#e6e6e6]">
                   <img src={img(p, 900)} alt={p?.alt || `${project.title} intro photo ${i + 1}`} class="w-full h-full object-cover" loading="lazy" />
                 </div>
               ))}
@@ -248,7 +248,7 @@ const site = await getSite();
           <div class="max-w-[1150px] mx-auto px-4 md:px-8">
             <div class={`grid ${gridColsFor(project.goalsPhotos.length)} gap-4 md:gap-5`}>
               {project.goalsPhotos.map((p: any, i: number) => (
-                <div class="aspect-[4/3] rounded-[5px] overflow-hidden bg-gray-200">
+                <div class="aspect-[4/3] rounded-[5px] overflow-hidden bg-[#e6e6e6]">
                   <img src={img(p, 900)} alt={p?.alt || `${project.title} demo photo ${i + 1}`} class="w-full h-full object-cover" loading="lazy" />
                 </div>
               ))}
@@ -279,7 +279,7 @@ const site = await getSite();
           <div class="max-w-[1150px] mx-auto px-4 md:px-8">
             <div class="magazine-grid">
               {project.designDecisionsPhotos.map((p: any, i: number) => (
-                <div class="rounded-[5px] overflow-hidden bg-gray-200">
+                <div class="rounded-[5px] overflow-hidden bg-[#e6e6e6]">
                   <img src={img(p, 1200)} alt={p?.alt || `${project.title} construction photo ${i + 1}`} class="w-full h-full object-cover" loading="lazy" />
                 </div>
               ))}
@@ -296,7 +296,7 @@ const site = await getSite();
             {project.beforeAfterIntro && (
               <div class="article-prose mb-8 max-w-[820px] mx-auto" set:html={paragraphs(project.beforeAfterIntro)} />
             )}
-            <div class="bg-white rounded-[5px] overflow-hidden border border-gray-200">
+            <div class="bg-white rounded-[5px] overflow-hidden border border-[#e6e6e6]">
               <div class="overflow-x-auto">
                 <table class="w-full font-['Montserrat'] text-[14px] md:text-[15px]">
                   <thead>
@@ -308,7 +308,7 @@ const site = await getSite();
                   </thead>
                   <tbody class="divide-y divide-gray-200">
                     {project.beforeAfter.map((row: any, i: number) => (
-                      <tr class={i % 2 === 1 ? "bg-gray-50" : ""}>
+                      <tr class={i % 2 === 1 ? "bg-[#f5f5f5]" : ""}>
                         <td class="p-4 font-semibold">{row.item}</td>
                         <td class="p-4 text-[#404040]">{row.before}</td>
                         <td class="p-4">{row.after}</td>
@@ -328,7 +328,7 @@ const site = await getSite();
           <div class="max-w-[1150px] mx-auto px-4 md:px-8">
             <div class={`grid ${gridColsFor(project.beforeAfterPhotos.length)} gap-4 md:gap-5`}>
               {project.beforeAfterPhotos.map((p: any, i: number) => (
-                <div class="aspect-[4/3] rounded-[5px] overflow-hidden bg-gray-200">
+                <div class="aspect-[4/3] rounded-[5px] overflow-hidden bg-[#e6e6e6]">
                   <img src={img(p, 900)} alt={p?.alt || `${project.title} finishes photo ${i + 1}`} class="w-full h-full object-cover" loading="lazy" />
                 </div>
               ))}
@@ -354,10 +354,10 @@ const site = await getSite();
             <h2 class="font-['Playfair_Display'] font-bold text-[28px] md:text-[32px] text-black mb-2 text-center">
               {project.finalGalleryHeading || "The Finished Space"}
             </h2>
-            <p class="font-['Montserrat'] text-[14px] text-gray-500 text-center mb-10">Click any photo to view full size</p>
+            <p class="font-['Montserrat'] text-[14px] text-[#898989] text-center mb-10">Click any photo to view full size</p>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {finalGalleryPhotos.map((p: any, i: number) => (
-                <div class="aspect-[4/3] rounded-[5px] overflow-hidden bg-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                <div class="aspect-[4/3] rounded-[5px] overflow-hidden bg-[#e6e6e6] shadow-sm hover:shadow-md transition-shadow">
                   <img src={img(p, 1000)} alt={p?.alt || `${project.title} finished photo ${i + 1}`} class="w-full h-full object-cover" loading="lazy" />
                 </div>
               ))}
@@ -397,7 +397,7 @@ const site = await getSite();
           <div class="max-w-[1150px] mx-auto px-4 md:px-8 py-10 md:py-12">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {finalGalleryPhotos.map((p: any, i: number) => (
-                <div class="aspect-[4/3] rounded-[5px] overflow-hidden bg-gray-200">
+                <div class="aspect-[4/3] rounded-[5px] overflow-hidden bg-[#e6e6e6]">
                   <img src={img(p, 800, 600)} alt={p?.alt || `${project.title} photo ${i + 1}`} class="w-full h-full object-cover" loading="lazy" width="800" height="600" />
                 </div>
               ))}

@@ -29,9 +29,9 @@ if (site.ownerPhoto) {
       <div class="flex flex-col md:flex-row-reverse items-center gap-4 md:gap-6">
         <div class="flex-shrink-0 md:w-[50%]">
           {ownerPhotoUrl ? (
-            <img src={ownerPhotoUrl} alt={ownerPhotoAlt} class="w-full h-auto rounded-lg object-cover" loading="lazy" />
+            <img src={ownerPhotoUrl} alt={ownerPhotoAlt} class="w-full h-auto rounded-[5px] object-cover" loading="lazy" />
           ) : (
-            <div class="w-full h-[300px] rounded-lg bg-gray-200 flex items-center justify-center text-gray-400 text-sm">
+            <div class="w-full h-[300px] rounded-[5px] bg-[#e6e6e6] flex items-center justify-center text-[#898989] text-sm">
               Upload owner photo in Sanity Studio → Site Settings
             </div>
           )}
@@ -44,7 +44,7 @@ if (site.ownerPhoto) {
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       {feats.map((feature) => (
-        <div class="bg-white rounded-[10px] p-6 md:p-8 flex flex-col items-center text-center shadow-sm">
+        <div class="bg-white rounded-[5px] p-6 md:p-8 flex flex-col items-center text-center shadow-sm">
           <div class="w-16 h-16 mb-4 flex items-center justify-center">
             <svg class="w-12 h-12 text-[#007ec5]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
           </div>

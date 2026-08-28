@@ -28,7 +28,7 @@ const faqs = faqsProp && faqsProp.length > 0 ? faqsProp : fallbackFaqs;
     <div class="flex flex-col gap-4 md:gap-5">
       {faqs.map((faq) => (
         <details class="bg-white rounded-[20px] shadow-sm overflow-hidden group">
-          <summary class="w-full flex items-center justify-between p-6 md:p-8 text-left cursor-pointer hover:bg-gray-50 transition-colors list-none [&::-webkit-details-marker]:hidden">
+          <summary class="w-full flex items-center justify-between p-6 md:p-8 text-left cursor-pointer hover:bg-[#f5f5f5] transition-colors list-none [&::-webkit-details-marker]:hidden">
             <span class="font-['Montserrat'] font-bold text-[16px] md:text-[18px] lg:text-[20px] text-black pr-4">{faq.question}</span>
             <div class="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 bg-black rounded-full flex items-center justify-center">
               <svg class="w-5 h-5 md:w-6 md:h-6 text-white transition-transform group-open:rotate-45" fill="none" stroke="currentColor" viewBox="0 0 24 24">
