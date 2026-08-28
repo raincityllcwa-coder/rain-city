@@ -1,12 +1,19 @@
 ---
 import { getSite } from '@/lib/site';
-import { getNavigation, resolveNavItems } from "@/lib/navigation";
+import { getNavigation, resolveNavItems, getPagesOfType } from "@/lib/navigation";
 const year = new Date().getFullYear();
 
 // Footer columns from Sanity (Navigation document), with the built-in lists as fallback.
 const nav = await getNavigation();
 const footerServices = await resolveNavItems(nav?.footerServices);
 const footerCities = await resolveNavItems(nav?.footerCities);
+
+// Built-in city names turn into links automatically once a live city page
+// exists for them; the rest stay plain text. The footerCities field in
+// Navigation still overrides the whole list when filled.
+const cityPages = await getPagesOfType("city");
+const cityHref = new Map(cityPages.map((p) => [(p.cityName || "").toLowerCase(), p.path]));
+const areaHref = (city: string) => cityHref.get(city.split(",")[0].trim().toLowerCase());
 
 const serviceAreas = [
   "Bellevue, WA",
@@ -104,7 +111,9 @@ const site = await getSite();
         <div class="flex flex-col gap-0.5 items-center md:items-start">
           {footerCities.length > 0 ? footerCities.map((l) => (
             <a href={l.href} class="font-['Montserrat'] font-normal text-[13px] opacity-70 hover:opacity-100 transition-opacity whitespace-nowrap">{l.label}</a>
-          )) : serviceAreas.map((city) => (
+          )) : serviceAreas.map((city) => areaHref(city) ? (
+            <a href={areaHref(city)} class="font-['Montserrat'] font-normal text-[13px] opacity-70 hover:opacity-100 transition-opacity whitespace-nowrap">{city}</a>
+          ) : (
             <span class="font-['Montserrat'] font-normal text-[13px] opacity-70 whitespace-nowrap">{city}</span>
           ))}
         </div>
