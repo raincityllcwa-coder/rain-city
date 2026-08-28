@@ -31,6 +31,10 @@ export interface PageDoc {
   cityName?: string | null;
   cityId?: string | null;
   nearby?: {_id: string; name: string}[] | null;
+  cityPhoto?: any;
+  localNotes?: {title?: string; text?: string}[] | null;
+  showSamples?: boolean;
+  showWorking?: boolean;
   parentId?: string | null;
   slug: string;
   showReviews?: boolean;
@@ -65,6 +69,7 @@ export function getAllPages(): Promise<PageDoc[]> {
           introTitle, introParagraphs, sliderPhotos,
           body[]{..., markDefs[]{...}, asset},
           gallery, cardTitle, cardText, cardShortText, cardImage, cardPhotos,
+          cityPhoto, localNotes,
           "faqs": faqs[]{
             _type == "reference" => @->{question, answer},
             _type != "reference" => {question, answer}
@@ -73,7 +78,7 @@ export function getAllPages(): Promise<PageDoc[]> {
           "cityName": coalesce(cityRef->name, city), "cityId": cityRef._ref,
           "nearby": nearbyCities[]->{_id, name},
           "parentId": parent._ref, "slug": slug.current,
-          showReviews, showProjects, showWhyChooseUs, showProcess, showServiceArea, showAreas, showRelatedServices, showLeadForm,
+          showReviews, showProjects, showWhyChooseUs, showProcess, showServiceArea, showAreas, showRelatedServices, showLeadForm, showSamples, showWorking,
           metaTitle, metaDescription, ogImage, canonicalUrl, noindex
         }`,
       )

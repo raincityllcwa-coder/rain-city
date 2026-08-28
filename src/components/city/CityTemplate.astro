@@ -1,0 +1,481 @@
+---
+// City page template, built from the approved Kirkland prototype.
+//
+// Layout: the hero carries the lead form card on the right; on desktop the
+// card docks (position: fixed) once its spot scrolls away and stays in view
+// for the whole page, hiding near the wide bottom form and the footer. Every
+// section between the hero and the bottom form keeps its content in the left
+// column (the "rail": extra right padding the width of the form), so the
+// docked card never overlaps anything.
+//
+// Content sources: the cityPage document (headline, intro, city photo, local
+// notes, FAQ, service and city references), Shared Sections (hero trust
+// lines, why-us points, samples block, process steps) and Site Settings
+// (phone, hours, address, rating, owner). Texts here are fallbacks only.
+import HeroForm from '../HeroForm.astro';
+import WideLeadFormSection from '../WideLeadFormSection.astro';
+import { urlFor } from '../../lib/sanity';
+import type { PageDoc } from '../../lib/pages';
+import type { SiteFacts } from '../../lib/site';
+
+interface ReviewProp { text: string; author: string; image: string; avatar: string | null }
+
+interface Props {
+  page: PageDoc;
+  site: SiteFacts;
+  shared: any;
+  bodyHtml: string;
+  heroSrc: string | null;
+  heroAlt?: string;
+  services: PageDoc[];
+  projects: any[];
+  reviews: ReviewProp[];
+  nearbyLinks: { label: string; href: string }[];
+}
+
+const { page, site, shared, bodyHtml, heroSrc, heroAlt, services, projects, reviews, nearbyLinks } = Astro.props as Props;
+
+const city = page.cityName || 'your city';
+
+// Shared texts with the approved fallbacks.
+const heroChecks: string[] = (shared?.cityHeroChecks?.length ? shared.cityHeroChecks : [
+  'Licensed and insured Washington general contractor',
+  '3D design of your kitchen or bathroom before any demolition',
+  'Free in-home consultation and a written estimate after the visit',
+]).slice(0, 3);
+
+const whyHeading: string = shared?.cityWhyHeading || 'Why homeowners choose Rain City Kitchen & Bath';
+const whyItems: { title: string; description: string }[] = shared?.cityWhyItems?.length
+  ? shared.cityWhyItems
+  : [
+      { title: 'One licensed contractor for the whole job', description: `Rain City is a licensed, bonded and insured Washington general contractor (License #${site.licenseNumber}). Plumbing, electrical, tile and carpentry run under one schedule, so you make one call when you have a question and one signature covers the work.` },
+      { title: 'You approve it in 3D first', description: 'After measurements we build a 3D visualization of the finished room. You move the island, swap the door style or change the tile on screen, not after the old kitchen is gone.' },
+      { title: 'Materials, demolition and cleanup handled', description: 'We source and deliver cabinets, stone and tile, take out the old kitchen or bath and haul the debris away, so you are not coordinating suppliers, trucks and dumpsters.' },
+      { title: `${site.reviewCount} Google reviews, average ${site.rating}`, description: 'Read what Eastside homeowners say about the work, the schedule and the cleanup before you call. Then call and ask us anything the reviews did not answer.' },
+    ];
+
+const samplesHeading: string = shared?.citySamplesHeading || 'The Samples Come to You';
+const samplesText: string = shared?.citySamplesText || 'Alex brings cabinet doors, stone and tile samples to your consultation, so you compare them in your own light, next to your floor and walls.';
+const samplesOfficeLine = `Prefer to browse first? The full set is at our Bellevue office, ${site.address.street}, ${site.address.city}. ${site.hours.weekdaysLabel}. ${site.hours.saturdayLabel}.`;
+const samplesPhoto = shared?.citySamplesPhoto?.asset ? shared.citySamplesPhoto : null;
+const samplesPhotoSrc = samplesPhoto ? urlFor(samplesPhoto).width(1000).height(750).fit('crop').format('webp').quality(80).url() : null;
+
+const processSteps: { title: string; description: string }[] = (shared?.processSteps?.length
+  ? shared.processSteps
+  : [
+      { title: 'Book a Free Consultation', description: "Tell us about your project and we'll set up a free, no-obligation consultation." },
+      { title: 'Measurements', description: 'Our team takes precise measurements of your walls and rooms to ensure accuracy.' },
+      { title: 'Design and Visualization', description: 'We create a detailed project plan and a 3D visualization to help you envision the final result.' },
+      { title: 'Approval and Execution', description: 'Once you approve the project, we handle the purchase and delivery of all materials and begin the work.' },
+    ]).slice(0, 4);
+
+const introTitle = page.introTitle || `Your Kitchen and Bathroom Remodeling Contractor in ${city}`;
+const cityPhoto = page.cityPhoto?.asset ? page.cityPhoto : null;
+const cityPhotoSrc = cityPhoto ? urlFor(cityPhoto).width(1240).format('webp').quality(80).url() : null;
+
+// Service cards: photo from the card tab of each service page.
+const serviceCards = services.map((s) => {
+  const img = (s.cardPhotos || []).find((p: any) => p?.asset) || (s.cardImage?.asset ? s.cardImage : null);
+  return {
+    href: s.path,
+    title: s.cardTitle || s.title,
+    text: s.cardShortText || s.cardText || '',
+    src: img ? urlFor(img).width(800).height(560).fit('crop').format('webp').quality(80).url() : null,
+    alt: img?.alt || s.cardTitle || s.title,
+  };
+});
+
+// Project cards: up to three, this city first (the query orders them).
+const projectCards = projects.slice(0, 3).map((p) => ({
+  href: p.slug?.current ? `/our-projects/${p.slug.current}` : '/our-projects',
+  title: p.title || '',
+  description: p.description || '',
+  meta: [p.city, p.completedYear].filter(Boolean).join(' · '),
+  src: p.mainImage?.asset ? urlFor(p.mainImage).width(800).height(560).fit('crop').format('webp').quality(80).url() : null,
+  alt: p.mainImage?.alt || p.title || '',
+}));
+
+const reviewCards = reviews.slice(0, 3);
+const initial = (name: string) => (name || '?').trim().charAt(0).toUpperCase();
+
+const ownerPhotoSrc = site.ownerPhoto ? urlFor(site.ownerPhoto).width(880).format('webp').quality(80).url() : null;
+const ownerPhotoAlt = site.ownerPhoto?.alt || `${site.ownerName}, owner of Rain City Kitchen & Bath`;
+const localNotes = (page.localNotes || []).filter((n) => n?.text || n?.title);
+
+const showServices = page.showRelatedServices !== false && serviceCards.length > 0;
+const showProjects = page.showProjects !== false && projectCards.length > 0;
+const showSamples = page.showSamples !== false && (samplesPhotoSrc || samplesText);
+const showReviews = page.showReviews !== false && reviewCards.length > 0;
+const showWhy = page.showWhyChooseUs !== false;
+const showProcess = page.showProcess !== false && processSteps.length > 0;
+const showWorking = page.showWorking !== false && (localNotes.length > 0 || ownerPhotoSrc);
+
+// The rail: content column width under the docked 410px form + 56px gap.
+const rail = 'max-w-[1150px] mx-auto px-4 md:px-8 lg:pr-[498px]';
+const h2 = "font-['Playfair_Display'] font-bold text-[26px] md:text-[32px] text-[#051e2a]";
+const lead = "font-['Montserrat'] text-[16px] md:text-[17px] text-[#404040] mt-3";
+---
+
+<!-- Hero -->
+<section class="relative w-full overflow-hidden">
+  <div class="absolute inset-0">
+    {heroSrc && <img src={heroSrc} alt={heroAlt || page.title} class="w-full h-full object-cover" loading="eager" fetchpriority="high" decoding="async" />}
+    <div class="absolute inset-0 bg-gradient-to-b lg:bg-gradient-to-r from-[#051e2a]/[0.92] via-[#051e2a]/[0.78] to-[#051e2a]/[0.55] lg:to-[#051e2a]/[0.35]"></div>
+  </div>
+  <div class="relative max-w-[1150px] mx-auto px-4 md:px-8 py-12 lg:py-14 flex flex-col lg:flex-row gap-10 lg:gap-14 lg:items-center">
+    <div class="flex-1 min-w-0">
+      <h1 class="font-['Playfair_Display'] font-semibold text-[30px] md:text-[42px] leading-[1.2] text-white max-w-[620px]" style="text-shadow: 0 1px 4px rgba(0,0,0,0.35);">{page.title}</h1>
+      {page.subtitle && <p class="font-['Montserrat'] text-[16.5px] md:text-[18px] text-[#f2f5f7] mt-4 max-w-[560px] leading-relaxed">{page.subtitle}</p>}
+      <ul class="mt-6 flex flex-col gap-3">
+        {heroChecks.map((line) => (
+          <li class="flex items-start gap-3">
+            <span class="shrink-0 w-[22px] h-[22px] rounded-full bg-white flex items-center justify-center mt-[1px]">
+              <svg class="w-[13px] h-[13px] text-[#051e2a]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 7"/></svg>
+            </span>
+            <span class="font-['Montserrat'] font-medium text-[15px] md:text-[16px] text-white">{line}</span>
+          </li>
+        ))}
+      </ul>
+      <div class="mt-6 flex flex-wrap items-center gap-x-3 gap-y-2">
+        <span class="flex items-center gap-[3px]">
+          {[0, 1, 2, 3, 4].map(() => (
+            <svg class="w-[17px] h-[17px] text-[#f5a623]" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          ))}
+        </span>
+        <span class="font-['Montserrat'] font-medium text-[15px] md:text-[16px] text-white">{site.rating} from {site.reviewCount} Google reviews</span>
+      </div>
+    </div>
+    <div id="hero-form" class="w-full lg:w-[410px] shrink-0">
+      <HeroForm />
+    </div>
+  </div>
+</section>
+
+<!-- Intro -->
+<section class="w-full py-12 md:py-16">
+  <div class={rail}>
+    <h2 class={h2}>{introTitle}</h2>
+    {bodyHtml && <div class="mt-5" set:html={bodyHtml} />}
+    {cityPhotoSrc && (
+      <figure class="mt-7">
+        <img src={cityPhotoSrc} alt={cityPhoto.alt || `${city}, WA`} loading="lazy" class="w-full h-[240px] md:h-[300px] object-cover rounded-[5px] bg-gray-100" />
+        {cityPhoto.caption && <figcaption class="font-['Montserrat'] text-[12px] text-[#898989] mt-2 leading-relaxed">{cityPhoto.caption}</figcaption>}
+      </figure>
+    )}
+  </div>
+</section>
+
+<!-- Services -->
+{showServices && (
+  <section class="w-full py-12 md:py-16 bg-[#f1f3f7]">
+    <div class={rail}>
+      <h2 class={h2}>What we remodel in {city}</h2>
+      <p class={lead}>Each card opens the full service page with materials, door styles and photos of finished work.</p>
+      <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+        {serviceCards.map((c) => (
+          <a href={c.href} class="group bg-[#f7f6f1] rounded-[5px] overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col">
+            {c.src && <img src={c.src} alt={c.alt} loading="lazy" class="w-full h-[200px] md:h-[220px] object-cover" />}
+            <div class="p-5 md:p-6 flex flex-col gap-2 flex-1">
+              <h3 class="font-['Playfair_Display'] font-bold text-[20px] text-[#051e2a] group-hover:text-[#007ec5] transition-colors">{c.title}</h3>
+              {c.text && <p class="font-['Montserrat'] text-[15px] text-[#404040] leading-relaxed flex-1">{c.text}</p>}
+              <span class="font-['Montserrat'] font-semibold text-[15px] text-[#007ec5] mt-1">Learn more →</span>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+)}
+
+<!-- Projects -->
+{showProjects && (
+  <section class="w-full py-12 md:py-16">
+    <div class={rail}>
+      <h2 class={h2}>Recent projects near {city}</h2>
+      <p class={lead}>{city} homes appear first, then the closest projects on the Eastside and in Seattle. Every project page walks through the photos stage by stage, from demolition to the finished room.</p>
+      <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+        {projectCards.map((c) => (
+          <a href={c.href} class="group bg-white border border-[#e6e6e6] rounded-[5px] overflow-hidden hover:shadow-md transition-shadow flex flex-col">
+            {c.src && <img src={c.src} alt={c.alt} loading="lazy" class="w-full h-[220px] object-cover" />}
+            <div class="p-5 md:p-6 flex flex-col gap-2 flex-1">
+              {c.meta && <span class="font-['Montserrat'] font-medium text-[13px] text-[#404040]">{c.meta}</span>}
+              <h3 class="font-['Playfair_Display'] font-bold text-[20px] leading-snug text-[#051e2a] group-hover:text-[#007ec5] transition-colors">{c.title}</h3>
+              {c.description && <p class="font-['Montserrat'] text-[15px] text-[#404040] leading-relaxed flex-1">{c.description}</p>}
+              <span class="font-['Montserrat'] font-semibold text-[15px] text-[#007ec5] mt-1">Read the full project →</span>
+            </div>
+          </a>
+        ))}
+      </div>
+      <a href="/our-projects" class="inline-block mt-7 font-['Montserrat'] font-semibold text-[15px] text-[#007ec5] hover:text-[#006ba8]">View all projects →</a>
+    </div>
+  </section>
+)}
+
+<!-- Samples -->
+{showSamples && (
+  <section class="w-full py-12 md:py-16 bg-[#f7f6f1]">
+    <div class={rail}>
+      <div class="grid grid-cols-1 gap-7">
+        {samplesPhotoSrc && <img src={samplesPhotoSrc} alt={samplesPhoto?.alt || 'Cabinet door and stone samples laid out before a consultation'} loading="lazy" class="w-full max-h-[340px] object-cover rounded-[5px]" />}
+        <div>
+          <h2 class={h2}>{samplesHeading}</h2>
+          <p class="font-['Montserrat'] text-[16px] md:text-[17px] text-[#222] leading-relaxed mt-4">{samplesText}</p>
+          <p class="font-['Montserrat'] text-[16px] md:text-[17px] text-[#222] leading-relaxed mt-4">{samplesOfficeLine}</p>
+          <a href="#lead-form" class="inline-block mt-6 bg-[#051e2a] hover:bg-[#0a2e3f] text-white font-['Montserrat'] font-bold text-[16px] px-7 py-[15px] rounded-[5px] transition-colors">Book a Free Consultation</a>
+        </div>
+      </div>
+    </div>
+  </section>
+)}
+
+<!-- Reviews -->
+{showReviews && (
+  <section class="w-full py-12 md:py-16 bg-[#f1f3f7]">
+    <div class={rail}>
+      <h2 class={h2}>Reviews from {city} and the Eastside</h2>
+      <div class="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
+        <span class="flex items-center gap-[3px]">
+          {[0, 1, 2, 3, 4].map(() => (
+            <svg class="w-[16px] h-[16px] text-[#f5a623]" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          ))}
+        </span>
+        <span class="font-['Montserrat'] font-medium text-[15px] text-black">{site.rating} from {site.reviewCount} Google reviews</span>
+      </div>
+      <div class="mt-7 grid grid-cols-1 gap-5">
+        {reviewCards.map((r) => (
+          <div class="bg-white rounded-[5px] p-6 md:p-7">
+            <span class="flex items-center gap-[3px]">
+              {[0, 1, 2, 3, 4].map(() => (
+                <svg class="w-[14px] h-[14px] text-[#f5a623]" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+              ))}
+            </span>
+            <p class="font-['Montserrat'] text-[15px] md:text-[16px] text-[#222] leading-[1.65] mt-4">"{r.text}"</p>
+            <div class="mt-5 flex items-center gap-3">
+              {r.avatar ? (
+                <img src={r.avatar} alt={r.author} loading="lazy" class="w-[44px] h-[44px] rounded-full object-cover" />
+              ) : (
+                <span class="w-[44px] h-[44px] rounded-full bg-[#007ec5] text-white font-['Montserrat'] font-bold text-[17px] flex items-center justify-center">{initial(r.author)}</span>
+              )}
+              <span class="font-['Montserrat'] font-semibold text-[15px] text-black">{r.author}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+)}
+
+<!-- Why us -->
+{showWhy && (
+  <section class="w-full py-12 md:py-16">
+    <div class={rail}>
+      <h2 class={h2}>{whyHeading}</h2>
+      <div class="mt-8 grid grid-cols-1 gap-7">
+        {whyItems.map((it) => (
+          <div class="flex items-start gap-4">
+            <span class="shrink-0 w-[28px] h-[28px] rounded-full bg-[#007ec5] flex items-center justify-center mt-[2px]">
+              <svg class="w-[15px] h-[15px] text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 7"/></svg>
+            </span>
+            <div>
+              <h3 class="font-['Playfair_Display'] font-bold text-[20px] text-[#051e2a]">{it.title}</h3>
+              <p class="font-['Montserrat'] text-[15px] md:text-[15.5px] text-[#404040] leading-relaxed mt-2">{it.description}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+)}
+
+<!-- Process -->
+{showProcess && (
+  <section class="w-full py-12 md:py-16 bg-[#f7f6f1]">
+    <div class={rail}>
+      <h2 class={h2}>How a {city} remodel works</h2>
+      <p class={lead}>From the first call to the last day on site, in the order it actually happens.</p>
+      <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-x-7 gap-y-8">
+        {processSteps.map((step, i) => (
+          <div>
+            <span class="w-[42px] h-[42px] rounded-full bg-[#051e2a] text-white font-['Playfair_Display'] font-bold text-[18px] flex items-center justify-center">{i + 1}</span>
+            <h3 class="font-['Playfair_Display'] font-bold text-[20px] text-[#051e2a] mt-3">{step.title}</h3>
+            <p class="font-['Montserrat'] text-[15px] md:text-[15.5px] text-[#404040] leading-relaxed mt-2">{step.description}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+)}
+
+<!-- Working in the city -->
+{showWorking && (
+  <section class="w-full py-12 md:py-16">
+    <div class={rail}>
+      <h2 class={h2}>Working in {city}</h2>
+      {localNotes.length > 0 && (
+        <ul class="mt-7 flex flex-col gap-4">
+          {localNotes.map((n) => (
+            <li class="flex items-start gap-4">
+              <span class="shrink-0 w-[9px] h-[9px] rounded-full bg-[#007ec5] mt-[8px]"></span>
+              <p class="font-['Montserrat'] text-[15px] md:text-[15.5px] text-[#404040] leading-relaxed">
+                {n.title && <strong class="font-semibold text-[#051e2a]">{n.title} </strong>}{n.text}
+              </p>
+            </li>
+          ))}
+        </ul>
+      )}
+      {ownerPhotoSrc && (
+        <div class="mt-9 max-w-[520px] bg-white rounded-[5px] overflow-hidden shadow-[0_10px_30px_rgba(5,30,42,0.08)]">
+          <img src={ownerPhotoSrc} alt={ownerPhotoAlt} loading="lazy" class="w-full h-[260px] md:h-[300px] object-cover" />
+          <div class="p-6 md:p-7">
+            {site.ownerQuote && (
+              <p class="font-['Montserrat'] text-[15.5px] md:text-[16px] text-[#222] leading-[1.65]">
+                <span class="font-['Playfair_Display'] font-bold text-[28px] text-[#007ec5] leading-none align-[-6px]">" </span>{site.ownerQuote}
+              </p>
+            )}
+            <p class="font-['Montserrat'] font-semibold text-[16px] text-[#051e2a] mt-4">{site.ownerName}</p>
+            <p class="font-['Montserrat'] font-medium text-[13.5px] text-[#404040]">{site.ownerRole}, Rain City Kitchen & Bath</p>
+            <a href={site.phoneHref} class="inline-block font-['Montserrat'] font-semibold text-[16px] text-[#007ec5] mt-3">{site.phone}</a>
+          </div>
+        </div>
+      )}
+    </div>
+  </section>
+)}
+
+<!-- Nearby cities -->
+{nearbyLinks.length > 0 && (
+  <section class="w-full py-10 md:py-14">
+    <div class={rail}>
+      <h2 class={h2}>Nearby cities we serve</h2>
+      <ul class="mt-6 flex flex-wrap gap-2.5">
+        {nearbyLinks.map((l) => (
+          <li>
+            <a href={l.href} class="inline-block bg-white border border-[#d9d5c9] rounded-full px-[14px] py-[7px] font-['Montserrat'] font-medium text-[14px] text-[#051e2a] hover:border-[#007ec5] hover:text-[#007ec5] transition-colors">{l.label}</a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+)}
+
+<!-- FAQ -->
+{page.faqs && page.faqs.length > 0 && (
+  <section class="w-full py-12 md:py-16 bg-[#f7f6f1]">
+    <div class={rail}>
+      <h2 class={h2}>Questions {city} homeowners ask</h2>
+      <div class="mt-8 flex flex-col gap-4">
+        {page.faqs.map((faq) => (
+          <details class="bg-white rounded-[20px] shadow-sm overflow-hidden group">
+            <summary class="w-full flex items-center justify-between p-5 md:p-6 text-left cursor-pointer hover:bg-gray-50 transition-colors list-none [&::-webkit-details-marker]:hidden">
+              <span class="font-['Montserrat'] font-bold text-[15px] md:text-[17px] text-black pr-4">{faq.question}</span>
+              <div class="flex-shrink-0 w-8 h-8 bg-black rounded-full flex items-center justify-center">
+                <svg class="w-5 h-5 text-white transition-transform group-open:rotate-45" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+              </div>
+            </summary>
+            <div class="px-5 md:px-6 pb-5 md:pb-6">
+              <p class="font-['Montserrat'] text-[14px] md:text-[15.5px] text-[#404040] leading-relaxed">{faq.answer}</p>
+            </div>
+          </details>
+        ))}
+      </div>
+    </div>
+  </section>
+)}
+
+<!-- Bottom form (full width; the docked card hides here) -->
+<div id="lead-form">
+  <WideLeadFormSection />
+</div>
+
+<script>
+  // Dock the hero form card on desktop: once its natural spot scrolls past the
+  // top of the screen, the card fixes at the top of the reserved right column
+  // and stays in view. It hides while the wide bottom form or the footer is on
+  // screen (no point floating over its own duplicate) and never activates
+  // below 1024px, where the layout is single-column.
+  const wrap = document.getElementById('hero-form');
+  if (wrap) {
+    const mq = window.matchMedia('(min-width: 1024px)');
+    let dockTop = 0;
+    let docked = false;
+    let hideCount = 0;
+
+    const applyHidden = () => {
+      wrap.classList.toggle('dock-hidden', docked && hideCount > 0);
+    };
+    const dock = () => {
+      const r = wrap.getBoundingClientRect();
+      wrap.style.left = r.left + 'px';
+      wrap.style.width = r.width + 'px';
+      wrap.classList.add('docked');
+      docked = true;
+      applyHidden();
+    };
+    const undock = () => {
+      wrap.classList.remove('docked');
+      wrap.style.left = '';
+      wrap.style.width = '';
+      docked = false;
+      applyHidden();
+    };
+    const measure = () => {
+      const was = docked;
+      if (was) undock();
+      const r = wrap.getBoundingClientRect();
+      dockTop = r.top + window.scrollY - 16;
+      if (was) onScroll();
+    };
+    const onScroll = () => {
+      if (!mq.matches) {
+        if (docked) undock();
+        return;
+      }
+      if (!docked && window.scrollY > dockTop) dock();
+      else if (docked && window.scrollY <= dockTop) undock();
+    };
+
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(() => { onScroll(); ticking = false; });
+      }
+    }, { passive: true });
+    window.addEventListener('resize', () => { measure(); onScroll(); });
+
+    if ('IntersectionObserver' in window) {
+      const hideEls = [document.getElementById('lead-form'), document.querySelector('footer')].filter(Boolean) as Element[];
+      const visible = new Set<Element>();
+      const io = new IntersectionObserver((entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) visible.add(e.target); else visible.delete(e.target);
+        }
+        hideCount = visible.size;
+        applyHidden();
+      }, { threshold: 0.05 });
+      hideEls.forEach((el) => io.observe(el));
+    }
+
+    measure();
+    onScroll();
+  }
+</script>
+
+<style>
+  #hero-form { transition: opacity 0.25s, transform 0.25s; }
+  #hero-form.docked {
+    position: fixed;
+    top: 16px;
+    z-index: 45;
+    animation: dock-in 0.25s ease;
+  }
+  #hero-form.dock-hidden {
+    opacity: 0;
+    transform: translateY(-10px);
+    pointer-events: none;
+  }
+  @keyframes dock-in {
+    from { transform: translateY(-10px); opacity: 0.6; }
+    to { transform: none; opacity: 1; }
+  }
+</style>

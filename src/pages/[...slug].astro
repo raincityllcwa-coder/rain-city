@@ -18,10 +18,10 @@ import ServiceAreaSection from '../components/ServiceAreaSection.astro';
 import WideLeadFormSection from '../components/WideLeadFormSection.astro';
 import MobileCallButton from '../components/MobileCallButton.astro';
 import AreasWeServe from '../components/seo/AreasWeServe.astro';
-import RelatedServices from '../components/seo/RelatedServices.astro';
+import CityTemplate from '../components/city/CityTemplate.astro';
 import imgServiceHero from '../assets/c4e93df24993f176102d516e4e5e7a4fd86822b6.webp';
-import { getAllPages, bodyToHtml, bodyPlainText, type PageDoc } from '../lib/pages';
-import { getReviewsForService, getProjectsForService, getReviewsForCity, getProjectsForCity } from '../lib/queries';
+import { getAllPages, getTopLevelServices, bodyToHtml, bodyPlainText, type PageDoc } from '../lib/pages';
+import { getReviewsForService, getProjectsForService, getReviewsForCity, getProjectsForCity, getDocById } from '../lib/queries';
 import { getSite, postalAddress } from '../lib/site';
 import { transformReviews, transformProjects } from '../lib/transforms';
 import { urlFor } from '../lib/sanity';
@@ -74,15 +74,32 @@ const hasIntro = Boolean(page.introTitle || (page.introParagraphs && page.introP
 // city pages show their own city first, then the homepage set.
 let reviewsData: any[] = [];
 let projectsData: any[] = [];
+let cityProjectsRaw: any[] = [];
 try {
   const [r, p] = await Promise.all([
     page.showReviews !== false ? (isService ? getReviewsForService(page._id) : getReviewsForCity(page.cityId)) : [],
     page.showProjects !== false ? (isService ? getProjectsForService(page._id) : getProjectsForCity(page.cityId, page.cityName)) : [],
   ]);
   if (r?.length) reviewsData = transformReviews(r);
-  if (p?.length) projectsData = transformProjects(p);
+  if (p?.length) { projectsData = transformProjects(p); cityProjectsRaw = p; }
 } catch (e) {
   console.warn(`[Sanity] ${page.path} reviews/projects fetch failed:`, e);
+}
+
+// City pages: service cards from the page's own list, or all top-level
+// service pages when the list is empty; plus the shared section texts.
+let cityServices: PageDoc[] = [];
+let sharedCopyDoc: any = null;
+if (!isService) {
+  sharedCopyDoc = await getDocById('copy-shared');
+  if (page.showRelatedServices !== false) {
+    if (page.serviceIds?.length) {
+      const byId = new Map((await getAllPages()).map((p) => [p._id, p]));
+      cityServices = page.serviceIds.map((id) => byId.get(id)).filter((p): p is PageDoc => Boolean(p && !p.noindex));
+    } else {
+      cityServices = await getTopLevelServices();
+    }
+  }
 }
 
 // Nearby cities: links only when the city already has a published page.
@@ -99,7 +116,7 @@ if (!isService && page.nearby?.length) {
 const crumbs: { name: string; href?: string }[] = [{ name: 'Home', href: '/' }];
 if (page.chain.length === 0 && isService) crumbs.push({ name: 'Services', href: '/our-services' });
 for (const a of page.chain) crumbs.push({ name: a.cardTitle || a.title, href: a.path });
-crumbs.push({ name: cardName });
+crumbs.push({ name: !isService && page.cityName ? `${page.cityName}, WA` : cardName });
 
 // JSON-LD: Service plus FAQPage when there are questions.
 const provider = {
@@ -146,28 +163,22 @@ if (faqItems.length > 0) {
       <ServiceLandingHero backgroundImage={heroSrc || imgServiceHero.src} backgroundAlt={heroAlt} title={page.title} subtitle={page.subtitle || ''} />
       {hasIntro && <ServiceContentSection images={sliderImages} title={page.introTitle || ''} paragraphs={page.introParagraphs || []} />}
     </>
-  ) : heroSrc ? (
-    <section class="relative w-full min-h-[420px] md:min-h-[520px] flex items-center">
-      <div class="absolute inset-0">
-        <img src={heroSrc} alt={page.heroImage?.alt || page.title} class="w-full h-full object-cover" loading="eager" fetchpriority="high" decoding="async" />
-        <div class="absolute inset-0 bg-black/55"></div>
-      </div>
-      <div class="relative max-w-[1150px] mx-auto px-4 md:px-8 py-16 w-full">
-        <h1 class="font-['Playfair_Display'] font-bold text-[30px] md:text-[42px] text-white leading-tight mb-4 max-w-[860px]" style="text-shadow: 0 1px 4px rgba(0,0,0,0.35);">{page.title}</h1>
-        {page.subtitle && <p class="font-['Montserrat'] text-[17px] md:text-[19px] text-white/95 max-w-[760px]">{page.subtitle}</p>}
-        <a href="#lead-form" class="inline-block mt-8 bg-[#007ec5] hover:bg-[#006ba8] text-white font-['Montserrat'] font-bold text-[16px] px-8 py-4 rounded-[5px] transition-colors">Get Your Free Estimate</a>
-      </div>
-    </section>
   ) : (
-    <section class="w-full bg-[#f7f6f1] py-12 md:py-16">
-      <div class="max-w-[1150px] mx-auto px-4 md:px-8">
-        <h1 class="font-['Playfair_Display'] font-bold text-[28px] md:text-[38px] text-[#051e2a] mb-4">{page.title}</h1>
-        {page.subtitle && <p class="font-['Montserrat'] text-[16px] md:text-[18px] text-gray-700 max-w-[820px]">{page.subtitle}</p>}
-      </div>
-    </section>
+    <CityTemplate
+      page={page}
+      site={site}
+      shared={sharedCopyDoc}
+      bodyHtml={bodyHtml}
+      heroSrc={heroSrc}
+      heroAlt={heroAlt}
+      services={cityServices}
+      projects={cityProjectsRaw}
+      reviews={reviewsData}
+      nearbyLinks={nearbyLinks}
+    />
   )}
 
-  {bodyHtml && (
+  {isService && bodyHtml && (
     <section class="w-full py-10 md:py-14">
       <div class="max-w-[1150px] mx-auto px-4 md:px-8">
         <div class="max-w-[860px]" set:html={bodyHtml} />
@@ -175,7 +186,7 @@ if (faqItems.length > 0) {
     </section>
   )}
 
-  {gallery.length > 0 && (
+  {isService && gallery.length > 0 && (
     <section class="w-full pb-10 md:pb-14">
       <div class="max-w-[1150px] mx-auto px-4 md:px-8">
         <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -198,26 +209,6 @@ if (faqItems.length > 0) {
       {page.showAreas !== false && <AreasWeServe currentPath={page.path} />}
       {page.showLeadForm !== false && <WideLeadFormSection />}
     </>
-  ) : (
-    <>
-      {page.showRelatedServices !== false && <RelatedServices currentPath={page.path} />}
-      {page.showProjects !== false && projectsData.length > 0 && <ProjectsSection projects={projectsData} />}
-      {page.showReviews !== false && reviewsData.length > 0 && <ReviewsGridSection reviews={reviewsData} />}
-      {faqItems.length > 0 && <FAQSection faqs={faqItems} />}
-      {nearbyLinks.length > 0 && (
-        <section class="w-full py-10 md:py-14 bg-[#f7f6f1]">
-          <div class="max-w-[1150px] mx-auto px-4 md:px-8">
-            <h2 class="font-['Playfair_Display'] font-bold text-[24px] md:text-[28px] text-black mb-6">Nearby Cities</h2>
-            <ul class="flex flex-wrap gap-x-6 gap-y-3">
-              {nearbyLinks.map((l) => (
-                <li><a href={l.href} class="font-['Montserrat'] text-[16px] text-[#051e2a] hover:text-[#007ec5] underline underline-offset-4 decoration-gray-300 hover:decoration-[#007ec5] transition-colors">{l.label}</a></li>
-              ))}
-            </ul>
-          </div>
-        </section>
-      )}
-      {page.showLeadForm !== false && <div id="lead-form"><WideLeadFormSection /></div>}
-    </>
-  )}
+  ) : null}
   <MobileCallButton />
 </Layout>

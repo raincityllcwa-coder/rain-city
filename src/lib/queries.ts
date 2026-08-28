@@ -51,7 +51,7 @@ export function getHomePage() {
 
 // ─── Projects ───────────────────────────────────────────
 
-const PROJECT_CARD = `_id, title, description, mainImage, gallery, slug, city`;
+const PROJECT_CARD = `_id, title, description, mainImage, gallery, slug, city, completedYear`;
 
 export async function getHomepageProjects() {
   return sanityClient.fetch(`*[_type == "project" && showOnHomepage == true] | order(order asc) { ${PROJECT_CARD} }`);
