@@ -15,7 +15,7 @@ const hasDropdown = groups.length > 0;
 
 // Service Areas dropdown: one flat list of city pages from Sanity. Empty list
 // means no menu item. Splits into up to three columns of eight as cities grow.
-const cities = await resolveNavItems(nav?.citiesMenu);
+const cities = await resolveNavItems(nav?.citiesMenu, {includeNoindex: true});
 const hasCities = cities.length > 0;
 const colCount = Math.min(3, Math.max(1, Math.ceil(cities.length / 8)));
 const perCol = Math.ceil(cities.length / colCount) || 1;

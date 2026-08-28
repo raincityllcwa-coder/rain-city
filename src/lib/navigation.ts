@@ -12,7 +12,7 @@ export function getNavigation() {
   return navCache;
 }
 
-export async function resolveNavItems(items: any[] | undefined | null): Promise<NavLink[]> {
+export async function resolveNavItems(items: any[] | undefined | null, opts?: {includeNoindex?: boolean}): Promise<NavLink[]> {
   if (!items || items.length === 0) return [];
   const pages = await getAllPages();
   const byId = new Map<string, PageDoc>(pages.map((p) => [p._id, p]));
@@ -21,7 +21,7 @@ export async function resolveNavItems(items: any[] | undefined | null): Promise<
     if (!it?.label) continue;
     const ref = it.page?._ref;
     const page = ref ? byId.get(ref) : undefined;
-    if (page && page.noindex) continue; // hidden pages never enter navigation
+    if (page && page.noindex && !opts?.includeNoindex) continue; // hidden pages stay out of navigation unless asked for
     const href = page ? page.path : it.href;
     if (!href) continue;
     out.push({ label: it.label, href });
