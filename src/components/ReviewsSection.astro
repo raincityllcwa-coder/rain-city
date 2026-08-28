@@ -75,7 +75,7 @@ const slides = reviews.map((r) => ({ ...r, image: r.image || firstImage }));
       </div>
 
       {/* Right: testimonial content */}
-      <div class="flex flex-col h-full justify-center py-4 lg:py-12">
+      <div class="flex flex-col h-full justify-center">
         <div class="flex gap-6 md:gap-8">
           {/* Giant quote mark */}
           <div class="shrink-0 text-[#E0CEC0] pt-1">
@@ -100,14 +100,14 @@ const slides = reviews.map((r) => ({ ...r, image: r.image || firstImage }));
                       </svg>
                     ))}
                   </div>
-                  <p class="text-[16px] md:text-[18px] font-['Montserrat'] text-stone-700 leading-relaxed font-medium mb-10">
+                  <p class="text-[16px] md:text-[18px] font-['Montserrat'] text-stone-700 leading-relaxed font-medium">
                     {r.text}
                   </p>
                 </div>
               ))}
             </div>
 
-            <div class="flex flex-wrap items-center justify-between gap-8 mt-12">
+            <div class="flex flex-wrap items-center justify-between gap-8 mt-7">
               {/* Author info, one slide visible */}
               <div class="grid">
                 {slides.map((r, i) => (
