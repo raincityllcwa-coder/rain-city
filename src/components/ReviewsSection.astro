@@ -61,9 +61,9 @@ const slides = reviews.map((r) => ({ ...r, image: r.image || firstImage }));
       </h2>
     </div>
 
-    <div class="grid lg:grid-cols-[1fr_1.2fr] gap-12 lg:gap-24 items-start">
+    <div class="grid lg:grid-cols-[1fr_1.2fr] gap-12 lg:gap-24 items-start lg:items-center">
       {/* Left: large photo, one slide visible */}
-      <div class="w-full aspect-[4/3] lg:aspect-[4/5] rounded-xl overflow-hidden shadow-sm relative bg-stone-200">
+      <div class="w-full aspect-[4/3] rounded-xl overflow-hidden shadow-sm relative bg-stone-200">
         {slides.map((r, i) => (
           <img
             data-rs-img={i}
