@@ -25,6 +25,7 @@ interface Props {
   site: SiteFacts;
   shared: any;
   bodyHtml: string;
+  seoHtml?: string;
   heroSrc: string | null;
   heroAlt?: string;
   services: PageDoc[];
@@ -33,7 +34,7 @@ interface Props {
   nearbyLinks: { label: string; href: string }[];
 }
 
-const { page, site, shared, bodyHtml, heroSrc, heroAlt, services, projects, reviews, nearbyLinks } = Astro.props as Props;
+const { page, site, shared, bodyHtml, seoHtml = '', heroSrc, heroAlt, services, projects, reviews, nearbyLinks } = Astro.props as Props;
 
 const city = page.cityName || 'your city';
 
@@ -113,7 +114,7 @@ const showWorking = page.showWorking !== false && (localNotes.length > 0 || owne
 // Block order: the page's own list first (unknown keys dropped), then any
 // blocks it did not mention, in the default order. Toggles inside each block
 // still decide visibility.
-const DEFAULT_ORDER = ['intro', 'services', 'projects', 'samples', 'reviews', 'why', 'process', 'working', 'nearby', 'faq'];
+const DEFAULT_ORDER = ['intro', 'services', 'projects', 'samples', 'reviews', 'why', 'process', 'working', 'nearby', 'seo', 'faq'];
 const picked = (page.sectionOrder || []).filter((k) => DEFAULT_ORDER.includes(k));
 const sectionOrder = [...picked, ...DEFAULT_ORDER.filter((k) => !picked.includes(k))];
 
@@ -380,6 +381,18 @@ const lead = "font-['Montserrat'] text-[16px] md:text-[17px] text-[#404040] mt-3
               </li>
             ))}
           </ul>
+        </div>
+      </section>
+    )}
+      </>
+    )}
+    {sectionKey === 'seo' && (
+      <>
+    {seoHtml && (
+      <section class="w-full py-12 md:py-16 bg-[#f1f3f7]">
+        <div class={rail}>
+          {page.seoTextTitle && <h2 class={h2}>{page.seoTextTitle}</h2>}
+          <div class={page.seoTextTitle ? 'mt-5' : ''} set:html={seoHtml} />
         </div>
       </section>
     )}

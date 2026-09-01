@@ -34,6 +34,8 @@ export interface PageDoc {
   cityPhoto?: any;
   localNotes?: {title?: string; text?: string}[] | null;
   sectionOrder?: string[] | null;
+  seoTextTitle?: string | null;
+  seoText?: any[] | null;
   showSamples?: boolean;
   showWorking?: boolean;
   parentId?: string | null;
@@ -70,7 +72,8 @@ export function getAllPages(): Promise<PageDoc[]> {
           introTitle, introParagraphs, sliderPhotos,
           body[]{..., markDefs[]{...}, asset},
           gallery, cardTitle, cardText, cardShortText, cardImage, cardPhotos,
-          cityPhoto, localNotes, sectionOrder,
+          cityPhoto, localNotes, sectionOrder, seoTextTitle,
+          seoText[]{..., markDefs[]{...}, asset},
           "faqs": faqs[]{
             _type == "reference" => @->{question, answer},
             _type != "reference" => {question, answer}

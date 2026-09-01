@@ -59,6 +59,7 @@ const ogImage = page.ogImage?.asset
 const heroSrc = page.heroImage?.asset ? urlFor(page.heroImage).width(1600).format('webp').quality(80).url() : null;
 const heroAlt = page.heroImage?.alt || undefined;
 const bodyHtml = bodyToHtml(page.body);
+const seoHtml = bodyToHtml(page.seoText);
 const gallery = (page.gallery || []).filter((p: any) => p?.asset);
 const faqItems = page.faqs || [];
 const cardName = page.cardTitle || page.title;
@@ -169,6 +170,7 @@ if (faqItems.length > 0) {
       site={site}
       shared={sharedCopyDoc}
       bodyHtml={bodyHtml}
+      seoHtml={seoHtml}
       heroSrc={heroSrc}
       heroAlt={heroAlt}
       services={cityServices}
