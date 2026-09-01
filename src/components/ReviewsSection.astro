@@ -186,6 +186,7 @@ const slides = reviews.map((r) => ({ ...r, image: r.image || firstImage }));
         function show(list, i, on) {
           if (!list[i]) return;
           list[i].style.opacity = on ? '1' : '0';
+          list[i].setAttribute('aria-hidden', on ? 'false' : 'true');
           if (list === slides) list[i].style.pointerEvents = on ? 'auto' : 'none';
         }
         function go(to) {
@@ -198,15 +199,28 @@ const slides = reviews.map((r) => ({ ...r, image: r.image || firstImage }));
         }
         function nextFn() { go(current + 1); }
         function prevFn() { go(current - 1); }
+        // Autoplay: off for reduced-motion users, paused while the pointer or
+        // keyboard focus is inside the block or the tab is in the background.
+        var autoplay = !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+        var paused = false;
+        function stop() { clearInterval(timer); timer = null; }
         function restart() {
-          clearInterval(timer);
-          timer = setInterval(nextFn, 5000);
+          stop();
+          if (autoplay && !paused && !document.hidden) timer = setInterval(nextFn, 5000);
         }
 
         if (next) next.addEventListener('click', function () { nextFn(); restart(); });
         if (prev) prev.addEventListener('click', function () { prevFn(); restart(); });
+        root.addEventListener('mouseenter', function () { paused = true; stop(); });
+        root.addEventListener('mouseleave', function () { paused = false; restart(); });
+        root.addEventListener('focusin', function () { paused = true; stop(); });
+        root.addEventListener('focusout', function (e) {
+          if (!root.contains(e.relatedTarget)) { paused = false; restart(); }
+        });
+        document.addEventListener('visibilitychange', restart);
 
-        timer = setInterval(nextFn, 5000);
+        slides.forEach(function (el, i) { el.setAttribute('aria-hidden', i === current ? 'false' : 'true'); });
+        restart();
       });
     }
     if (document.readyState === 'loading') {

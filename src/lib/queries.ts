@@ -19,7 +19,7 @@ export function getDocById(id: string) {
         }),
     );
   }
-  return docCache.get(id);
+  return docCache.get(id) as Promise<any>;
 }
 
 export const getAboutPage = () => getDocById("aboutPage");
