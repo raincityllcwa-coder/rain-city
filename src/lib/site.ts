@@ -48,7 +48,7 @@ const FALLBACK: SiteInfo = {
   licenseNumber: "BIRIUCL808C6",
   instagramUrl: "https://www.instagram.com/alex_biriuk/",
   googleReviewsUrl: "",
-  reviewCount: 131,
+  reviewCount: 140,
   rating: "5.0",
   ownerName: "Aleksandr Biriuk",
   ownerRole: "Owner / General Chief Operating Officer",
