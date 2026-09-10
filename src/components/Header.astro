@@ -8,7 +8,7 @@ import { getNavigation, resolveNavItems } from "@/lib/navigation";
 const nav = await getNavigation();
 const groups: { group: string; items: { label: string; href: string }[] }[] = [];
 for (const g of nav?.servicesMenu || []) {
-  const items = await resolveNavItems(g?.items);
+  const items = await resolveNavItems(g?.items, {includeNoindex: true});
   if (items.length > 0) groups.push({ group: g.group || "", items });
 }
 const hasDropdown = groups.length > 0;
