@@ -39,6 +39,19 @@ export interface PageDoc {
   showSamples?: boolean;
   showWorking?: boolean;
   parentId?: string | null;
+  menuParentId?: string | null;
+  branch?: "kitchen" | "bathroom" | null;
+  includedHeading?: string | null;
+  includedIntro?: string | null;
+  includedItems?: {title?: string; text?: string; photo?: any}[] | null;
+  benefitsHeading?: string | null;
+  benefits?: {title?: string; text?: string}[] | null;
+  uniqueBlock?: {style?: string; heading?: string; intro?: string; items?: {title?: string; text?: string}[]} | null;
+  proofMode?: "project" | "gallery" | "none" | null;
+  proofHeading?: string | null;
+  beforeAfter?: {beforePhoto?: any; afterPhoto?: any; beforeText?: string; afterText?: string; projectSlug?: string | null; linkLabel?: string | null} | null;
+  galleryStyle?: "grid6" | "big3" | null;
+  faqHeading?: string | null;
   slug: string;
   showReviews?: boolean;
   showProjects?: boolean;
@@ -57,6 +70,7 @@ export interface PageDoc {
   pageType: PageType;
   path: string;
   chain: PageDoc[]; // ancestors, root first
+  menuChain: PageDoc[]; // ancestors for breadcrumbs and menus: parent chain, or the menuParent chain
 }
 
 let cache: Promise<PageDoc[]> | null = null;
@@ -81,7 +95,13 @@ export function getAllPages(): Promise<PageDoc[]> {
           "serviceIds": services[]._ref,
           "cityName": coalesce(cityRef->name, city), "cityId": cityRef._ref,
           "nearby": nearbyCities[]->{_id, name},
-          "parentId": parent._ref, "slug": slug.current,
+          "parentId": parent._ref, "menuParentId": menuParent._ref, "slug": slug.current, branch,
+          includedHeading, includedIntro, includedItems[]{title, text, photo},
+          benefitsHeading, benefits[]{title, text},
+          uniqueBlock{style, heading, intro, items[]{title, text}},
+          proofMode, proofHeading,
+          "beforeAfter": beforeAfter{beforePhoto, afterPhoto, beforeText, afterText, linkLabel, "projectSlug": project->slug.current},
+          galleryStyle, faqHeading,
           showReviews, showProjects, showWhyChooseUs, showProcess, showServiceArea, showAreas, showRelatedServices, showLeadForm, showSamples, showWorking,
           metaTitle, metaDescription, ogImage, canonicalUrl, noindex
         }`,
@@ -109,9 +129,25 @@ function resolvePaths(docs: any[]): PageDoc[] {
     }
     const path = "/" + [...chain, d].map((x) => x.slug).join("/");
     const pageType: PageType = d._type === "cityPage" ? "city" : "service";
-    out.push({ ...d, faqs: (d.faqs || []).filter((f: any) => f?.question && f?.answer), pageType, path, chain });
+    // Menu chain: the URL parents, or the "show under" page for pages that keep a top-level URL.
+    let menuChain: any[] = chain;
+    if (chain.length === 0 && d.menuParentId && byId.has(d.menuParentId) && d.menuParentId !== d._id) {
+      const mp = byId.get(d.menuParentId);
+      menuChain = [mp];
+    }
+    out.push({ ...d, faqs: (d.faqs || []).filter((f: any) => f?.question && f?.answer), pageType, path, chain, menuChain });
+  }
+  const resolved = new Map(out.map((p) => [p._id, p]));
+  for (const p of out) {
+    p.chain = p.chain.map((c: any) => resolved.get(c._id) || c);
+    p.menuChain = p.menuChain.map((c: any) => resolved.get(c._id) || c);
   }
   return out.sort((a, b) => a.path.localeCompare(b.path));
+}
+
+// The top-level service a page belongs to (itself when top-level), by menu chain.
+export function rootService(p: PageDoc): PageDoc {
+  return p.menuChain.length > 0 ? p.menuChain[0] : p;
 }
 
 // Top-level, published, indexable service pages, for cards and link blocks.

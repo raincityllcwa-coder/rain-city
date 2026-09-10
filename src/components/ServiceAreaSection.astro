@@ -1,10 +1,23 @@
 ---
 import { getDocById } from '../lib/queries';
+import { getPagesOfType } from '../lib/navigation';
+interface Props { bg?: string; linkCities?: boolean }
+const { bg, linkCities } = Astro.props as Props;
+const sectionBg = bg || 'bg-white';
 const shared = await getDocById('copy-shared');
-const cities = ["Bellevue, WA","Kirkland, WA","Medina, WA","Newcastle, WA","Woodinville, WA","Yarrow Point, WA","Bothell, WA","Mercer Island, WA","Redmond, WA","Seattle, WA"];
+const baseCities = ["Bellevue, WA","Kirkland, WA","Medina, WA","Newcastle, WA","Woodinville, WA","Yarrow Point, WA","Bothell, WA","Mercer Island, WA","Redmond, WA","Seattle, WA"];
+// With linkCities, every city that has a published city page becomes a link
+// (Bellevue links home) and cities with pages that are not in the base list are added.
+let cities: { label: string; href?: string }[] = baseCities.map((label) => ({ label }));
+if (linkCities) {
+  const cityPages = await getPagesOfType('city');
+  const byName = new Map(cityPages.filter((p) => p.cityName).map((p) => [`${p.cityName}, WA`, p.path]));
+  cities = cities.map((c) => ({ label: c.label, href: c.label === 'Bellevue, WA' ? '/' : byName.get(c.label) }));
+  for (const [label, href] of byName) if (!cities.some((c) => c.label === label)) cities.push({ label, href });
+}
 ---
 
-<section class="w-full py-12 md:py-16 lg:py-20 bg-white">
+<section class={`w-full py-12 md:py-16 lg:py-20 ${sectionBg}`}>
   <div class="max-w-[1150px] mx-auto px-4 md:px-8">
     <h2 class="font-['Playfair_Display'] font-bold text-[28px] md:text-[32px] text-black mb-8 md:mb-12">{shared?.serviceAreaHeading || "Service Area"}</h2>
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
@@ -19,7 +32,11 @@ const cities = ["Bellevue, WA","Kirkland, WA","Medina, WA","Newcastle, WA","Wood
               <svg class="w-4 h-4 shrink-0 text-[#007ec5]" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
               </svg>
-              <span class="font-['Montserrat'] text-[15px] md:text-[16px] text-[#404040]">{city}</span>
+              {city.href ? (
+                <a href={city.href} class="font-['Montserrat'] text-[15px] md:text-[16px] text-[#051e2a] hover:text-[#007ec5] underline underline-offset-4 decoration-[#e6e6e6] hover:decoration-[#007ec5] transition-colors">{city.label}</a>
+              ) : (
+                <span class="font-['Montserrat'] text-[15px] md:text-[16px] text-[#404040]">{city.label}</span>
+              )}
             </div>
           ))}
         </div>

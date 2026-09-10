@@ -7,21 +7,12 @@
 // /our-projects) always win over a page document with the same URL.
 import Layout from '../layouts/Layout.astro';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
-import ServiceLandingHero from '../components/services/ServiceLandingHero.astro';
-import ServiceContentSection from '../components/services/ServiceContentSection.astro';
-import ReviewsGridSection from '../components/services/ReviewsGridSection.astro';
-import ProjectsSection from '../components/ProjectsSection.astro';
-import WhyChooseUsSection from '../components/WhyChooseUsSection.astro';
-import OurProcessSection from '../components/OurProcessSection.astro';
-import FAQSection from '../components/FAQSection.astro';
-import ServiceAreaSection from '../components/ServiceAreaSection.astro';
-import WideLeadFormSection from '../components/WideLeadFormSection.astro';
+import ServiceTemplate from '../components/services/ServiceTemplate.astro';
 import MobileCallButton from '../components/MobileCallButton.astro';
-import AreasWeServe from '../components/seo/AreasWeServe.astro';
 import CityTemplate from '../components/city/CityTemplate.astro';
 import imgServiceHero from '../assets/c4e93df24993f176102d516e4e5e7a4fd86822b6.webp';
-import { getAllPages, getTopLevelServices, bodyToHtml, bodyPlainText, type PageDoc } from '../lib/pages';
-import { getReviewsForService, getProjectsForService, getReviewsForCity, getProjectsForCity, getDocById } from '../lib/queries';
+import { getAllPages, getTopLevelServices, bodyToHtml, bodyPlainText, rootService, type PageDoc } from '../lib/pages';
+import { getReviewsForService, getProjectsForService, getReviewsForCity, getProjectsForCity, getHomepageReviews, getDocById } from '../lib/queries';
 import { getSite, postalAddress } from '../lib/site';
 import { transformReviews, transformProjects } from '../lib/transforms';
 import { urlFor } from '../lib/sanity';
@@ -60,16 +51,9 @@ const heroSrc = page.heroImage?.asset ? urlFor(page.heroImage).width(1600).forma
 const heroAlt = page.heroImage?.alt || undefined;
 const bodyHtml = bodyToHtml(page.body);
 const seoHtml = bodyToHtml(page.seoText);
-const gallery = (page.gallery || []).filter((p: any) => p?.asset);
 const faqItems = page.faqs || [];
 const cardName = page.cardTitle || page.title;
 
-// Intro block with the photo slider (service pages).
-const sliderImages = (page.sliderPhotos || []).filter((p: any) => p?.asset).map((p: any) => ({
-  src: urlFor(p).width(1000).height(760).fit('crop').format('webp').quality(80).url(),
-  alt: p.alt || (page.introTitle || ''),
-}));
-const hasIntro = Boolean(page.introTitle || (page.introParagraphs && page.introParagraphs.length) || sliderImages.length);
 
 // Reviews and projects: service pages show the ones pointing at this page,
 // city pages show their own city first, then the homepage set.
@@ -77,10 +61,20 @@ let reviewsData: any[] = [];
 let projectsData: any[] = [];
 let cityProjectsRaw: any[] = [];
 try {
-  const [r, p] = await Promise.all([
-    page.showReviews !== false ? (isService ? getReviewsForService(page._id) : getReviewsForCity(page.cityId)) : [],
-    page.showProjects !== false ? (isService ? getProjectsForService(page._id) : getProjectsForCity(page.cityId, page.cityName)) : [],
-  ]);
+  let r: any[] = [];
+  if (page.showReviews !== false) {
+    if (isService) {
+      // Reviews that point at this page, then at its top-level service, then the homepage set; six at most.
+      const root = rootService(page);
+      const lists = await Promise.all([getReviewsForService(page._id), root._id !== page._id ? getReviewsForService(root._id) : [], getHomepageReviews()]);
+      const seen = new Set<string>();
+      for (const list of lists) for (const rev of list || []) { if (rev?._id && !seen.has(rev._id)) { seen.add(rev._id); r.push(rev); } }
+      r = r.slice(0, 6);
+    } else {
+      r = await getReviewsForCity(page.cityId);
+    }
+  }
+  const p = page.showProjects !== false ? (isService ? await getProjectsForService(page._id) : await getProjectsForCity(page.cityId, page.cityName)) : [];
   if (r?.length) reviewsData = transformReviews(r);
   if (p?.length) { projectsData = transformProjects(p); cityProjectsRaw = p; }
 } catch (e) {
@@ -115,8 +109,9 @@ if (!isService && page.nearby?.length) {
 
 // Breadcrumbs from the parent chain (the Our Services hub for top-level services).
 const crumbs: { name: string; href?: string }[] = [{ name: 'Home', href: '/' }];
-if (page.chain.length === 0 && isService) crumbs.push({ name: 'Services', href: '/our-services' });
-for (const a of page.chain) crumbs.push({ name: a.cardTitle || a.title, href: a.path });
+const crumbChain = isService ? page.menuChain : page.chain;
+if (isService) crumbs.push({ name: 'Services', href: '/our-services' });
+for (const a of crumbChain) crumbs.push({ name: a.cardTitle || a.title, href: a.path });
 crumbs.push({ name: !isService && page.cityName ? `${page.cityName}, WA` : cardName });
 
 // JSON-LD: Service plus FAQPage when there are questions.
@@ -160,10 +155,7 @@ if (faqItems.length > 0) {
   <Breadcrumbs items={crumbs} />
 
   {isService ? (
-    <>
-      <ServiceLandingHero backgroundImage={heroSrc || imgServiceHero.src} backgroundAlt={heroAlt} title={page.title} subtitle={page.subtitle || ''} />
-      {hasIntro && <ServiceContentSection images={sliderImages} title={page.introTitle || ''} paragraphs={page.introParagraphs || []} />}
-    </>
+    <ServiceTemplate page={page} site={site} heroSrc={heroSrc || imgServiceHero.src} heroAlt={heroAlt} reviews={reviewsData} projects={projectsData} />
   ) : (
     <CityTemplate
       page={page}
@@ -179,38 +171,5 @@ if (faqItems.length > 0) {
       nearbyLinks={nearbyLinks}
     />
   )}
-
-  {isService && bodyHtml && (
-    <section class="w-full py-10 md:py-14">
-      <div class="max-w-[1150px] mx-auto px-4 md:px-8">
-        <div class="max-w-[860px]" set:html={bodyHtml} />
-      </div>
-    </section>
-  )}
-
-  {isService && gallery.length > 0 && (
-    <section class="w-full pb-10 md:pb-14">
-      <div class="max-w-[1150px] mx-auto px-4 md:px-8">
-        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-          {gallery.map((g: any) => (
-            <img src={urlFor(g).width(800).height(600).fit('crop').format('webp').quality(80).url()} alt={g.alt || page.title} loading="lazy" class="w-full h-auto rounded-[5px] object-cover" />
-          ))}
-        </div>
-      </div>
-    </section>
-  )}
-
-  {isService ? (
-    <>
-      {page.showReviews !== false && <ReviewsGridSection reviews={reviewsData.length > 0 ? reviewsData : undefined} />}
-      {page.showProjects !== false && <ProjectsSection projects={projectsData.length > 0 ? projectsData : undefined} />}
-      {page.showWhyChooseUs !== false && <WhyChooseUsSection />}
-      {page.showProcess !== false && <OurProcessSection />}
-      {faqItems.length > 0 && <FAQSection faqs={faqItems} />}
-      {page.showServiceArea !== false && <ServiceAreaSection />}
-      {page.showAreas !== false && <AreasWeServe currentPath={page.path} />}
-      {page.showLeadForm !== false && <WideLeadFormSection />}
-    </>
-  ) : null}
   <MobileCallButton />
 </Layout>

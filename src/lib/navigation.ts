@@ -4,7 +4,7 @@
 import { getDocById } from "./queries";
 import { getAllPages, type PageDoc } from "./pages";
 
-export interface NavLink { label: string; href: string }
+export interface NavLink { label: string; href: string; sub?: boolean }
 
 let navCache: Promise<any> | null = null;
 export function getNavigation() {
@@ -24,7 +24,7 @@ export async function resolveNavItems(items: any[] | undefined | null, opts?: {i
     if (page && page.noindex && !opts?.includeNoindex) continue; // hidden pages stay out of navigation unless asked for
     const href = page ? page.path : it.href;
     if (!href) continue;
-    out.push({ label: it.label, href });
+    out.push({ label: it.label, href, sub: Boolean(page && page.menuChain && page.menuChain.length > 0) });
   }
   return out;
 }
