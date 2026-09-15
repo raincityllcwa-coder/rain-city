@@ -13,10 +13,15 @@ interface ReviewItem {
 
 interface Props {
   bg?: string;
-  reviews?: ReviewItem[];
+  reviews?: ReviewItem[];      // all reviews, most relevant first
+  visible?: number;            // cards in the HTML; the rest only in the modal
+  heading?: string;
+  note?: string;
+  moreLabel?: string;
+  modalTitle?: string;
 }
 
-const { reviews: reviewsProp, bg } = Astro.props;
+const { reviews: reviewsProp, bg, visible: visibleProp, heading, note, moreLabel, modalTitle } = Astro.props;
 
 const fallbackReviews: ReviewItem[] = [
   {
@@ -57,7 +62,14 @@ const fallbackReviews: ReviewItem[] = [
   },
 ];
 
-const reviews: ReviewItem[] = (reviewsProp && reviewsProp.length > 0) ? reviewsProp : fallbackReviews;
+const allReviews: ReviewItem[] = (reviewsProp && reviewsProp.length > 0) ? reviewsProp : fallbackReviews;
+const visible = typeof visibleProp === 'number' && visibleProp > 0 ? Math.floor(visibleProp) : 3;
+const reviews = allReviews.slice(0, visible);
+const hasMore = allReviews.length > reviews.length;
+// The modal is built by the browser from this data when it is opened, so no
+// review text appears twice in the HTML.
+const modalJson = JSON.stringify(allReviews.map((r) => ({ t: r.text, a: r.author, i: r.image, v: r.avatar })))
+  .replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
 
 // SVG markup for Google "G" icon, used twice
 const googleSVG = `<svg class="size-6 shrink-0" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -72,13 +84,15 @@ const sectionBg = bg || 'bg-[#f1f3f7]';
 <section class={`w-full py-12 md:py-16 lg:py-20 ${sectionBg}`}>
   <div class="max-w-[1150px] mx-auto px-4 md:px-8">
     <h2 class="font-['Playfair_Display'] font-bold text-[28px] md:text-[32px] text-black mb-3">
-      Our Happy Customers Say
+      {heading || 'Our Happy Customers Say'}
     </h2>
-    <p class="font-['Montserrat'] font-medium text-[16px] md:text-[18px] text-[#404040] mb-8 md:mb-12">
-      Rated 5 stars on Google by 100+ homeowners across Seattle, Bellevue, Kirkland, Redmond and Sammamish
-    </p>
+    {note && (
+      <p class="font-['Montserrat'] font-medium text-[16px] md:text-[18px] text-[#404040] mb-8 md:mb-12">
+        {note}
+      </p>
+    )}
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+    <div class={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 ${note ? '' : 'mt-6 md:mt-9'}`}>
       {reviews.map((review) => (
         <div class="bg-white rounded-[5px] p-6 flex flex-col gap-4 shadow-sm hover:shadow-md transition-shadow">
           <div class="flex items-center justify-between">
@@ -109,69 +123,47 @@ const sectionBg = bg || 'bg-[#f1f3f7]';
       ))}
     </div>
 
-    <div class="flex justify-center mt-8 md:mt-12">
-      <button
-        id="rgs-modal-open"
-        type="button"
-        class="bg-[#007ec5] hover:bg-[#006ba8] text-white font-['Montserrat'] font-bold text-[16px] px-8 py-3.5 rounded-[5px] transition-colors"
-      >
-        Read More Reviews
-      </button>
-    </div>
+    {hasMore && (
+      <div class="flex justify-center mt-8 md:mt-12">
+        <button
+          id="rgs-modal-open"
+          type="button"
+          class="bg-[#007ec5] hover:bg-[#006ba8] text-white font-['Montserrat'] font-bold text-[16px] px-8 py-3.5 rounded-[5px] transition-colors"
+        >
+          {moreLabel || 'Read More Reviews'}
+        </button>
+      </div>
+    )}
   </div>
 </section>
 
-{/* Full reviews modal */}
-<div id="rgs-modal" class="fixed inset-0 bg-black/60 z-50 hidden items-center justify-center p-4" role="dialog" aria-modal="true" aria-label="All customer reviews">
-  <div id="rgs-modal-inner" class="bg-white rounded-[5px] w-full max-w-[900px] max-h-[85vh] overflow-hidden flex flex-col">
-    <div class="flex items-center justify-between p-6 border-b border-[#e6e6e6]">
-      <h2 class="font-['Playfair_Display'] font-bold text-[24px] md:text-[28px] text-black">All Customer Reviews</h2>
-      <button
-        id="rgs-modal-close"
-        type="button"
-        aria-label="Close modal"
-        class="size-10 flex items-center justify-center hover:bg-[#f5f5f5] rounded-full transition-colors"
-      >
-        <svg class="size-6 text-[#898989]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <line x1="18" y1="6" x2="6" y2="18"></line>
-          <line x1="6" y1="6" x2="18" y2="18"></line>
-        </svg>
-      </button>
-    </div>
-    <div class="overflow-y-auto p-6">
-      <div class="space-y-6">
-        {reviews.map((review) => (
-          <div class="border-b border-[#e6e6e6] pb-6 last:border-0 last:pb-0">
-            <div class="flex items-start justify-between mb-3">
-              <div class="flex gap-[7px] items-center">
-                {Array.from({ length: 5 }).map(() => (
-                  <img src={imgStar.src} alt="" class="size-[19px] object-cover" width="19" height="19" />
-                ))}
-              </div>
-              <Fragment set:html={googleSVG} />
-            </div>
-            <p class="font-['Montserrat'] font-medium text-[15px] md:text-[16px] text-black leading-relaxed mb-4">
-              "{review.text}"
-            </p>
-            <div class="flex items-center gap-3 mb-4">
-              {review.avatar ? (
-                <img src={review.avatar} alt={review.author} class="size-10 rounded-full object-cover border-2 border-[#e6e6e6]" width="40" height="40" loading="lazy" />
-              ) : (
-                <div class="size-10 rounded-full bg-[#007ec5] flex items-center justify-center text-white font-['Montserrat'] font-bold text-[16px]">
-                  {review.author.charAt(0)}
-                </div>
-              )}
-              <p class="font-['Montserrat'] font-semibold text-[16px] text-black">{review.author}</p>
-            </div>
-            <div class="w-full max-w-[500px] h-[220px] rounded-[5px] overflow-hidden">
-              <img src={review.image} alt="Customer review" class="w-full h-full object-contain bg-[#f5f5f5]" loading="lazy" />
-            </div>
-          </div>
-        ))}
+{/* Full reviews modal: the list is empty in the HTML and is filled by the
+    script below from the JSON data on the first open. */}
+{hasMore && (
+  <div id="rgs-modal" class="fixed inset-0 bg-black/60 z-50 hidden items-center justify-center p-4" role="dialog" aria-modal="true" aria-label={modalTitle || 'All customer reviews'} data-star={imgStar.src}>
+    <div id="rgs-modal-inner" class="bg-white rounded-[5px] w-full max-w-[900px] max-h-[85vh] overflow-hidden flex flex-col">
+      <div class="flex items-center justify-between p-6 border-b border-[#e6e6e6]">
+        <h2 class="font-['Playfair_Display'] font-bold text-[24px] md:text-[28px] text-black">{modalTitle || 'All Customer Reviews'}</h2>
+        <button
+          id="rgs-modal-close"
+          type="button"
+          aria-label="Close modal"
+          class="size-10 flex items-center justify-center hover:bg-[#f5f5f5] rounded-full transition-colors"
+        >
+          <svg class="size-6 text-[#898989]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="overflow-y-auto p-6">
+        <div id="rgs-modal-list" class="space-y-6"></div>
       </div>
     </div>
+    <template id="rgs-google"><Fragment set:html={googleSVG} /></template>
+    <script is:inline type="application/json" id="rgs-data" set:html={modalJson} />
   </div>
-</div>
+)}
 
 <script is:inline>
   (function () {
@@ -180,9 +172,60 @@ const sectionBg = bg || 'bg-[#f1f3f7]';
       var modal = document.getElementById('rgs-modal');
       var close = document.getElementById('rgs-modal-close');
       var inner = document.getElementById('rgs-modal-inner');
-      if (!open || !modal || !close || !inner) return;
+      var list = document.getElementById('rgs-modal-list');
+      var data = document.getElementById('rgs-data');
+      if (!open || !modal || !close || !inner || !list || !data) return;
+
+      var built = false;
+      function el(tag, cls, text) {
+        var n = document.createElement(tag);
+        if (cls) n.className = cls;
+        if (text != null) n.textContent = text;
+        return n;
+      }
+      function build() {
+        if (built) return;
+        built = true;
+        var items = [];
+        try { items = JSON.parse(data.textContent || '[]'); } catch (e) { items = []; }
+        var star = modal.getAttribute('data-star') || '';
+        var google = document.getElementById('rgs-google');
+        items.forEach(function (r) {
+          var card = el('div', 'border-b border-[#e6e6e6] pb-6 last:border-0 last:pb-0');
+          var top = el('div', 'flex items-start justify-between mb-3');
+          var stars = el('div', 'flex gap-[7px] items-center');
+          for (var k = 0; k < 5; k++) {
+            var s = el('img', 'size-[19px] object-cover');
+            s.src = star; s.alt = ''; s.width = 19; s.height = 19;
+            stars.appendChild(s);
+          }
+          top.appendChild(stars);
+          if (google && google.content) top.appendChild(google.content.cloneNode(true));
+          card.appendChild(top);
+          card.appendChild(el('p', "font-['Montserrat'] font-medium text-[15px] md:text-[16px] text-black leading-relaxed mb-4", '"' + (r.t || '') + '"'));
+          var who = el('div', 'flex items-center gap-3 mb-4');
+          if (r.v) {
+            var av = el('img', 'size-10 rounded-full object-cover border-2 border-[#e6e6e6]');
+            av.src = r.v; av.alt = r.a || ''; av.width = 40; av.height = 40; av.loading = 'lazy';
+            who.appendChild(av);
+          } else {
+            who.appendChild(el('div', "size-10 rounded-full bg-[#007ec5] flex items-center justify-center text-white font-['Montserrat'] font-bold text-[16px]", (r.a || '?').charAt(0)));
+          }
+          who.appendChild(el('p', "font-['Montserrat'] font-semibold text-[16px] text-black", r.a || ''));
+          card.appendChild(who);
+          if (r.i) {
+            var wrap = el('div', 'w-full max-w-[500px] h-[220px] rounded-[5px] overflow-hidden');
+            var img = el('img', 'w-full h-full object-contain bg-[#f5f5f5]');
+            img.src = r.i; img.alt = 'Customer review'; img.loading = 'lazy';
+            wrap.appendChild(img);
+            card.appendChild(wrap);
+          }
+          list.appendChild(card);
+        });
+      }
 
       function show() {
+        build();
         modal.classList.remove('hidden');
         modal.classList.add('flex');
         document.body.style.overflow = 'hidden';

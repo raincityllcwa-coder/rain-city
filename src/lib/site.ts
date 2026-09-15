@@ -2,7 +2,7 @@
 // address, hours, Google rating, license, owner. Every value falls back to
 // the string the site used to have in its code, so an empty field never
 // breaks a page. Fetched once per build.
-import { sanityClient } from "./sanity";
+import { sanityClient, REVIEW_COUNT_FALLBACK, RATING_FALLBACK } from "./sanity";
 
 export interface SiteInfo {
   companyName: string;
@@ -48,8 +48,8 @@ const FALLBACK: SiteInfo = {
   licenseNumber: "BIRIUCL808C6",
   instagramUrl: "https://www.instagram.com/alex_biriuk/",
   googleReviewsUrl: "",
-  reviewCount: 140,
-  rating: "5.0",
+  reviewCount: REVIEW_COUNT_FALLBACK,
+  rating: RATING_FALLBACK,
   ownerName: "Aleksandr Biriuk",
   ownerRole: "Owner / General Chief Operating Officer",
   ownerPhoto: null,

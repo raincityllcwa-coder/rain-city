@@ -119,6 +119,12 @@ export async function getAllProjectSlugs() {
 
 const REVIEW_CARD = `_id, author, text, photoUrl, photoUpload, avatarUrl, avatarUpload`;
 
+// Every review with the pages it points at: service pages rank them by
+// relevance (this page, its top-level service, its branch, the homepage set).
+export async function getAllReviews() {
+  return sanityClient.fetch(`*[_type == "review"] | order(order asc) { ${REVIEW_CARD}, "serviceIds": services[]._ref, showOnHomepage }`);
+}
+
 export async function getHomepageReviews() {
   return sanityClient.fetch(`*[_type == "review" && showOnHomepage == true] | order(order asc) { ${REVIEW_CARD} }`);
 }

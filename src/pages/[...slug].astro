@@ -12,7 +12,7 @@ import MobileCallButton from '../components/MobileCallButton.astro';
 import CityTemplate from '../components/city/CityTemplate.astro';
 import imgServiceHero from '../assets/c4e93df24993f176102d516e4e5e7a4fd86822b6.webp';
 import { getAllPages, getTopLevelServices, bodyToHtml, bodyPlainText, rootService, type PageDoc } from '../lib/pages';
-import { getReviewsForService, getProjectsForService, getReviewsForCity, getProjectsForCity, getHomepageReviews, getDocById } from '../lib/queries';
+import { getAllReviews, getProjectsForService, getReviewsForCity, getProjectsForCity, getDocById } from '../lib/queries';
 import { getSite, postalAddress } from '../lib/site';
 import { transformReviews, transformProjects } from '../lib/transforms';
 import { urlFor } from '../lib/sanity';
@@ -64,12 +64,22 @@ try {
   let r: any[] = [];
   if (page.showReviews !== false) {
     if (isService) {
-      // Reviews that point at this page, then at its top-level service, then the homepage set; six at most.
+      // Every review, most relevant first: reviews that point at this page,
+      // then at its top-level service, then at any page of the same branch
+      // (kitchen or bathroom), then the homepage set, then the rest. The
+      // template shows the first few and puts the whole list in the modal.
       const root = rootService(page);
-      const lists = await Promise.all([getReviewsForService(page._id), root._id !== page._id ? getReviewsForService(root._id) : [], getHomepageReviews()]);
-      const seen = new Set<string>();
-      for (const list of lists) for (const rev of list || []) { if (rev?._id && !seen.has(rev._id)) { seen.add(rev._id); r.push(rev); } }
-      r = r.slice(0, 6);
+      const branch = page.branch === 'bathroom' ? 'bathroom' : 'kitchen';
+      const branchIds = new Set((await getAllPages()).filter((p) => p.pageType === 'service' && (p.branch === 'bathroom' ? 'bathroom' : 'kitchen') === branch).map((p) => p._id));
+      const rank = (rev: any) => {
+        const ids: string[] = rev.serviceIds || [];
+        if (ids.includes(page._id)) return 0;
+        if (ids.includes(root._id)) return 1;
+        if (ids.some((id) => branchIds.has(id))) return 2;
+        if (rev.showOnHomepage) return 3;
+        return 4;
+      };
+      r = ((await getAllReviews()) || []).filter((rev: any) => rev?._id).map((rev: any, i: number) => ({ rev, k: rank(rev), i })).sort((a: any, b: any) => a.k - b.k || a.i - b.i).map((x: any) => x.rev);
     } else {
       r = await getReviewsForCity(page.cityId);
     }
@@ -107,10 +117,9 @@ if (!isService && page.nearby?.length) {
     .map((c) => ({ label: c.name, href: byCityId.get(c._id)!.path }));
 }
 
-// Breadcrumbs from the parent chain (the Our Services hub for top-level services).
+// Breadcrumbs from the parent chain: Home, then the menu parents, then the page.
 const crumbs: { name: string; href?: string }[] = [{ name: 'Home', href: '/' }];
 const crumbChain = isService ? page.menuChain : page.chain;
-if (isService) crumbs.push({ name: 'Services', href: '/our-services' });
 for (const a of crumbChain) crumbs.push({ name: a.cardTitle || a.title, href: a.path });
 crumbs.push({ name: !isService && page.cityName ? `${page.cityName}, WA` : cardName });
 

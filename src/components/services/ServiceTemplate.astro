@@ -7,8 +7,7 @@
 // servicePage document; shared texts from Shared Sections (copy-shared).
 import { urlFor } from '../../lib/sanity';
 import { getDocById } from '../../lib/queries';
-import { getAllPages, bodyToHtml, rootService, type PageDoc } from '../../lib/pages';
-import WhyChooseUsSection from '../WhyChooseUsSection.astro';
+import { bodyToHtml, type PageDoc } from '../../lib/pages';
 import OurProcessSection from '../OurProcessSection.astro';
 import ServiceAreaSection from '../ServiceAreaSection.astro';
 import ReviewsGridSection from './ReviewsGridSection.astro';
@@ -35,8 +34,11 @@ const T = {
   before: shared.svcBeforeLabel || 'Before',
   after: shared.svcAfterLabel || 'After',
   galleryLink: shared.svcGalleryLink || 'All projects',
-  linksKitchen: shared.svcLinksKitchen || 'Kitchen services',
-  linksBathroom: shared.svcLinksBathroom || 'Bathroom services',
+  reviewsHeading: shared.svcReviewsHeading || 'Our Happy Customers Say',
+  reviewsNote: typeof shared.svcReviewsNote === 'string' ? shared.svcReviewsNote : `${site.rating} on Google from ${Math.floor((site.reviewCount || 0) / 10) * 10}+ reviews`,
+  reviewsVisible: typeof shared.svcReviewsVisible === 'number' && shared.svcReviewsVisible > 0 ? shared.svcReviewsVisible : 3,
+  reviewsMore: shared.svcReviewsMore || 'Read More Reviews',
+  reviewsModalTitle: shared.svcReviewsModalTitle || 'All Customer Reviews',
 };
 const room = page.branch === 'bathroom' ? 'bathroom' : 'kitchen';
 
@@ -71,22 +73,18 @@ const galleryBig = page.galleryStyle === 'big3';
 const faqs = page.faqs || [];
 const seoHtml = bodyToHtml(page.seoText);
 
-// Links to the other service pages, grouped by branch, current page marked.
-const all = await getAllPages();
-const services = all.filter((p) => p.pageType === 'service' && (!p.noindex || p._id === page._id));
-const rootOrder = (p: PageDoc) => rootService(p).path + (p.menuChain.length ? '/' + p.slug : '');
-const kitchenLinks = services.filter((p) => (p.branch || 'kitchen') !== 'bathroom').sort((a, b) => rootOrder(a).localeCompare(rootOrder(b)));
-const bathroomLinks = services.filter((p) => p.branch === 'bathroom').sort((a, b) => rootOrder(a).localeCompare(rootOrder(b)));
-
 // Block order and backgrounds
-const DEFAULT_ORDER = ['intro', 'included', 'benefits', 'why', 'process', 'reviews', 'proof', 'faq', 'area', 'final'];
-const order = (page.sectionOrder && page.sectionOrder.length ? page.sectionOrder : DEFAULT_ORDER).filter((b) => {
+// The SEO text is a block like the others; when it is not in a page's list it
+// stays at the bottom, the way it was before it became movable.
+const DEFAULT_ORDER = ['intro', 'included', 'benefits', 'process', 'reviews', 'proof', 'faq', 'area', 'final', 'seo'];
+const listed = page.sectionOrder && page.sectionOrder.length ? [...page.sectionOrder] : [...DEFAULT_ORDER];
+if (!listed.includes('seo')) listed.push('seo');
+const order = listed.filter((b) => {
   if (b === 'intro') return hasIntro;
   if (b === 'included') return included.length > 0;
   if (b === 'benefits') return benefits.length > 0;
   if (b === 'unique') return hasUnique;
   if (b === 'text') return Boolean(bodyHtml);
-  if (b === 'why') return page.showWhyChooseUs !== false;
   if (b === 'process') return page.showProcess !== false;
   if (b === 'reviews') return page.showReviews !== false && reviews.length > 0;
   if (b === 'projects') return page.showProjects !== false && projects.length > 0;
@@ -94,6 +92,7 @@ const order = (page.sectionOrder && page.sectionOrder.length ? page.sectionOrder
   if (b === 'faq') return faqs.length > 0;
   if (b === 'area') return page.showServiceArea !== false;
   if (b === 'final') return page.showLeadForm !== false;
+  if (b === 'seo') return Boolean(seoHtml);
   return false;
 });
 const bgOf = (i: number, b: string) => (b === 'reviews' ? 'bg-[#f1f3f7]' : i % 2 === 0 ? 'bg-white' : 'bg-[#f7f6f1]');
@@ -241,9 +240,8 @@ const FIELD = "min-w-0 w-full bg-[#f5f5f5] border border-[#e6e6e6] rounded-[5px]
       <div class="max-w-[1150px] mx-auto px-4 md:px-8"><div class="max-w-[860px]" set:html={bodyHtml} /></div>
     </section>
   );
-  if (block === 'why') return <WhyChooseUsSection bg={bg} />;
   if (block === 'process') return <OurProcessSection bg={bg} />;
-  if (block === 'reviews') return <ReviewsGridSection reviews={reviews} bg={bg} />;
+  if (block === 'reviews') return <ReviewsGridSection reviews={reviews} bg={bg} visible={T.reviewsVisible} heading={T.reviewsHeading} note={T.reviewsNote} moreLabel={T.reviewsMore} modalTitle={T.reviewsModalTitle} />;
   if (block === 'projects') return <ProjectsSection projects={projects} />;
   if (block === 'proof' && hasBeforeAfter) return (
     <section class={`w-full py-12 md:py-16 ${bg}`}>
@@ -298,34 +296,16 @@ const FIELD = "min-w-0 w-full bg-[#f5f5f5] border border-[#e6e6e6] rounded-[5px]
   );
   if (block === 'area') return <ServiceAreaSection bg={bg} linkCities={true} />;
   if (block === 'final') return <WideLeadFormSection heading={T.finalHeading} text={T.finalText} placeholder={`Tell us about your ${room}`} bg={bg} bordered={true} />;
+  if (block === 'seo') return (
+    <section class={`w-full py-12 md:py-16 ${bg}`}>
+      <div class="max-w-[1150px] mx-auto px-4 md:px-8">
+        {page.seoTextTitle && <h2 class={H2}>{page.seoTextTitle}</h2>}
+        <div class={`${page.seoTextTitle ? 'mt-6' : ''} max-w-[900px] service-seo`} set:html={seoHtml} />
+      </div>
+    </section>
+  );
   return null;
 })}
-
-{seoHtml && (
-  <section class="w-full py-12 md:py-16 border-t border-[#e6e6e6] bg-white">
-    <div class="max-w-[1150px] mx-auto px-4 md:px-8">
-      {page.seoTextTitle && <h2 class={H2}>{page.seoTextTitle}</h2>}
-      <div class="mt-6 max-w-[900px] service-seo" set:html={seoHtml} />
-    </div>
-  </section>
-)}
-
-{page.showAreas !== false && (kitchenLinks.length + bathroomLinks.length > 1) && (
-  <section class="w-full py-10 md:py-14 border-t border-[#e6e6e6] bg-white">
-    <div class="max-w-[1150px] mx-auto px-4 md:px-8 grid grid-cols-1 sm:grid-cols-2 max-w-[760px] gap-8">
-      {[{ title: T.linksKitchen, items: kitchenLinks }, { title: T.linksBathroom, items: bathroomLinks }].filter((c) => c.items.length).map((col) => (
-        <div>
-          <h3 class="font-['Montserrat'] font-semibold text-[16px] text-black mb-3">{col.title}</h3>
-          <ul class="flex flex-col gap-2">
-            {col.items.map((p) => (
-              <li><a href={p.path} class={`font-['Montserrat'] text-[15px] hover:text-[#007ec5] transition-colors ${p._id === page._id ? 'text-[#007ec5] font-semibold' : 'text-[#404040]'} ${p.menuChain.length ? 'pl-4' : ''}`}>{p.cardTitle || p.title}</a></li>
-            ))}
-          </ul>
-        </div>
-      ))}
-    </div>
-  </section>
-)}
 
 <style is:global>
   .service-seo h3 { margin-top: 1.25rem; }
